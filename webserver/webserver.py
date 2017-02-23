@@ -27,7 +27,14 @@ class HackerSchoolRequestHandler(SimpleHTTPRequestHandler):
             # Get the data from the post request
             length = int(self.headers['Content-Length'])
             post_data = urllib.parse.parse_qs(self.rfile.read(length).decode('utf-8'))
-            print(post_data)
+            if 'execute' in post_data:
+                print("execute detected")
+                code = post_data["execute"][0]
+                with open('tmpfile.py', 'w') as target:
+                    target.write(code)
+
+                with open('tmpfile.py', 'r') as target:
+                    exec(target.read())
 
             # Send response status code
             self.send_response(200)

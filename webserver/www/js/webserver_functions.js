@@ -18,13 +18,24 @@ $(document).ready(function(){
     blocklyWorkspace.addChangeListener(udpateCode);
 
     // Initialize the JQery UI elements
-    $("#RunCommand").button().click(setCommand);
-    $("#RunCommand-icon").button({
-        icon: "ui-icon-play",
+    $("#newCommand-icon").button({
+        icons: {primary: 'fa fa-file-o'},
+        showLabel: false
+    }).click(clearWorkspace)
+    $("#loadCommand-icon").button({
+        icons: {primary: 'fa fa-folder-open-o'},
+        showLabel: false
+    }).click(loadWorkspace)
+    $("#saveCommand-icon").button({
+        icons: {primary: 'fa fa-floppy-o'},
+        showLabel: false
+    }).click(saveWorkspace)
+    $("#runCommand-icon").button({
+        icons: {primary: 'fa fa-play'},
         showLabel: false
     }).click(setCommand)
-    $("#StopCommand-icon").button({
-        icon: "ui-icon-stop",
+    $("#stopCommand-icon").button({
+        icons: {primary: 'fa fa-stop'},
         showLabel: false
     }).click(setCommand)
 
@@ -60,7 +71,32 @@ function onResize(e) {
     blocklyDiv.style.top = y + 'px';
     blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
     blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
-};
+}
+
+// Save the workspace on the local browser cache.
+function saveWorkspace() {
+    var xmlDom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
+    var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+
+    localStorage.setItem("blockly_hackerschool.xml", xmlText);
+    showAlertView("Blockly workspace save on local disk.")
+}
+
+// Load the workspace from the local browser cache.
+function loadWorkspace() {
+    var xmlText = localStorage.getItem("blockly_hackerschool.xml");
+    if (xmlText) {
+        Blockly.mainWorkspace.clear();
+        xmlDom = Blockly.Xml.textToDom(xmlText);
+        Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xmlDom);
+    }
+    showAlertView("Blockly workspace load from local disk.")
+}
+
+// Clear the workspace.
+function clearWorkspace() {
+    Blockly.mainWorkspace.clear();
+}
 
 // Whenever this function will be called, a message will shown on the bottom
 // page and the message will be hidden after a short time.
@@ -87,11 +123,13 @@ function setCommand() {
     console.log("set others");
     val = $(this).val();
 
+    val = Blockly.Python.workspaceToCode(blocklyWorkspace);
+
     $.ajax({
         type: 'POST',
         url: '__SetValue__',
         async: false,
-        data: name + '=' + val
+        data: 'execute=' + val
     })
     .fail(function() { showAlertView("Could not set " + name); });
 
