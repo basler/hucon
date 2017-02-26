@@ -61,9 +61,9 @@ def main():
     print("Start the Hacker School web server ...")
 
     # Change the root directory to 'www'
-    os.chdir(".\\www")
+    os.chdir("./www")
 
-    with socketserver.TCPServer(("", PORT), HackerSchoolRequestHandler) as httpd:
+    with socketserver.TCPServer(("localhost", PORT), HackerSchoolRequestHandler) as httpd:
         print("Serving at port:", PORT)
         print("Hit CTRL+C to stop the web server.")
         try:
