@@ -1,77 +1,160 @@
-#! /usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-This tiny web server is able to show the web page for the hacker school.
-"""
+# Try to import the packages for the micro python environment, otherwise import the default python environment.
+try:
+    import uos as os
+    import usocket as socket
+except:
+    import os
+    import socket
 
-import os
-import socketserver
-import urllib
-from http.server import SimpleHTTPRequestHandler
+# Server name which is used for the HTML header
+SERVER_NAME = b"My Custon Webserver"
 
-# Default port
-PORT = 8080
+# Define the HTML MIME Types which are possible to send with this webserver implementation.
+# There are more types defined here: https://wiki.selfhtml.org/wiki/Referenz:MIME-Typen
+MIME_Type = {
+    # ext  : [MIME-Type,                 binary]
+    'js'   : [b'application/javascript', False],
+    'json' : [b'application/json',       False],
+    'woff' : [b'application/font-woff',  True],
+    'woff2': [b'application/font-woff2', True],
+
+    'gif'  : [b'image/gif',              True],
+    'jpeg' : [b'image/jpeg',             True],
+    'jpg'  : [b'image/jpeg',             True],
+    'png'  : [b'image/png',              True],
+    'ico'  : [b'image/x-icon',           True],
+
+    'css'  : [b'text/css',               False],
+    'htm'  : [b'text/html',              False],
+    'html' : [b'text/html',              False],
+    'js'   : [b'text/javascript',        False],
+    'txt'  : [b'text/plain',             False],
+}
 
 
-class HackerSchoolRequestHandler(SimpleHTTPRequestHandler):
+def get_file_content(filename, mode = 'rb'):
+    content = b''
+    try:
+        with open(filename, mode) as file:
+            content = file.read()
+    except:
+        pass
+    return content
+
+
+def handle_request(request):
     """
-    Override the SimpleHTTPRequestHandler to catch the __SetValue__ page
-    and handle the request from the web page.
+    Handle the request.
     """
+    if request != '':
+        # The first line is the one we need to get the information about the request.
+        request_line = request.split("\r\n")[0]
+        request_line = request_line.split()
 
-    def do_POST(self):
-        print("Request: %s" % self.path)
-        if self.path.startswith('/__SetValue__'):
-            print("New values received ...")
+        # Break down the request line into components
+        (request_method,  # GET
+         request_path,    # /hello
+         request_version  # HTTP/1.1
+         ) = request_line
 
-            # Get the data from the post request
-            length = int(self.headers['Content-Length'])
-            post_data = urllib.parse.parse_qs(self.rfile.read(length).decode('utf-8'))
-            if 'execute' in post_data:
-                print("execute detected")
-                code = post_data["execute"][0]
-                with open('tmpfile.py', 'w') as target:
-                    target.write(code)
+        print("Method:", request_method)
+        print("Path:", request_path)
+        print("Version:", request_version)
 
-                with open('tmpfile.py', 'r') as target:
-                    exec(target.read())
+        if request_method == "POST":
+            print(request)
+            pass
+        if request_method == "GET":
 
-            # Send response status code
-            self.send_response(200)
+            # Get the filename with the extension.
+            request_path = request_path.strip('/')
+            path_with_arguments = request_path.split('?')
+            filename = ''
+            get_arguments = ''
+            if len(path_with_arguments) > 0:
+                filename = path_with_arguments[0]
+            if len(path_with_arguments) > 1:
+                get_arguments = path_with_arguments[1]
 
-            # Send headers
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
+            if filename == '':
+                filename = 'index.html'
+            fileext = filename[filename.rfind('.') + 1:]
 
-            # Send message back to client
-            message = "TBD"
+            header = b''
 
-            # Write content as utf-8 data
-            self.wfile.write(bytes(message, "utf8"))
-            return
-        return SimpleHTTPRequestHandler.do_POST(self)
+            # Check the extension.
+            # If the extension is not defined, send a 'Not Found' Status.
+            if fileext in MIME_Type:
+
+                if True: #MIME_Type[fileext][1]:
+                    print("binary based file")
+                    content = get_file_content(filename)
+                else:
+                    print("text based file")
+                    content = get_file_content(filename, 'rt')
+
+                header += b'HTTP/1.1 200 OK\r\n'
+                header += b'Server: ' + SERVER_NAME + b'\r\n'
+                header += b'Content-Type: ' + MIME_Type[fileext][0] + b'\r\n'
+                header += b'Content-Length: %d\r\n' % len(content)
+                header += b'\r\n'
+
+            else:
+                print("Error 404 Not Found.")
+                content = get_file_content('404.html')
+
+                header += b'HTTP/1.1 404 Not Found\r\n'
+                header += b'Server: ' + SERVER_NAME + b'\r\n'
+                header += b'Content-Type: ' + MIME_Type["html"][0] + b'\r\n'
+                header += b'Content-Length: %d\r\n' % len(content)
+                header += b'\r\n'
+
+            return header, content
 
 
-def main():
+def main(use_stream=False):
     """
-    Change the web server root folder to 'www' and start the listening
-    defined port.
+    Create the Server and listen on each incomming request.
     """
+    s = socket.socket()
 
-    print("Start the Hacker School web server ...")
+    # Binding to all interfaces - server will be accessible to other hosts!
+    address_info = socket.getaddrinfo("0.0.0.0", 8080)
+    addr = address_info[0][-1]
+
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(addr)
+    s.listen(5)
+    print("Listening, connect your browser to http://<this_host>:8080/")
 
     # Change the root directory to 'www'
     os.chdir("./www")
 
-    with socketserver.TCPServer(("localhost", PORT), HackerSchoolRequestHandler) as httpd:
-        print("Serving at port:", PORT)
-        print("Hit CTRL+C to stop the web server.")
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            pass
-        httpd.server_close()
-
+    while True:
+        res = s.accept()
+        client_s = res[0]
+        client_addr = res[1]
+        if use_stream:
+            # MicroPython socket objects support stream (aka file) interface
+            # directly.
+            header, content = handle_request(client_s.recv(4096).decode('utf-8'))
+            if header != '':
+                client_s.write(header)
+                totalsent = 0
+                while totalsent < len(content):
+                    sent = client_s.write(content)
+                    totalsent += len(sent)
+        else:
+            rec = client_s.recv(4096)
+            if rec:
+                header, content = handle_request(rec.decode('utf-8'))
+                print('length of content:' + str(len(content)))
+                print(header)
+                print()
+                if header != '':
+                    client_s.send(header)
+                    client_s.send(content)
+        client_s.close()
 
 if __name__ == '__main__':
     main()

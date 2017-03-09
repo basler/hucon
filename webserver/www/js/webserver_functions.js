@@ -48,7 +48,7 @@ $(document).ready(function(){
 function udpateCode(event) {
     var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
     console.log(code);
-    document.getElementById('pythonCode').innerHTML = code;
+    document.getElementById('pythonCode').value = code;
 }
 
 // On every change of the window, this function will be called to update the
@@ -66,11 +66,14 @@ function onResize(e) {
         y += element.offsetTop;
         element = element.offsetParent;
     } while (element);
+
+    console.log(blocklyArea.offsetHeight)
+
     // Position blocklyDiv over blocklyArea.
     blocklyDiv.style.left = x + 'px';
     blocklyDiv.style.top = y + 'px';
     blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
-    blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+    blocklyDiv.style.height = (blocklyArea.offsetHeight - 20) + 'px';
 }
 
 // Save the workspace on the local browser cache.

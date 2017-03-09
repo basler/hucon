@@ -7,8 +7,8 @@
     /* Bump it up - jQuery UI is -8px */
     margin-top: -0.5em;
     /* Set a correct width and height */
-    width: 20px; 
-    height: 20px; 
+    width: 20px;
+    height: 20px;
 }
 
 /* Allow use of icon-large to be properly aligned */
@@ -45,17 +45,23 @@ table {
     width: 100%;
 }
 
+textarea
+{
+    width: 100%;
+    height: -moz-calc(100% - 35px);
+    height: -webkit-calc(100% - 35px);
+    height: calc(100% - 35px);
+}
+
 #blocklyArea, #codeArea {
     font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
     padding: 5px 10px;
-    height: 100%;
+    vertical-align: top;
 }
 
 .blocklySvg {
-    background-image: url(BlocklyBackground.jpg);
-    background-repeat: no-repeat;
+    background-image: url(BlocklyBackground.png);
     background-color: #000000;
-    background-position: center;
 }
 
 .blocklyToolboxDiv, .injectionDiv {
@@ -73,13 +79,6 @@ table {
 
 #commands {
     height: 40px;
-}
-
-#main {
-    position: absolute;
-    top: 190px;
-    bottom: 10px;
-    width: 100%;
 }
 
 #footer {

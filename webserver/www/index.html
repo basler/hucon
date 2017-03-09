@@ -30,33 +30,32 @@
 
 <head>
 </head>
-<body>
+<body id="body">
 
-    <!-- header content -->
-    <div id="header"></div>
+    <table>
+        <tr>
+            <td id="header" colspan="2"></td>
+        </tr>
+        <tr>
+            <td id="commands" colspan="2">
+                <button id="newCommand-icon">New</button>
+                <button id="loadCommand-icon">Load</button>
+                <button id="saveCommand-icon">Save</button>
+                <button id="runCommand-icon" value="run">Run</button>
+                <button id="stopCommand-icon" value="stop">Stop</button>
+            </td>
+        </tr>
+        <tr>
+            <td id="blocklyArea" style="width: 70%">
+            </td>
+            <td id="codeArea" class="ui-widget ui-widget-content ui-corner-all">
+                <label for="code">Python Code:</label><br>
+                <textarea class='autoExpand' name="code" id="pythonCode" style="width: 100%;">Your Code</textarea>
+            </td>
+        </tr>
+    </table>
 
-    <div id="commands">
-        <button id="newCommand-icon">New</button>
-        <button id="loadCommand-icon">Load</button>
-        <button id="saveCommand-icon">Save</button>
-        <button id="runCommand-icon" value="run">Run</button>
-        <button id="stopCommand-icon" value="stop">Stop</button>
-    </div>
-
-    <div id="main" >
-        <table>
-            <tr>
-                <td style="width: 70%">
-                    <div id="blocklyArea"></div>
-                </td>
-                <td>
-                    <div id="codeArea" class="ui-widget ui-widget-content ui-corner-all">
-                        <pre id="pythonCode">Your Code</pre>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <div id="blocklyDiv" style="position: absolute;"></div>
 
     <div id="footer">
         <div id="alertView" class="ui-widget">
@@ -68,8 +67,6 @@
             </div>
         </div>
     </div>
-
-    <div id="blocklyDiv" style="position: absolute;"></div>
 
     <!-- Toolbox items -->
     <xml id="toolbox" style="display: none">
