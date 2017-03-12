@@ -16,6 +16,9 @@
     <script src="jquery/jquery-3.1.1.min.js"></script>
     <script src="jquery-ui/jquery-ui.min.js"></script>
 
+    <!-- File Saver -->
+    <script src="file-saver/FileSaver.min.js"></script>
+
     <!-- JQuery UI css -->
     <link href="jquery-ui/jquery-ui.min.css" rel="stylesheet">
 
@@ -38,11 +41,10 @@
         </tr>
         <tr>
             <td id="commands" colspan="2">
-                <button id="newCommand-icon">New</button>
-                <button id="loadCommand-icon">Load</button>
-                <button id="saveCommand-icon">Save</button>
-                <button id="runCommand-icon" value="run">Run</button>
-                <button id="stopCommand-icon" value="stop">Stop</button>
+                <button id="newCommand">New</button>
+                <button id="loadCommand">Load</button>
+                <button id="saveCommand">Save</button>
+                <button id="runCommand" value="execute">Run</button>
             </td>
         </tr>
         <tr>
@@ -66,6 +68,12 @@
                 </p>
             </div>
         </div>
+    </div>
+
+    <div id="load-dialog" title="Load a Blockly file ...">
+        <form id="jsonFile" name="jsonFile" enctype="multipart/form-data" method="post">
+            <input type='file' id='fileinput'>
+        </form>
     </div>
 
     <!-- Toolbox items -->

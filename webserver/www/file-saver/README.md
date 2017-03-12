@@ -1,0 +1,1 @@
+copied from: https://github.com/eligrey/FileSaver.js

