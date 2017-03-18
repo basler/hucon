@@ -1,2 +1,3 @@
+__pycache__
 webserver/www/tmpfile.py
 *.sublime*
