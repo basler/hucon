@@ -8,7 +8,9 @@ except:
     import os
     import socket
 
+from threading import Thread
 from print import ColoredPrint as print
+
 
 class HTTPServer:
     """
@@ -17,7 +19,7 @@ class HTTPServer:
     """
 
     # Name of this server for the HTTP header.
-    _SERVER_NAME =  b"My Custon Webserver"
+    _SERVER_NAME = b"My Custon Webserver"
 
     # Private server socket to listen for new connections.
     _server_socket = None
@@ -59,7 +61,7 @@ class HTTPServer:
             cls._own_ip = str(socket.gethostbyname(socket.gethostname()))
             return
         except Exception as e:
-            self._own_ip = ''
+            cls._own_ip = ''
             print.term('Could not define its onw ip address. :(', print.ERROR)
 
     @classmethod
@@ -156,7 +158,7 @@ class HTTPServer:
 
         # Try to find the end of the HTTP header.
         while receive_buffer.find(HTTPServer._HTTP_HEADER_END_MARK) == -1:
-            receive_buffer += con.recv(max_buffer_size)
+            receive_buffer += clientsocket.recv(max_buffer_size)
         index = receive_buffer.find(HTTPServer._HTTP_HEADER_END_MARK)
         packet_len = index + HTTPServer._HTTP_HEADER_END_SIZE + content_length
 

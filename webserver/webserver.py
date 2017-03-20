@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from threading import Thread
 from http_server import HTTPServer
 from print import ColoredPrint as print
 
