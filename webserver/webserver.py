@@ -1,69 +1,18 @@
-#! /usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-This tiny web server is able to show the web page for the hacker school.
-"""
+#!/usr/bin/env python3
 
-import os
-import socketserver
-import urllib
-from http.server import SimpleHTTPRequestHandler
+from http_server import HTTPServer
+from print import ColoredPrint as print
 
-# Default port
-PORT = 8080
-
-
-class HackerSchoolRequestHandler(SimpleHTTPRequestHandler):
+def main(useThreads=False):
     """
-    Override the SimpleHTTPRequestHandler to catch the __SetValue__ page
-    and handle the request from the web page.
+    Create the Server and listen on each incomming request.
     """
+    print.init()
+    server = HTTPServer()
 
-    def do_POST(self):
-        print("Request: %s" % self.path)
-        if self.path.startswith('/__SetValue__'):
-            print("New values received ...")
+    server.start(useThreads)
 
-            # Get the data from the post request
-            length = int(self.headers['Content-Length'])
-            post_data = urllib.parse.parse_qs(self.rfile.read(length).decode('utf-8'))
-            print(post_data)
-
-            # Send response status code
-            self.send_response(200)
-
-            # Send headers
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-
-            # Send message back to client
-            message = "TBD"
-
-            # Write content as utf-8 data
-            self.wfile.write(bytes(message, "utf8"))
-            return
-        return SimpleHTTPRequestHandler.do_POST(self)
-
-
-def main():
-    """
-    Change the web server root folder to 'www' and start the listening
-    defined port.
-    """
-
-    print("Start the Hacker School web server ...")
-
-    # Change the root directory to 'www'
-    os.chdir(".\\www")
-
-    with socketserver.TCPServer(("", PORT), HackerSchoolRequestHandler) as httpd:
-        print("Serving at port:", PORT)
-        print("Hit CTRL+C to stop the web server.")
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            pass
-        httpd.server_close()
+    print.term('Stop Server', print.INFO)
 
 
 if __name__ == '__main__':
