@@ -12,6 +12,9 @@
     <!-- Blockly language -->
     <script src="blockly/en.js"></script>
 
+    <!-- Blockly custom blocks -->
+    <script src="js/custom_blocks.js"></script>
+
     <!-- JQuery -->
     <script src="jquery/jquery-3.1.1.min.js"></script>
     <script src="jquery-ui/jquery-ui.min.js"></script>
@@ -379,6 +382,10 @@
         <sep></sep>
         <category id="catVariables" colour="330" custom="VARIABLE" name="Variables"></category>
         <category id="catFunctions" colour="290" custom="PROCEDURE" name="Functions"></category>
+        <sep></sep>
+        <category name="Robo" colour="208">
+            <block type="robo_import"></block>
+        </category>
     </xml>
 
 </body>
