@@ -13,7 +13,8 @@
     <script src="blockly/en.js"></script>
 
     <!-- Blockly custom blocks -->
-    <script src="js/custom_blocks.js"></script>
+    <script src="js/custom_blocks_machine.js"></script>
+    <script src="js/custom_blocks_neopixel.js"></script>
 
     <!-- JQuery -->
     <script src="jquery/jquery-3.1.1.min.js"></script>
@@ -383,8 +384,15 @@
         <category id="catVariables" colour="330" custom="VARIABLE" name="Variables"></category>
         <category id="catFunctions" colour="290" custom="PROCEDURE" name="Functions"></category>
         <sep></sep>
-        <category name="Robo" colour="208">
-            <block type="robo_import"></block>
+        <category name="Machine" colour="208">
+            <block type="machine_sleep"></block>
+            <block type="machine_pin"></block>
+        </category>
+        <category name="NeoPixel" colour="208">
+            <block type="neopixel_array"></block>
+            <block type="neopixel_colour"></block>
+            <block type="neopixel_colour_rgb"></block>
+            <block type="neopixel_write"></block>
         </category>
     </xml>
 

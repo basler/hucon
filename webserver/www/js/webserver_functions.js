@@ -118,7 +118,6 @@ function saveWorkspace() {
     var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
 
     // localStorage.setItem("blockly_hackerschool.xml", xmlText);
-    console.log(xmlText)
     file = new File([xmlText], 'HackerSchool-blockly.xml', {type: "text/plain;charset=utf-8"});
     saveAs(file);
     showAlertView("Blockly workspace save on local disk.")
@@ -184,8 +183,6 @@ function onResize(e) {
         element = element.offsetParent;
     } while (element);
 
-    console.log(blocklyArea.offsetHeight)
-
     // Position blocklyDiv over blocklyArea.
     blocklyDiv.style.left = x + 'px';
     blocklyDiv.style.top = y + 'px';
@@ -198,6 +195,5 @@ function onResize(e) {
 // to update the code and show it on the page.
 function udpateCode(event) {
     var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
-    console.log(code);
     document.getElementById('pythonCode').value = code;
 }

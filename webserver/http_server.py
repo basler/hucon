@@ -8,7 +8,6 @@ except:
     import os
     import socket
 
-from threading import Thread
 from print import ColoredPrint as print
 
 
@@ -89,6 +88,7 @@ class HTTPServer:
             return
 
         if use_threads:
+            from threading import Thread
             print.term('Threads are used.', print.INFO)
         else:
             print.term('No threads are used.', print.INFO)
