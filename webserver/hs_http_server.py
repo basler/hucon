@@ -8,10 +8,10 @@ except:
     import os
     import socket
 
-from print import ColoredPrint as print
+from hs_term import HSTerm
 
 
-class HTTPServer:
+class HSHttpServer:
     """
     This implementation is a simple HTTP Server which works on Windows, Linux and macOS with different Browser.
     It is written to work with the micro python an a ESP8266 device.
@@ -47,7 +47,6 @@ class HTTPServer:
         'css': b'text/css',
         'htm': b'text/html',
         'html': b'text/html',
-        'js': b'text/javascript',
         'txt': b'text/plain',
     }
 
@@ -61,7 +60,7 @@ class HTTPServer:
             return
         except Exception as e:
             cls._own_ip = ''
-            print.term('Could not define its onw ip address. :(', print.ERROR)
+            HSTerm.term('Could not define its onw ip address. :(')
 
     @classmethod
     def start(cls, use_threads: bool):
@@ -73,29 +72,29 @@ class HTTPServer:
             # Create the socket.
             cls._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             cls._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            print.term('Socket created', print.INFO)
+            HSTerm.term('Socket created')
 
             # Binding to all interfaces - server will be accessible to other hosts!
             address_info = socket.getaddrinfo('0.0.0.0', cls._LISTENING_PORT)
             addr = address_info[0][-1]
 
             cls._server_socket.bind(addr)
-            print.term('Socket bind complete.', print.INFO)
+            HSTerm.term('Socket bind complete.')
         except Exception as e:
-            print.term('Create socket error: ' + str(e), print.ERROR)
+            HSTerm.term('Create socket error: ' + str(e))
             cls._server_socket.close()
             cls._server_socket = None
             return
 
         if use_threads:
             from threading import Thread
-            print.term('Threads are used.', print.INFO)
+            HSTerm.term('Threads are used.')
         else:
-            print.term('No threads are used.', print.INFO)
+            HSTerm.term('No threads are used.')
 
         # Start the socket listening.
         cls._server_socket.listen(5)
-        print.term('Listening, connect your browser to http://' + cls._own_ip + ':' + str(cls._LISTENING_PORT), print.INFO)
+        HSTerm.term('Listening, connect your browser to http://' + cls._own_ip + ':' + str(cls._LISTENING_PORT))
 
         # Change the root directory to 'www'
         os.chdir('./www')
@@ -107,18 +106,18 @@ class HTTPServer:
             try:
                 clientsocket, addr = cls._server_socket.accept()
                 ip, port = str(addr[0]), str(addr[1])
-                print.term('Connection accpted from ' + ip + ':' + port, print.INFO)
+                HSTerm.term('Connection accpted from ' + ip + ':' + port)
 
                 try:
                     if use_threads:
-                        Thread(target=HTTPServer.handle_connection, args=(clientsocket, ip, port)).start()
+                        Thread(target=HSHttpServer.handle_connection, args=(clientsocket, ip, port)).start()
                     else:
-                        HTTPServer.handle_connection(clientsocket, ip, port)
+                        HSHttpServer.handle_connection(clientsocket, ip, port)
                 except Exception as e:
-                    print.term('Thread error!', print.ERROR)
-                    print.term(str(e), print.ERROR)
+                    HSTerm.term('Thread error!')
+                    HSTerm.term(str(e))
             except KeyboardInterrupt:
-                print.term('Close socket.', print.INFO)
+                HSTerm.term('Close socket.')
                 if clientsocket:
                     clientsocket.close()
                 break
@@ -148,26 +147,26 @@ class HTTPServer:
 
         # Try to find a 'Content-Length' within the HTTP header to check the length after the '\r\n\r\n' statement.
         # This is needed for large packages when the server received post data.
-        index = receive_buffer.find(HTTPServer._HTTP_CONTENT_LENGTH_MARK)
+        index = receive_buffer.find(HSHttpServer._HTTP_CONTENT_LENGTH_MARK)
         if index > 0:
             # Found a 'Content Length' mark.
             # So, try to find the end of the line to catch up the additional content length.
-            index += HTTPServer._HTTP_CONTENT_LENGTH_SIZE
-            line_end = receive_buffer.find(HTTPServer._HTTP_LINE_END_MARK, index)
+            index += HSHttpServer._HTTP_CONTENT_LENGTH_SIZE
+            line_end = receive_buffer.find(HSHttpServer._HTTP_LINE_END_MARK, index)
             content_length = int(receive_buffer[index:line_end])
 
         # Try to find the end of the HTTP header.
-        while receive_buffer.find(HTTPServer._HTTP_HEADER_END_MARK) == -1:
+        while receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK) == -1:
             receive_buffer += clientsocket.recv(max_buffer_size)
-        index = receive_buffer.find(HTTPServer._HTTP_HEADER_END_MARK)
-        packet_len = index + HTTPServer._HTTP_HEADER_END_SIZE + content_length
+        index = receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK)
+        packet_len = index + HSHttpServer._HTTP_HEADER_END_SIZE + content_length
 
         # Receive additional data until the package is complete.
         while len(receive_buffer) < packet_len:
             receive_buffer += clientsocket.recv(max_buffer_size)
 
         #  Split the header/data from the receive buffer.
-        (header, data) = receive_buffer.split(HTTPServer._HTTP_HEADER_END_MARK)
+        (header, data) = receive_buffer.split(HSHttpServer._HTTP_HEADER_END_MARK)
 
         # Decode the byet stream into a utf-8 string
         header = header.decode('utf-8')
@@ -175,7 +174,7 @@ class HTTPServer:
 
         # Handle the request if there is an header.
         if header:
-            (header, content) = HTTPServer.handle_request(header, data)
+            (header, content) = HSHttpServer.handle_request(header, data)
 
             # Send the response if there is a header. :)
             if header != '':
@@ -206,11 +205,11 @@ class HTTPServer:
         header = b''
         content = b''
 
-        content = HTTPServer.get_file_content('404.html')
+        content = HSHttpServer.get_file_content('404.html')
 
         header += b'HTTP/1.1 404 Not Found\r\n'
-        header += b'Server: ' + HTTPServer._SERVER_NAME + b'\r\n'
-        header += b'Content-Type: ' + HTTPServer._MIME_TYPE["html"] + b'\r\n'
+        header += b'Server: ' + HSHttpServer._SERVER_NAME + b'\r\n'
+        header += b'Content-Type: ' + HSHttpServer._MIME_TYPE["html"] + b'\r\n'
         header += b'Content-Length: %d\r\n' % len(content)
         header += b'\r\n'
 
@@ -232,9 +231,9 @@ class HTTPServer:
          header_version  # HTTP/1.1
          ) = header_line
 
-        print.term('Method: ' + header_method, print.DEBUG)
-        print.term('Path: ' + header_path, print.DEBUG)
-        print.term('Version: ' + header_version, print.DEBUG)
+        HSTerm.term('Method: ' + header_method)
+        HSTerm.term('Path: ' + header_path)
+        HSTerm.term('Version: ' + header_version)
 
         header = b''
         content = b''
@@ -246,8 +245,8 @@ class HTTPServer:
             header_path = header_path.strip('/')
             if '__Execute__' == header_path:
 
-                # Replace all 'print' statements with 'print.term'
-                data = data.replace('print', 'print.term')
+                # Replace all 'print' statements with 'HSTerm.term'
+                data = data.replace('print', 'HSTerm.term')
 
                 # Execute the give data.
                 exec(data)
@@ -256,8 +255,8 @@ class HTTPServer:
                 content = b"Done ..."
 
                 header += b'HTTP/1.1 200 OK\r\n'
-                header += b'Server: ' + HTTPServer._SERVER_NAME + b'\r\n'
-                header += b'Content-Type: ' + HTTPServer._MIME_TYPE['txt'] + b'\r\n'
+                header += b'Server: ' + HSHttpServer._SERVER_NAME + b'\r\n'
+                header += b'Content-Type: ' + HSHttpServer._MIME_TYPE['txt'] + b'\r\n'
                 header += b'Content-Length: %d\r\n' % len(content)
                 header += b'\r\n'
 
@@ -265,7 +264,7 @@ class HTTPServer:
                 return header, content
 
             # Return 'Not Found'
-            return HTTPServer.not_found_page()
+            return HSHttpServer.not_found_page()
 
         # Handle a GET request.
         if header_method == "GET":
@@ -288,13 +287,13 @@ class HTTPServer:
 
             # Check the extension.
             # If the extension is not defined, send a 'Not Found' Status.
-            if fileext in HTTPServer._MIME_TYPE:
+            if fileext in HSHttpServer._MIME_TYPE:
 
-                content = HTTPServer.get_file_content(filename)
+                content = HSHttpServer.get_file_content(filename)
 
                 header += b'HTTP/1.1 200 OK\r\n'
-                header += b'Server: ' + HTTPServer._SERVER_NAME + b'\r\n'
-                header += b'Content-Type: ' + HTTPServer._MIME_TYPE[fileext] + b'\r\n'
+                header += b'Server: ' + HSHttpServer._SERVER_NAME + b'\r\n'
+                header += b'Content-Type: ' + HSHttpServer._MIME_TYPE[fileext] + b'\r\n'
                 header += b'Content-Length: %d\r\n' % len(content)
                 header += b'\r\n'
 
@@ -302,4 +301,4 @@ class HTTPServer:
                 return (header, content)
 
             # Return the 'Not Found' page.
-            return HTTPServer.not_found_page()
+            return HSHttpServer.not_found_page()
