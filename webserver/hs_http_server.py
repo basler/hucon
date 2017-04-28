@@ -18,7 +18,10 @@ class HSHttpServer:
     """
 
     # Name of this server for the HTTP header.
-    _SERVER_NAME = b"My Custon Webserver"
+    _SERVER_NAME = 'My Custon Webserver'
+
+    # Folder where all files for the server are stored.
+    _DOCUMENT_ROOT = os.path.join(os.getcwd(), 'www')
 
     # Private server socket to listen for new connections.
     _server_socket = None
@@ -33,22 +36,43 @@ class HSHttpServer:
     # There are more types defined here: https://wiki.selfhtml.org/wiki/Referenz:MIME-Typen
     _MIME_TYPE = {
         # ext  : MIME-Type,
-        'js': b'application/javascript',
-        'json': b'application/json',
-        'woff': b'application/font-woff',
-        'woff2': b'application/font-woff2',
+        'js': 'application/javascript',
+        'json': 'application/json',
+        'woff': 'application/font-woff',
+        'woff2': 'application/font-woff2',
 
-        'gif': b'image/gif',
-        'jpeg': b'image/jpeg',
-        'jpg': b'image/jpeg',
-        'png': b'image/png',
-        'ico': b'image/x-icon',
+        'gif': 'image/gif',
+        'jpeg': 'image/jpeg',
+        'jpg': 'image/jpeg',
+        'png': 'image/png',
+        'ico': 'image/x-icon',
 
-        'css': b'text/css',
-        'htm': b'text/html',
-        'html': b'text/html',
-        'txt': b'text/plain',
+        'css': 'text/css',
+        'htm': 'text/html',
+        'html': 'text/html',
+        'txt': 'text/plain',
     }
+
+    # Definition of all supported status codes.
+    _HTML_STATUS = {
+        200: '200 OK',
+        404: '404 Not Found'
+    }
+
+    # Mark to search for the content length during the receive of the bytestream.
+    _HTTP_CONTENT_LENGTH_MARK_BYTE = b'Content-Length: '
+
+    # Length of the content mark.
+    _HTTP_CONTENT_LENGTH_SIZE_BYTE = 16
+
+    # Mark to search for a line end during the receive of the bytestream.
+    _HTTP_LINE_END_MARK_BYTE = b'\r\n'
+
+    # Mark to search for the end of the header end during the receive of the bytestream.
+    _HTTP_HEADER_END_MARK_BYTE = b'\r\n\r\n'
+
+    # Length of the header end mark.
+    _HTTP_HEADER_END_SIZE_BYTE = 4
 
     @classmethod
     def __init__(cls):
@@ -60,7 +84,7 @@ class HSHttpServer:
             return
         except Exception as e:
             cls._own_ip = ''
-            HSTerm.term('Could not define its onw ip address. :(')
+            HSTerm.term('Could not read my own ip address. :(')
 
     @classmethod
     def start(cls, use_threads: bool):
@@ -96,9 +120,6 @@ class HSHttpServer:
         cls._server_socket.listen(5)
         HSTerm.term('Listening, connect your browser to http://' + cls._own_ip + ':' + str(cls._LISTENING_PORT))
 
-        # Change the root directory to 'www'
-        os.chdir('./www')
-
         # Listening in an endless loop for new connections.
         while True:
             addr = None
@@ -108,14 +129,14 @@ class HSHttpServer:
                 ip, port = str(addr[0]), str(addr[1])
                 HSTerm.term('Connection accpted from ' + ip + ':' + port)
 
-                try:
-                    if use_threads:
+                if use_threads:
+                    try:
                         Thread(target=HSHttpServer.handle_connection, args=(clientsocket, ip, port)).start()
-                    else:
-                        HSHttpServer.handle_connection(clientsocket, ip, port)
-                except Exception as e:
-                    HSTerm.term('Thread error!')
-                    HSTerm.term(str(e))
+                    except Exception as e:
+                        HSTerm.term('Thread error!')
+                        HSTerm.term(str(e))
+                else:
+                    HSHttpServer.handle_connection(clientsocket, ip, port)
             except KeyboardInterrupt:
                 HSTerm.term('Close socket.')
                 if clientsocket:
@@ -125,15 +146,8 @@ class HSHttpServer:
         # Close the socket listening after the user want to stop it.
         cls._server_socket.close()
 
-    _HTTP_CONTENT_LENGTH_MARK = b'Content-Length: '
-    _HTTP_CONTENT_LENGTH_SIZE = 16
-    _HTTP_LINE_END_MARK = b'\r\n'
-    _HTTP_LINE_END_SIZE = 2
-    _HTTP_HEADER_END_MARK = b'\r\n\r\n'
-    _HTTP_HEADER_END_SIZE = 4
-
     @staticmethod
-    def handle_connection(clientsocket: socket.socket, ip: str, port: str, max_buffer_size: int = 4096):
+    def handle_connection(clientsocket: socket.socket, ip: str, port: str, max_buffer_size: int = 2048):
         """
         Handle every connection within this function.
         This function can be called within a new thread or within the main thread.
@@ -147,26 +161,26 @@ class HSHttpServer:
 
         # Try to find a 'Content-Length' within the HTTP header to check the length after the '\r\n\r\n' statement.
         # This is needed for large packages when the server received post data.
-        index = receive_buffer.find(HSHttpServer._HTTP_CONTENT_LENGTH_MARK)
+        index = receive_buffer.find(HSHttpServer._HTTP_CONTENT_LENGTH_MARK_BYTE)
         if index > 0:
             # Found a 'Content Length' mark.
             # So, try to find the end of the line to catch up the additional content length.
-            index += HSHttpServer._HTTP_CONTENT_LENGTH_SIZE
-            line_end = receive_buffer.find(HSHttpServer._HTTP_LINE_END_MARK, index)
+            index += HSHttpServer._HTTP_CONTENT_LENGTH_SIZE_BYTE
+            line_end = receive_buffer.find(HSHttpServer._HTTP_LINE_END_MARK_BYTE, index)
             content_length = int(receive_buffer[index:line_end])
 
         # Try to find the end of the HTTP header.
-        while receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK) == -1:
+        while receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK_BYTE) == -1:
             receive_buffer += clientsocket.recv(max_buffer_size)
-        index = receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK)
-        packet_len = index + HSHttpServer._HTTP_HEADER_END_SIZE + content_length
+        index = receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK_BYTE)
+        packet_len = index + HSHttpServer._HTTP_HEADER_END_SIZE_BYTE + content_length
 
         # Receive additional data until the package is complete.
         while len(receive_buffer) < packet_len:
             receive_buffer += clientsocket.recv(max_buffer_size)
 
         #  Split the header/data from the receive buffer.
-        (header, data) = receive_buffer.split(HSHttpServer._HTTP_HEADER_END_MARK)
+        (header, data) = receive_buffer.split(HSHttpServer._HTTP_HEADER_END_MARK_BYTE)
 
         # Decode the byet stream into a utf-8 string
         header = header.decode('utf-8')
@@ -174,55 +188,85 @@ class HSHttpServer:
 
         # Handle the request if there is an header.
         if header:
-            (header, content) = HSHttpServer.handle_request(header, data)
+            (header, filename) = HSHttpServer.handle_request(header, data)
 
             # Send the response if there is a header. :)
-            if header != '':
-                clientsocket.send(header)
-                clientsocket.send(content)
+            if '' != header:
+                clientsocket.send(bytes(header, 'utf-8'))
+                try:
+                    with open(filename, 'rb') as file:
+                        bytes_read = file.read(max_buffer_size)
+                        while bytes_read:
+                            clientsocket.send(bytes_read)
+                            bytes_read = file.read(max_buffer_size)
+                except Exception as e:
+                    HSTerm.term(str(e))
 
         # So, the 'keep-alive' statement is not supported by this implementation. Close it!
         clientsocket.close()
 
     @staticmethod
-    def get_file_content(filename: str) -> bytes:
+    def file_exists(filename: str) -> bool:
         """
-        Get the file content from the defined file.
+        Try to open the file. If there is an exeption, return false.
         """
-        content = b''
         try:
-            with open(filename, 'rb') as file:
-                content = file.read()
-        except:
-            pass
-        return content
+            open(filename, 'rb')
+            return True
+        except Exception:
+            HSTerm.term("File %s not found." % filename)
+            return False
 
     @staticmethod
-    def not_found_page() -> (bytes, bytes):
+    def get_file_length(filename: str) -> int:
+        """
+        Get the length of the file in bytes.
+        """
+        size_in_bytes = 0
+        try:
+            statinfo = os.stat(filename)
+            size_in_bytes = statinfo.st_size
+        except Exception as e:
+            HSTerm.term(str(e))
+        return size_in_bytes
+
+    @staticmethod
+    def not_found_page() -> (str, str):
         """
         Get the file content and header for the 'Not Found' page.
         """
-        header = b''
-        content = b''
+        filename = os.path.join(HSHttpServer._DOCUMENT_ROOT, '404.html')
+        header = HSHttpServer.get_html_header(404, filename)
 
-        content = HSHttpServer.get_file_content('404.html')
-
-        header += b'HTTP/1.1 404 Not Found\r\n'
-        header += b'Server: ' + HSHttpServer._SERVER_NAME + b'\r\n'
-        header += b'Content-Type: ' + HSHttpServer._MIME_TYPE["html"] + b'\r\n'
-        header += b'Content-Length: %d\r\n' % len(content)
-        header += b'\r\n'
-
-        return (header, content)
+        return (header, filename)
 
     @staticmethod
-    def handle_request(header, data) -> (bytes, bytes):
+    def get_html_header(status: int, filename: str) -> str:
+        """
+        Get the header base on the
+        """
+
+        fileext = filename[filename.rfind('.') + 1:]
+
+        header = ''
+        header += 'HTTP/1.1 %s\r\n' % HSHttpServer._HTML_STATUS[status]
+        header += 'Server: %s\r\n' % HSHttpServer._SERVER_NAME
+        header += 'Connection: close\r\n'
+        if fileext in HSHttpServer._MIME_TYPE:
+            header += 'Content-Type: %s\r\n' % HSHttpServer._MIME_TYPE[fileext]
+        header += 'Content-Length: %d\r\n' % HSHttpServer.get_file_length(filename)
+        header += '\r\n'
+
+        return header
+
+    @staticmethod
+    def handle_request(header, data) -> (str, str):
         """
         Handle the request.
         """
 
         # The first line is the one we need to get the information about the request.
-        header_line = header.split("\r\n")[0]
+        header_line = header.split('\r\n')[0]
         header_line = header_line.split()
 
         # Break down the request line into components
@@ -233,41 +277,38 @@ class HSHttpServer:
 
         HSTerm.term('Method: ' + header_method)
         HSTerm.term('Path: ' + header_path)
-        HSTerm.term('Version: ' + header_version)
 
-        header = b''
-        content = b''
+        header = ''
+        filename = ''
 
         # Handle a POST request
-        if header_method == "POST":
+        if 'POST' == header_method:
 
             # Handle the access on a '__Execute__' page.
             header_path = header_path.strip('/')
             if '__Execute__' == header_path:
 
-                # Replace all 'print' statements with 'HSTerm.term'
-                data = data.replace('print', 'HSTerm.term')
+                # Clear the exec file.
+                HSTerm.clear_exec()
+
+                # Replace all 'print' statements with 'HSTerm.term_exec'
+                data = data.replace('print', 'HSTerm.term_exec')
 
                 # Execute the give data.
                 exec(data)
 
-                # TODO: result the printed messages!
-                content = b"Done ..."
-
-                header += b'HTTP/1.1 200 OK\r\n'
-                header += b'Server: ' + HSHttpServer._SERVER_NAME + b'\r\n'
-                header += b'Content-Type: ' + HSHttpServer._MIME_TYPE['txt'] + b'\r\n'
-                header += b'Content-Length: %d\r\n' % len(content)
-                header += b'\r\n'
+                # Get the filename and generate the header.
+                filename = HSTerm.exec_filename()
+                header = HSHttpServer.get_html_header(200, filename)
 
                 # Return the result header and the response from the executed data.
-                return header, content
+                return header, filename
 
             # Return 'Not Found'
             return HSHttpServer.not_found_page()
 
         # Handle a GET request.
-        if header_method == "GET":
+        if 'GET' == header_method:
 
             # Get the filename with the extension.
             header_path = header_path.strip('/')
@@ -276,29 +317,20 @@ class HSHttpServer:
             path_with_arguments = header_path.split('?')
 
             # Ignore the arguments. We need only the file path.
-            filename = ''
             if len(path_with_arguments) > 0:
                 filename = path_with_arguments[0]
 
             # use the index.html when the path is empty.
-            if filename == '':
+            if '' == filename:
                 filename = 'index.html'
-            fileext = filename[filename.rfind('.') + 1:]
 
-            # Check the extension.
-            # If the extension is not defined, send a 'Not Found' Status.
-            if fileext in HSHttpServer._MIME_TYPE:
+            # add the document path to the filename
+            filename = os.path.join(HSHttpServer._DOCUMENT_ROOT, filename)
 
-                content = HSHttpServer.get_file_content(filename)
-
-                header += b'HTTP/1.1 200 OK\r\n'
-                header += b'Server: ' + HSHttpServer._SERVER_NAME + b'\r\n'
-                header += b'Content-Type: ' + HSHttpServer._MIME_TYPE[fileext] + b'\r\n'
-                header += b'Content-Length: %d\r\n' % len(content)
-                header += b'\r\n'
+            if HSHttpServer.file_exists(filename):
+                header = HSHttpServer.get_html_header(200, filename)
 
                 # Return the result header and response for the GET.
-                return (header, content)
+                return (header, filename)
 
-            # Return the 'Not Found' page.
             return HSHttpServer.not_found_page()
