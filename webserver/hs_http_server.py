@@ -127,7 +127,7 @@ class HSHttpServer:
             try:
                 clientsocket, addr = cls._server_socket.accept()
                 ip, port = str(addr[0]), str(addr[1])
-                HSTerm.term('Connection accpted from ' + ip + ':' + port)
+                HSTerm.term('\nConnection accpted from ' + ip + ':' + port)
 
                 if use_threads:
                     try:
@@ -214,7 +214,6 @@ class HSHttpServer:
             open(filename, 'rb')
             return True
         except Exception:
-            HSTerm.term("File %s not found." % filename)
             return False
 
     @staticmethod
@@ -241,7 +240,7 @@ class HSHttpServer:
         return (header, filename)
 
     @staticmethod
-    def get_html_header(status: int, filename: str) -> str:
+    def get_html_header(status: int, filename: str, accept_gzip: bool = False) -> str:
         """
         Get the header base on the
         """
@@ -255,6 +254,8 @@ class HSHttpServer:
         if fileext in HSHttpServer._MIME_TYPE:
             header += 'Content-Type: %s\r\n' % HSHttpServer._MIME_TYPE[fileext]
         header += 'Content-Length: %d\r\n' % HSHttpServer.get_file_length(filename)
+        if accept_gzip:
+            header += 'Content-Encoding: gzip\r\n'
         header += '\r\n'
 
         return header
@@ -266,7 +267,8 @@ class HSHttpServer:
         """
 
         # The first line is the one we need to get the information about the request.
-        header_line = header.split('\r\n')[0]
+        header_lines = header.split('\r\n')
+        header_line = header_lines[0]
         header_line = header_line.split()
 
         # Break down the request line into components
@@ -275,8 +277,13 @@ class HSHttpServer:
          header_version  # HTTP/1.1
          ) = header_line
 
-        HSTerm.term('Method: ' + header_method)
-        HSTerm.term('Path: ' + header_path)
+        HSTerm.term('%s: %s' % (header_method, header_path))
+
+        accept_gzip = False
+        for line in header_lines:
+            if 'Accept-Encoding' in line:
+                if 'gzip' in line:
+                    accept_gzip = True
 
         header = ''
         filename = ''
@@ -327,10 +334,24 @@ class HSHttpServer:
             # add the document path to the filename
             filename = os.path.join(HSHttpServer._DOCUMENT_ROOT, filename)
 
+            if accept_gzip:
+                if HSHttpServer.file_exists(filename + '.gz'):
+                    HSTerm.term('Sending gzip version of %s' % filename)
+
+                    # prepare everything for a gzip file response.
+                    filename += '.gz'
+                    header = HSHttpServer.get_html_header(200, filename, accept_gzip)
+
+                    # Return the result header and response for the GET.
+                    return (header, filename)
+                else:
+                    HSTerm.term('no compressed file found :(')
+
             if HSHttpServer.file_exists(filename):
                 header = HSHttpServer.get_html_header(200, filename)
 
                 # Return the result header and response for the GET.
                 return (header, filename)
 
+            HSTerm.term('File %s not found' % filename)
             return HSHttpServer.not_found_page()
