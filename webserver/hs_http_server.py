@@ -18,7 +18,7 @@ class HSHttpServer:
     """
 
     # Name of this server for the HTTP header.
-    _SERVER_NAME = 'My Custon Webserver'
+    _SERVER_NAME = 'HackerSchool Custon Webserver'
 
     # Folder where all files for the server are stored.
     _DOCUMENT_ROOT = os.path.join(os.getcwd(), 'www')
@@ -40,6 +40,7 @@ class HSHttpServer:
         'json': 'application/json',
         'woff': 'application/font-woff',
         'woff2': 'application/font-woff2',
+        'xml': 'application/xml ',
 
         'gif': 'image/gif',
         'jpeg': 'image/jpeg',
@@ -227,6 +228,7 @@ class HSHttpServer:
             size_in_bytes = statinfo.st_size
         except Exception as e:
             HSTerm.term(str(e))
+        HSTerm.term('Filesize: %d bytes' % size_in_bytes)
         return size_in_bytes
 
     @staticmethod
@@ -246,6 +248,10 @@ class HSHttpServer:
         """
 
         fileext = filename[filename.rfind('.') + 1:]
+        if fileext == 'gz':
+            end_index = filename.rfind('.')
+            start_index = filename.rfind('.', 0, end_index) + 1
+            fileext = filename[start_index:end_index]
 
         header = ''
         header += 'HTTP/1.1 %s\r\n' % HSHttpServer._HTML_STATUS[status]
@@ -253,6 +259,8 @@ class HSHttpServer:
         header += 'Connection: close\r\n'
         if fileext in HSHttpServer._MIME_TYPE:
             header += 'Content-Type: %s\r\n' % HSHttpServer._MIME_TYPE[fileext]
+        else:
+            header += 'Content-Type: %s\r\n' % HSHttpServer._MIME_TYPE['txt']
         header += 'Content-Length: %d\r\n' % HSHttpServer.get_file_length(filename)
         if accept_gzip:
             header += 'Content-Encoding: gzip\r\n'
