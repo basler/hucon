@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
-from http_server import HTTPServer
-from print import ColoredPrint as print
+from hs_http_server import HSHttpServer
+from hs_term import HSTerm
 
 def main(useThreads=False):
     """
     Create the Server and listen on each incomming request.
     """
-    print.init()
-    server = HTTPServer()
+    server = HSHttpServer()
 
     server.start(useThreads)
 
-    print.term('Stop Server', print.INFO)
+    HSTerm.term('Stop Server')
 
 
 if __name__ == '__main__':

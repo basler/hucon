@@ -23,8 +23,6 @@ table {
 textarea
 {
     width: 100%;
-    height: -moz-calc(100% - 35px);
-    height: -webkit-calc(100% - 35px);
     height: calc(100% - 35px);
 }
 
@@ -67,29 +65,4 @@ textarea
 .blocklyToolboxDiv, .injectionDiv {
     background-color: #000000;
     border: 1px solid #666;
-}
-
-/* Allow Font Awesome Icons in lieu of jQuery UI and only apply when using a FA icon */
-.ui-icon[class*=" fa-"] {
-    /* Remove the jQuery UI Icon */
-    background: none repeat scroll 0 0 transparent;
-    /* Remove the jQuery UI Text Indent */
-    text-indent: 0;
-    /* Bump it up - jQuery UI is -8px */
-    margin-top: -0.5em;
-    /* Set a correct width and height */
-    width: 20px;
-    height: 20px;
-}
-
-/* Allow use of icon-large to be properly aligned */
-.ui-icon.icon-large {
-    margin-top: -0.75em;
-}
-
-/* Remove the ugly active/hover/focus/visited effect from JQery UI buttons */
-.ui-button:active .ui-icon, .ui-button:hover .ui-icon,
-.ui-button:focus .ui-icon, .ui-button:visited .ui-icon {
-/* Remove the jQuery UI hover Icon */
-    background: none repeat scroll 0 0 transparent;
 }

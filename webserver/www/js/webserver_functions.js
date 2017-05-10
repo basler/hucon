@@ -20,43 +20,41 @@ $(document).ready(function(){
     });
 
     // Initialize the JQery UI elements
-    $("#newCommand").button({
-        icons: {primary: 'fa fa-file-o'},
-        showLabel: false
-    }).click(clearWorkspace);
+    $("#newCommand").button().click(clearWorkspace);
 
-    $("#loadCommand").button({
-        icons: {primary: 'fa fa-folder-open-o'},
-        showLabel: false
-    }).click(openLoadDialog);
+    $("#loadCommand").button().click(openLoadDialog);
 
-    $("#saveCommand").button({
-        icons: {primary: 'fa fa-floppy-o'},
-        showLabel: false
-    }).click(saveWorkspace);
+    $("#saveCommand").button().click(saveWorkspace);
 
-    $("#runCommand").button({
-        icons: {primary: 'fa fa-play'},
-        showLabel: false
-    }).click(setCommand);
+    $("#runCommand").button().click(setCommand);
 
     // hide the alert view
     $("#alertView").hide();
 
-    // Initialize blockly
-    // Do this as a last setp in this function to calculate the size correctly!
-    var blocklyArea = document.getElementById('blocklyArea');
-    var blocklyDiv = document.getElementById('blocklyDiv');
-    blocklyWorkspace = Blockly.inject(blocklyDiv, {toolbox: document.getElementById('toolbox')});
+    $.ajax({
+        type: 'GET',
+        url: 'toolbox.xml',
+        async: false,
+        dataType: 'text'
+    })
+    .done(function(toolboxData) {
+        // Initialize blockly
+        // Do this as a last step in this function to calculate the size correctly!
+        var blocklyArea = document.getElementById('blocklyArea');
+        var blocklyDiv = document.getElementById('blocklyDiv');
+        blocklyWorkspace = Blockly.inject(blocklyDiv, {toolbox: toolboxData});
 
-    // Add the listener on resize to call the onResize function
-    window.addEventListener('resize', onResize, false);
-    onResize();
-    Blockly.svgResize(blocklyWorkspace);
+        // Add the listener on resize to call the onResize function
+        window.addEventListener('resize', onResize, false);
+        onResize();
+        Blockly.svgResize(blocklyWorkspace);
 
-    // Add the listener on every change to update the code
-    blocklyWorkspace.addChangeListener(udpateCode);
-
+        // Add the listener on every change to update the code
+        blocklyWorkspace.addChangeListener(udpateCode);
+    })
+    .fail(function() {
+        showAlertView("Something went wrong.");
+    });
 });
 
 
@@ -118,7 +116,6 @@ function saveWorkspace() {
     var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
 
     // localStorage.setItem("blockly_hackerschool.xml", xmlText);
-    console.log(xmlText)
     file = new File([xmlText], 'HackerSchool-blockly.xml', {type: "text/plain;charset=utf-8"});
     saveAs(file);
     showAlertView("Blockly workspace save on local disk.")
@@ -184,8 +181,6 @@ function onResize(e) {
         element = element.offsetParent;
     } while (element);
 
-    console.log(blocklyArea.offsetHeight)
-
     // Position blocklyDiv over blocklyArea.
     blocklyDiv.style.left = x + 'px';
     blocklyDiv.style.top = y + 'px';
@@ -198,6 +193,5 @@ function onResize(e) {
 // to update the code and show it on the page.
 function udpateCode(event) {
     var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
-    console.log(code);
     document.getElementById('pythonCode').value = code;
 }
