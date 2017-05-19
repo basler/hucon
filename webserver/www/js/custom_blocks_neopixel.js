@@ -41,7 +41,7 @@ Blockly.Python['neopixel_colour'] = function(block) {
     var r = parseInt(result[1], 16)
     var g = parseInt(result[2], 16)
     var b = parseInt(result[3], 16)
-    var code = ' = (' + g + ', ' + r + ', ' + b + ')';
+    var code = '(' + g + ', ' + r + ', ' + b + ')';
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 

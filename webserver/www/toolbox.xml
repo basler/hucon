@@ -311,4 +311,9 @@
         <block type="neopixel_colour_rgb"></block>
         <block type="neopixel_write"></block>
     </category>
+    <category name="Servo" colour="208">
+        <block type="servo_object"></block>
+        <block type="servo_write_angle"></block>
+        <block type="servo_write_us"></block>
+    </category>
 </xml>
