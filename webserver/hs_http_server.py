@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import gc
 try:
     # Import different packages on the micro python.
     import uos as os
@@ -10,6 +10,9 @@ except:
 
 from hs_term import HSTerm
 
+import time
+
+gc.collect()
 
 class HSHttpServer:
     """
@@ -21,7 +24,7 @@ class HSHttpServer:
     _SERVER_NAME = 'HackerSchool Custon Webserver'
 
     # Folder where all files for the server are stored.
-    _DOCUMENT_ROOT = os.path.join(os.getcwd(), 'www')
+    _DOCUMENT_ROOT = '/www'
 
     # Private server socket to listen for new connections.
     _server_socket = None
@@ -126,9 +129,12 @@ class HSHttpServer:
             addr = None
             clientsocket = None
             try:
+                gc.collect()
                 clientsocket, addr = cls._server_socket.accept()
                 ip, port = str(addr[0]), str(addr[1])
-                HSTerm.term('\nConnection accpted from ' + ip + ':' + port)
+                gc.collect()
+
+                HSTerm.term('Connection accpted from ' + ip + ':' + port)
 
                 if use_threads:
                     try:
@@ -143,12 +149,14 @@ class HSHttpServer:
                 if clientsocket:
                     clientsocket.close()
                 break
+            except Exception as e:
+                print("Main Loop Error: %s" % str(e))
 
         # Close the socket listening after the user want to stop it.
         cls._server_socket.close()
 
     @staticmethod
-    def handle_connection(clientsocket: socket.socket, ip: str, port: str, max_buffer_size: int = 2048):
+    def handle_connection(clientsocket: socket.socket, ip: str, port: str, max_buffer_size: int = 28):
         """
         Handle every connection within this function.
         This function can be called within a new thread or within the main thread.
@@ -156,7 +164,7 @@ class HSHttpServer:
         header = ''
         data = ''
         content_length = 0
-
+        gc.collect()
         #  receive the first package.
         receive_buffer = clientsocket.recv(max_buffer_size)
 
@@ -167,8 +175,11 @@ class HSHttpServer:
             # Found a 'Content Length' mark.
             # So, try to find the end of the line to catch up the additional content length.
             index += HSHttpServer._HTTP_CONTENT_LENGTH_SIZE_BYTE
+            gc.collect()
             line_end = receive_buffer.find(HSHttpServer._HTTP_LINE_END_MARK_BYTE, index)
+            gc.collect()
             content_length = int(receive_buffer[index:line_end])
+            gc.collect()
 
         # Try to find the end of the HTTP header.
         while receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK_BYTE) == -1:
@@ -193,18 +204,40 @@ class HSHttpServer:
 
             # Send the response if there is a header. :)
             if '' != header:
-                clientsocket.send(bytes(header, 'utf-8'))
+                clientsocket.sendall(bytes(header, 'utf-8'))
                 try:
                     with open(filename, 'rb') as file:
+                        start_time = time.time()
+                        sent_data = 0
                         bytes_read = file.read(max_buffer_size)
+                        count = 0
+                        gc.collect()
                         while bytes_read:
-                            clientsocket.send(bytes_read)
+                            clientsocket.write(bytes_read)
+                            # print("sent: %s / %s"%(sent, len(bytes_read)))
+                            sent_data += max_buffer_size
+                            count += 1
+                            if count > (1024 * 10 / max_buffer_size):
+                                ttime = time.time() - start_time
+                                if ttime == 0:
+                                    ttime = 1
+
+                                print(
+                                    "%d Bytes sent in %d seconds with %d Bytes/second" % (
+                                        sent_data, ttime, sent_data/ttime
+                                    )
+                                )
+                                count=0
+                                gc.collect()
+                            #print(len(bytes_read))
                             bytes_read = file.read(max_buffer_size)
                 except Exception as e:
+                    print("handle_connection")
                     HSTerm.term(str(e))
 
         # So, the 'keep-alive' statement is not supported by this implementation. Close it!
         clientsocket.close()
+        gc.collect()
 
     @staticmethod
     def file_exists(filename: str) -> bool:
@@ -215,6 +248,7 @@ class HSHttpServer:
             open(filename, 'rb')
             return True
         except Exception:
+            HSTerm.term("File %s not found." % filename)
             return False
 
     @staticmethod
@@ -225,10 +259,11 @@ class HSHttpServer:
         size_in_bytes = 0
         try:
             statinfo = os.stat(filename)
-            size_in_bytes = statinfo.st_size
+            size_in_bytes = statinfo[6]
+            HSTerm.term(str(size_in_bytes))
         except Exception as e:
+            print("GetFileLength")
             HSTerm.term(str(e))
-        HSTerm.term('Filesize: %d bytes' % size_in_bytes)
         return size_in_bytes
 
     @staticmethod
@@ -236,22 +271,18 @@ class HSHttpServer:
         """
         Get the file content and header for the 'Not Found' page.
         """
-        filename = os.path.join(HSHttpServer._DOCUMENT_ROOT, '404.html')
+        filename = HSHttpServer._DOCUMENT_ROOT + '/404.html'
         header = HSHttpServer.get_html_header(404, filename)
 
         return (header, filename)
 
     @staticmethod
-    def get_html_header(status: int, filename: str, accept_gzip: bool = False) -> str:
+    def get_html_header(status: int, filename: str) -> str:
         """
         Get the header base on the
         """
 
         fileext = filename[filename.rfind('.') + 1:]
-        if fileext == 'gz':
-            end_index = filename.rfind('.')
-            start_index = filename.rfind('.', 0, end_index) + 1
-            fileext = filename[start_index:end_index]
 
         header = ''
         header += 'HTTP/1.1 %s\r\n' % HSHttpServer._HTML_STATUS[status]
@@ -259,11 +290,7 @@ class HSHttpServer:
         header += 'Connection: close\r\n'
         if fileext in HSHttpServer._MIME_TYPE:
             header += 'Content-Type: %s\r\n' % HSHttpServer._MIME_TYPE[fileext]
-        else:
-            header += 'Content-Type: %s\r\n' % HSHttpServer._MIME_TYPE['txt']
         header += 'Content-Length: %d\r\n' % HSHttpServer.get_file_length(filename)
-        if accept_gzip:
-            header += 'Content-Encoding: gzip\r\n'
         header += '\r\n'
 
         return header
@@ -275,8 +302,7 @@ class HSHttpServer:
         """
 
         # The first line is the one we need to get the information about the request.
-        header_lines = header.split('\r\n')
-        header_line = header_lines[0]
+        header_line = header.split('\r\n')[0]
         header_line = header_line.split()
 
         # Break down the request line into components
@@ -285,13 +311,8 @@ class HSHttpServer:
          header_version  # HTTP/1.1
          ) = header_line
 
-        HSTerm.term('%s: %s' % (header_method, header_path))
-
-        accept_gzip = False
-        for line in header_lines:
-            if 'Accept-Encoding' in line:
-                if 'gzip' in line:
-                    accept_gzip = True
+        HSTerm.term('Method: ' + header_method)
+        HSTerm.term('Path: ' + header_path)
 
         header = ''
         filename = ''
@@ -340,20 +361,7 @@ class HSHttpServer:
                 filename = 'index.html'
 
             # add the document path to the filename
-            filename = os.path.join(HSHttpServer._DOCUMENT_ROOT, filename)
-
-            if accept_gzip:
-                if HSHttpServer.file_exists(filename + '.gz'):
-                    HSTerm.term('Sending gzip version of %s' % filename)
-
-                    # prepare everything for a gzip file response.
-                    filename += '.gz'
-                    header = HSHttpServer.get_html_header(200, filename, accept_gzip)
-
-                    # Return the result header and response for the GET.
-                    return (header, filename)
-                else:
-                    HSTerm.term('no compressed file found :(')
+            filename = HSHttpServer._DOCUMENT_ROOT + '/' + filename
 
             if HSHttpServer.file_exists(filename):
                 header = HSHttpServer.get_html_header(200, filename)
@@ -361,5 +369,4 @@ class HSHttpServer:
                 # Return the result header and response for the GET.
                 return (header, filename)
 
-            HSTerm.term('File %s not found' % filename)
             return HSHttpServer.not_found_page()
