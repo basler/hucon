@@ -24,7 +24,7 @@ class HSTerm:
         Write a line into the exec file and append a html and normal line break.
         """
         with open('exec_file.txt', 'a') as file:
-            file.write(message + '<br>\n')
+            file.write(message + '\n')
 
     @staticmethod
     def exec_filename() -> str:

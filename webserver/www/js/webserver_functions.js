@@ -1,197 +1,108 @@
-// We need for the update of the code the blockly workspace.
-var blocklyWorkspace;
-
-
 // On document ready this function will be called and initialize the complete website.
-$(document).ready(function(){
+docReady(function(){
+    // Add the change event to show the filename instead.
+    document.getElementById('fileinput').addEventListener( 'change', function( e )
+    {
+        var fileName = '';
+        if( this.files && this.files.length > 1 )
+            fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
+        else
+            fileName = e.target.value.split( '\\' ).pop();
 
-    // Define the load dialog to load the blockly file from a local file.
-    var dialog = $("#load-dialog").dialog({
-        autoOpen: false,
-        height: 200,
-        width: 450,
-        modal: true,
-        buttons: {
-            "Load": loadFile,
-            Cancel: function() {
-                dialog.dialog( "close" );
-            }
-        }
-    });
-
-    // Initialize the JQery UI elements
-    $("#newCommand").button().click(clearWorkspace);
-
-    $("#loadCommand").button().click(openLoadDialog);
-
-    $("#saveCommand").button().click(saveWorkspace);
-
-    $("#runCommand").button().click(setCommand);
-
-    // hide the alert view
-    $("#alertView").hide();
-
-    $.ajax({
-        type: 'GET',
-        url: 'toolbox.xml',
-        async: false,
-        dataType: 'text'
-    })
-    .done(function(toolboxData) {
-        // Initialize blockly
-        // Do this as a last step in this function to calculate the size correctly!
-        var blocklyArea = document.getElementById('blocklyArea');
-        var blocklyDiv = document.getElementById('blocklyDiv');
-        blocklyWorkspace = Blockly.inject(blocklyDiv, {toolbox: toolboxData});
-
-        // Add the listener on resize to call the onResize function
-        window.addEventListener('resize', onResize, false);
-        onResize();
-        Blockly.svgResize(blocklyWorkspace);
-
-        // Add the listener on every change to update the code
-        blocklyWorkspace.addChangeListener(udpateCode);
-    })
-    .fail(function() {
-        showAlertView("Something went wrong.");
+        if( fileName )
+            document.getElementById('fileLabel').querySelector( 'span' ).innerHTML = fileName;
     });
 });
 
-
-// Clear the workspace.
-function clearWorkspace() {
-    Blockly.mainWorkspace.clear();
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    loadDialog = document.getElementById('loadDialog');
+    if (event.target == loadDialog) {
+        closeLoadDialog();
+    }
+    consoleLogDialog = document.getElementById('consoleLogDialog');
+    if (event.target == consoleLogDialog) {
+        closeConsoleLogDialog();
+    }
 }
 
-
-// Open the load file dialog
+// Open the load file dialog.
 function openLoadDialog() {
-    var dialog = $("#load-dialog");
-    dialog.dialog( "open" );
+    loadDialog = document.getElementById('loadDialog');
+    loadDialog.style.display = 'block';
 }
-
 
 // This function will be called after the load dialog form is shown and the load button within this dialog is pressed.
-function loadFile() {
-    $("#load-dialog").dialog( "close" );
+function loadSelectedFile() {
+    // Hide the load dialog modal.
+    closeLoadDialog();
+
     var input, file, fr;
 
     if (typeof window.FileReader !== 'function') {
-      alert("The file API isn't supported on this browser yet.");
-      return;
+        alert('The file API is not supported on this browser yet.');
+        return;
     }
 
     input = document.getElementById('fileinput');
     if (!input) {
-      alert("Um, couldn't find the fileinput element.");
+        alert('Um, could not find the fileinput element.');
     }
     else if (!input.files) {
-      alert("This browser doesn't seem to support the `files` property of file inputs.");
+        alert('This browser does not seem to support the `files` property of file inputs.');
     }
     else if (!input.files[0]) {
-      alert("Please select a file before clicking 'Load'");
+        alert('Please select a file before clicking `Load`');
     }
     else {
-      file = input.files[0];
-      fr = new FileReader();
-      fr.onload = receivedText;
-      fr.readAsText(file);
-    }
-
-    function receivedText(e) {
-        var xmlText = e.target.result;
-        if (xmlText) {
-            Blockly.mainWorkspace.clear();
-            xmlDom = Blockly.Xml.textToDom(xmlText);
-            Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xmlDom);
-        }
-        showAlertView("Blockly workspace load from local disk.")
+        file = input.files[0];
+        fr = new FileReader();
+        fr.onload = loadFile;
+        fr.readAsText(file);
     }
 }
 
-
-// Save the workspace on the local browser cache.
-function saveWorkspace() {
-    var xmlDom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
-    var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
-
-    // localStorage.setItem("blockly_hackerschool.xml", xmlText);
-    file = new File([xmlText], 'HackerSchool-blockly.xml', {type: "text/plain;charset=utf-8"});
-    saveAs(file);
-    showAlertView("Blockly workspace save on local disk.")
+// Close the load file dialog
+function closeLoadDialog() {
+    loadDialog = document.getElementById('loadDialog');
+    loadDialog.style.display = 'none';
 }
 
+// Open the load file dialog.
+function openConsoleLogDialog() {
+    consoleLogDialog = document.getElementById('consoleLogDialog');
+    consoleLogDialog.style.display = 'block';
+}
+
+// Close the load file dialog
+function closeConsoleLogDialog() {
+    consoleLogDialog = document.getElementById('consoleLogDialog');
+    consoleLogDialog.style.display = 'none';
+}
 
 // This function will send via ajax a message to the server.
-function setCommand() {
-    command = $(this).val();
+function command(value) {
+    if (value == 'execute') {
+        val = getPythonCode()
 
-    if (command == "execute") {
-        val = Blockly.Python.workspaceToCode(blocklyWorkspace);
-
-        $.ajax({
-            type: 'POST',
-            url: '__Execute__',
-            async: false,
-            data: val
-        })
-        .done(function(result) {
-            // TODO: Formate the text in a better way!
-            showAlertView("Data send.<br>Result:<br>\n" + result);
-        })
-        .fail(function() {
-            showAlertView("Could not set execute the command on the server.");
-        });
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    apendConsoleLog(this.responseText);
+                } else {
+                    alert('Could not set execute the command on the server.');
+                }
+            }
+        };
+        xhttp.open('POST', '__Execute__', false);
+        xhttp.send(val);
     }
 }
 
+function apendConsoleLog(message) {
+    var time = new Date().toLocaleTimeString().replace("/.*(\d{2}:\d{2}:\d{2}).*/", "$1");
+    document.getElementById('consoleLog').value = time + '\n\n' + message;
 
-// Whenever this function will be called, a message will shown on the bottom
-// page and the message will be hidden after a short time.
-function showAlertView(message) {
-    // change the text
-    $("#errorMessage").html(message)
-    // show the alert div
-    var options = {};
-    $("#alertView").show("drop", options, 500, hideAlertView);
-}
-
-
-// This function will hide the allert div.
-function hideAlertView() {
-    setTimeout(function() {
-        $("#alertView:visible").removeAttr("style").fadeOut();
-    }, 10000 );
-}
-
-
-// On every change of the window, this function will be called to update the
-// blockly size area.
-function onResize(e) {
-    var blocklyArea = document.getElementById('blocklyArea');
-    var blocklyDiv = document.getElementById('blocklyDiv');
-
-    // Compute the absolute coordinates and dimensions of blocklyArea.
-    var element = blocklyArea;
-    var x = 0;
-    var y = 0;
-    do {
-        x += element.offsetLeft;
-        y += element.offsetTop;
-        element = element.offsetParent;
-    } while (element);
-
-    // Position blocklyDiv over blocklyArea.
-    blocklyDiv.style.left = x + 'px';
-    blocklyDiv.style.top = y + 'px';
-    blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
-    blocklyDiv.style.height = (blocklyArea.offsetHeight - 20) + 'px';
-}
-
-
-// This function will be called whenever an element on the workspace is changed
-// to update the code and show it on the page.
-function udpateCode(event) {
-    var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
-    document.getElementById('pythonCode').value = code;
+    openConsoleLogDialog()
 }

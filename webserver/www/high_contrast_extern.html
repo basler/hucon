@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="de">
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Hacker School :)</title>
+
+    <!-- Blockly Sourcen -->
+    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/blockly_compressed.js"></script>
+    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/blocks_compressed.js"></script>
+    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/python_compressed.js"></script>
+
+    <!-- Blockly language -->
+    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/en.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://juwis.github.io/hackerschool/webserver/www/css/main.css">
+
+    <!-- Hacker School web server -->
+    <script type="text/javascript" src="fileSaver/FileSaver.min.js"></script>
+    <script type="text/javascript" src="docReady/docready.js"></script>
+    <script type="text/javascript" src="js/webserver.blockly.min.js"></script>
+
+    <!-- CSS override to load the images also from an external source -->
+    <style>
+        #header {
+            background-image: url(https://juwis.github.io/hackerschool/webserver/www/css/Logo.jpg);
+        }
+        .blocklySvg {
+            background-image: none;
+        }
+    </style>
+
+<head>
+</head>
+<body id="body">
+    <table>
+        <tr>
+            <td id="header" colspan="2"></td>
+        </tr>
+        <tr>
+            <td id="commands" colspan="2">
+                <button onclick="newFile()" class="button">New</button>
+                <button onclick="openLoadDialog()" class="button">Load</button>
+                <button onclick="saveFile()" class="button">Save</button>
+                <button onclick="command('execute')" class="button">Run</button>
+            </td>
+        </tr>
+        <tr>
+            <td id="blocklyArea" style="width: 70%">
+            </td>
+            <td id="codeArea" class="ui-widget ui-widget-content ui-corner-all">
+                Python Code:
+                <textarea class="text" id="pythonCode">Your Code</textarea>
+            </td>
+        </tr>
+    </table>
+
+    <div id="blocklyDiv" style="position: absolute;"></div>
+
+    <div id="loadDialog" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Load File</h2>
+            </div>
+            <div class="modal-body">
+                <label class="button file" id="fileLabel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17">
+                        <path d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"></path>
+                    </svg>
+                    <input type="file" id="fileinput" class="inputfile" />
+                    <span>Choose a File</span>
+                </label>
+                <br>
+                <button onclick="loadSelectedFile()" class="button">Load</button>
+                <button onclick="closeLoadDialog()" class="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="consoleLogDialog" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Console Log</h2>
+            </div>
+            <div class="modal-body">
+                <textarea class="text" id="consoleLog"></textarea>
+                <button onclick="closeConsoleLogDialog()" class="button">Close</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

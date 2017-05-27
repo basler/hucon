@@ -4,77 +4,33 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>Hacker School :)</title>
 
-    <!-- Blockly Sourcen -->
-    <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
-    <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
-    <script type="text/javascript" src="blockly/python_compressed.js"></script>
-
-    <!-- Blockly language -->
-    <script type="text/javascript" src="blockly/en.js"></script>
-
-    <!-- Blockly custom blocks -->
-    <script type="text/javascript" src="js/custom_blocks_machine.js"></script>
-    <script type="text/javascript" src="js/custom_blocks_neopixel.js"></script>
-    <script type="text/javascript" src="js/custom_blocks_servo.js"></script>
-
-    <!-- JQuery -->
-    <script type="text/javascript" src="jquery/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="jquery-ui/jquery-ui.min.js"></script>
-
-    <!-- File Saver -->
-    <script type="text/javascript" src="file-saver/FileSaver.min.js"></script>
-
-    <!-- JQuery UI css -->
-    <link rel="stylesheet" href="jquery-ui/jquery-ui.min.css">
-
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/main.css">
-
-    <!-- Hacker School web serer -->
-    <script type="text/javascript" src="js/webserver_functions.js"></script>
 
 <head>
 </head>
 <body id="body">
-    <table>
-        <tr>
-            <td id="header" colspan="2"></td>
-        </tr>
-        <tr>
-            <td id="commands" colspan="2">
-                <button id="newCommand">New</button>
-                <button id="loadCommand">Load</button>
-                <button id="saveCommand">Save</button>
-                <button id="runCommand" value="execute">Run</button>
-            </td>
-        </tr>
-        <tr>
-            <td id="blocklyArea" style="width: 70%">
-            </td>
-            <td id="codeArea" class="ui-widget ui-widget-content ui-corner-all">
-                <label for="code">Python Code:</label><br>
-                <textarea class='autoExpand' name="code" id="pythonCode" style="width: 100%;">Your Code</textarea>
-            </td>
-        </tr>
-    </table>
 
-    <div id="blocklyDiv" style="position: absolute;"></div>
+    <div class="center_xy">
+        <form action="default.html">
+            <input type="submit" class="button_big" value="Default" />
+        </form>
 
-    <div id="footer">
-        <div id="alertView" class="ui-widget">
-            <div class="ui-state-error ui-corner-all" style="padding: 0.7em;">
-                <p>
-                    <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                    <strong>Alert:</strong> <label id="errorMessage" />
-                </p>
-            </div>
-        </div>
-    </div>
+        <form action="extern.html">
+            <input type="submit" class="button_big" value="Fast Load" />
+        </form>
 
-    <div id="load-dialog" title="Load a Blockly file ...">
-        <form id="jsonFile" name="jsonFile" enctype="multipart/form-data" method="post">
-            <input type='file' id='fileinput'>
+        <form action="high_contrast_default.html">
+            <input type="submit" class="button_big" value="High Contrast" />
+        </form>
+
+        <form action="high_contrast_extern.html">
+            <input type="submit" class="button_big" value="High Contrast (Fast Load)" />
+        </form>
+
+        <form action="editor.html">
+            <input type="submit" class="button_big" value="Editor" />
         </form>
     </div>
+
 </body>
 </html>
