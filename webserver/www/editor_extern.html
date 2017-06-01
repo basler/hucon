@@ -2,15 +2,10 @@
 <html lang="de">
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Hacker School High Contrast :) - (external site)</title>
+    <title>Hacker School Editor :) - (external site)</title>
 
-    <!-- Blockly Sourcen -->
-    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/blockly_compressed.js"></script>
-    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/blocks_compressed.js"></script>
-    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/python_compressed.js"></script>
-
-    <!-- Blockly language -->
-    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/en.js"></script>
+    <!-- Ace code editor -->
+    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/ace/ace.js"></script>
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="https://juwis.github.io/hackerschool/webserver/www/css/main.css">
@@ -18,21 +13,12 @@
     <!-- Hacker School web server -->
     <script type="text/javascript" src="fileSaver/FileSaver.min.js"></script>
     <script type="text/javascript" src="docReady/docready.js"></script>
-    <script type="text/javascript" src="js/webserver.blockly.min.js"></script>
-
-    <!-- CSS override to load the images also from an external source -->
-    <style>
-        #header {
-            background-image: url(https://juwis.github.io/hackerschool/webserver/www/css/Logo.jpg);
-        }
-        .blocklySvg {
-            background-image: none;
-        }
-    </style>
+    <script type="text/javascript" src="js/webserver.ace.min.js"></script>
 
 <head>
 </head>
 <body id="body">
+
     <table>
         <tr>
             <td id="header" colspan="2"></td>
@@ -46,16 +32,14 @@
             </td>
         </tr>
         <tr>
-            <td id="blocklyArea" style="width: 70%">
-            </td>
-            <td id="codeArea" class="ui-widget ui-widget-content ui-corner-all">
-                Python Code:
-                <textarea class="text" id="pythonCode">Your Code</textarea>
+            <td>
+                <pre id="editor">
+# Write your code here and click on run to execute it.
+for i in range(1, 5):
+    print("HackerSchool Rocks %d" % i)</pre>
             </td>
         </tr>
     </table>
-
-    <div id="blocklyDiv" style="position: absolute;"></div>
 
     <div id="loadDialog" class="modal">
         <div class="modal-content">
