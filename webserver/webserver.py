@@ -3,13 +3,13 @@
 from hs_http_server import HSHttpServer
 from hs_term import HSTerm
 
-def main(useThreads=False):
+def main():
     """
     Create the Server and listen on each incomming request.
     """
     server = HSHttpServer()
 
-    server.start(useThreads)
+    server.start()
 
     HSTerm.term('Stop Server')
 

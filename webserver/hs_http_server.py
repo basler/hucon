@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import gc
+import time
+
 try:
     # Import different packages on the micro python.
     import uos as os
@@ -10,8 +12,7 @@ except:
 
 from hs_term import HSTerm
 
-import time
-
+# Call the garbage collector.
 gc.collect()
 
 class HSHttpServer:
@@ -91,7 +92,7 @@ class HSHttpServer:
             HSTerm.term('Could not read my own ip address. :(')
 
     @classmethod
-    def start(cls, use_threads: bool):
+    def start(cls):
         """
         Get a socket object and start the listening on the defined port.
         If the _use_threads_ is True, every new connection will be handled within a new thread.
@@ -114,12 +115,6 @@ class HSHttpServer:
             cls._server_socket = None
             return
 
-        if use_threads:
-            from threading import Thread
-            HSTerm.term('Threads are used.')
-        else:
-            HSTerm.term('No threads are used.')
-
         # Start the socket listening.
         cls._server_socket.listen(5)
         HSTerm.term('Listening, connect your browser to http://' + cls._own_ip + ':' + str(cls._LISTENING_PORT))
@@ -135,16 +130,10 @@ class HSHttpServer:
                 gc.collect()
 
                 HSTerm.term('Connection accpted from ' + ip + ':' + port)
+                HSHttpServer.handle_connection(clientsocket, ip, port)
 
-                if use_threads:
-                    try:
-                        Thread(target=HSHttpServer.handle_connection, args=(clientsocket, ip, port)).start()
-                    except Exception as e:
-                        HSTerm.term('Thread error: %s' % str(e))
-                else:
-                    HSHttpServer.handle_connection(clientsocket, ip, port)
             except KeyboardInterrupt:
-                HSTerm.term('Close socket.')
+                HSTerm.term('\nClose socket.')
                 if clientsocket:
                     clientsocket.close()
                 break
@@ -154,8 +143,8 @@ class HSHttpServer:
         # Close the socket listening after the user want to stop it.
         cls._server_socket.close()
 
-    @staticmethod
-    def handle_connection(clientsocket: socket.socket, ip: str, port: str, max_buffer_size: int = 28):
+    @classmethod
+    def handle_connection(cls, clientsocket: socket.socket, ip: str, port: str, max_buffer_size: int = 28):
         """
         Handle every connection within this function.
         This function can be called within a new thread or within the main thread.
@@ -236,8 +225,8 @@ class HSHttpServer:
         clientsocket.close()
         gc.collect()
 
-    @staticmethod
-    def file_exists(filename: str) -> bool:
+    @classmethod
+    def file_exists(cls, filename: str) -> bool:
         """
         Try to open the file. If there is an exeption, return false.
         """
@@ -248,8 +237,8 @@ class HSHttpServer:
             HSTerm.term("File %s not found." % filename)
             return False
 
-    @staticmethod
-    def get_file_length(filename: str) -> int:
+    @classmethod
+    def get_file_length(cls, filename: str) -> int:
         """
         Get the length of the file in bytes.
         """
@@ -262,8 +251,8 @@ class HSHttpServer:
             HSTerm.term("Get file length error: %s" % str(e))
         return size_in_bytes
 
-    @staticmethod
-    def not_found_page() -> (str, str):
+    @classmethod
+    def not_found_page(cls) -> (str, str):
         """
         Get the file content and header for the 'Not Found' page.
         """
@@ -272,8 +261,8 @@ class HSHttpServer:
 
         return (header, filename)
 
-    @staticmethod
-    def get_html_header(status: int, filename: str, accept_gzip: bool = False) -> str:
+    @classmethod
+    def get_html_header(cls, status: int, filename: str, accept_gzip: bool = False) -> str:
         """
         Get the header base on the
         """
@@ -299,8 +288,8 @@ class HSHttpServer:
 
         return header
 
-    @staticmethod
-    def handle_request(header, data) -> (str, str):
+    @classmethod
+    def handle_request(cls, header: str, data: str) -> (str, str):
         """
         Handle the request.
         """
