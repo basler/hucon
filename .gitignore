@@ -2,3 +2,4 @@ __pycache__
 webserver/www/tmpfile.py
 webserver/exec_file.txt
 *.sublime*
+password

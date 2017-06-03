@@ -27,14 +27,17 @@ class HSHttpServer:
     # Folder where all files for the server are stored.
     _DOCUMENT_ROOT =  os.getcwd() + '/www'
 
-    # Private server socket to listen for new connections.
-    _server_socket = None
-
     # Define the port on which the server should listening on.
     _LISTENING_PORT = 8080
 
+    # Private server socket to listen for new connections.
+    _server_socket = None
+
     # Private variable to store its own ip address.
     _own_ip = ''
+
+    # Private key for the authorization to the key.
+    _authorization_key = ''
 
     # Define the HTML MIME Types which are possible to send with this webserver implementation.
     # There are more types defined here: https://wiki.selfhtml.org/wiki/Referenz:MIME-Typen
@@ -61,7 +64,10 @@ class HSHttpServer:
     # Definition of all supported status codes.
     _HTML_STATUS = {
         200: '200 OK',
-        404: '404 Not Found'
+        401: '401 Unauthorized',
+        403: '403 Forbidden',
+        404: '404 Not Found',
+        500: '500 Internal Server Error',
     }
 
     # Mark to search for the content length during the receive of the bytestream.
@@ -80,10 +86,11 @@ class HSHttpServer:
     _HTTP_HEADER_END_SIZE_BYTE = 4
 
     @classmethod
-    def __init__(cls):
+    def __init__(cls, key: str):
         """
         Create a socket to get its own ip address.
         """
+        cls._authorization_key = key
         try:
             cls._own_ip = str(socket.gethostbyname(socket.gethostname()))
             return
@@ -138,7 +145,7 @@ class HSHttpServer:
                     clientsocket.close()
                 break
             except Exception as e:
-                HSTerm.term("Main loop error: %s" % str(e))
+                HSTerm.term('Main loop error: %s' % str(e))
 
         # Close the socket listening after the user want to stop it.
         cls._server_socket.close()
@@ -211,7 +218,7 @@ class HSHttpServer:
                                     ttime = 1
 
                                 HSTerm.term(
-                                    "%d Bytes sent in %d seconds with %d Bytes/second" % (
+                                    '%d Bytes sent in %d seconds with %d Bytes/second' % (
                                         sent_data, ttime, sent_data/ttime
                                     )
                                 )
@@ -219,7 +226,7 @@ class HSHttpServer:
                                 gc.collect()
                             bytes_read = file.read(max_buffer_size)
                 except Exception as e:
-                    HSTerm.term("Handle connection error: %s" % str(e))
+                    HSTerm.term('Handle connection error: %s' % str(e))
 
         # So, the 'keep-alive' statement is not supported by this implementation. Close it!
         clientsocket.close()
@@ -234,7 +241,7 @@ class HSHttpServer:
             open(filename, 'rb')
             return True
         except Exception:
-            HSTerm.term("File %s not found." % filename)
+            HSTerm.term('File %s not found.' % filename)
             return False
 
     @classmethod
@@ -248,7 +255,7 @@ class HSHttpServer:
             size_in_bytes = statinfo[6]
             HSTerm.term(str(size_in_bytes))
         except Exception as e:
-            HSTerm.term("Get file length error: %s" % str(e))
+            HSTerm.term('Get file length error: %s' % str(e))
         return size_in_bytes
 
     @classmethod
@@ -284,6 +291,8 @@ class HSHttpServer:
         header += 'Content-Length: %d\r\n' % HSHttpServer.get_file_length(filename)
         if accept_gzip:
             header += 'Content-Encoding: gzip\r\n'
+        if status == 401:
+            header += 'WWW-Authenticate: Basic realm="%s"\n\n' % HSHttpServer._SERVER_NAME
         header += '\r\n'
 
         return header
@@ -309,40 +318,85 @@ class HSHttpServer:
         HSTerm.term('Path: ' + header_path)
 
         accept_gzip = False
+        authorized = False
         for line in header_lines:
             if 'Accept-Encoding' in line:
                 if 'gzip' in line:
                     accept_gzip = True
+            if 'Authorization' in line:
+                HSTerm.term(line)
+                if cls._authorization_key in line:
+                    authorized = True
 
         header = ''
         filename = ''
 
+        # Stop if the user has no authorization to get any page.
+        if not authorized:
+            filename = HSHttpServer._DOCUMENT_ROOT + '/index.html'
+            header = HSHttpServer.get_html_header(401, filename)
+            return (header, filename)
+
         # Handle a POST request
         if 'POST' == header_method:
+
+            # Clear the exec file.
+            HSTerm.clear_exec()
 
             # Handle the access on a '__Execute__' page.
             header_path = header_path.strip('/')
             if '__Execute__' == header_path:
-
-                # Clear the exec file.
-                HSTerm.clear_exec()
-
-                HSTerm.term('data: %s' % data)
 
                 # Replace all 'print' statements with 'HSTerm.term_exec'
                 data = data.replace('print', 'HSTerm.term_exec')
 
                 # Execute the give data.
                 try:
-                    return_val = exec(data)
+                    exec(data)
                 except Exception as e:
-                    HSTerm.term_exec("Error: %s" % str(e))
+                    HSTerm.term_exec('Error: %s' % str(e))
 
                 # Get the filename and generate the header.
                 filename = HSTerm.exec_filename()
                 header = HSHttpServer.get_html_header(200, filename)
 
                 # Return the result header and the response from the executed data.
+                return header, filename
+
+            # Handle a set command.
+            if '__Set__' == header_path:
+
+                # Convert the data into a key/value dictionary.
+                args = {}
+                for arg in data.split('&'):
+                    (key, value) = arg.split(':')
+                    args[key] = value
+
+                try:
+                    # Handle the command.
+                    if args['command'] == 'save_password':
+
+                        if (args['oldKey'] == HSHttpServer._authorization_key and args['newKey'] != ''):
+
+                            HSTerm.term('Store the new password')
+                            # Store the password.
+                            HSHttpServer._authorization_key = args['newKey']
+                            with open('password', 'w') as file:
+                                file.write(HSHttpServer._authorization_key)
+
+                            HSTerm.term_exec('New password written.')
+
+                        else:
+                            HSTerm.term_exec('Error: Could not store the password.')
+                            HSTerm.term_exec('The current Password is not the same!')
+
+                except Exception as e:
+                    HSTerm.term_exec('Internal Error:\n%s' % str(e))
+
+                filename = HSTerm.exec_filename()
+                header = HSHttpServer.get_html_header(200, filename)
+
+                # Return the result header and the response from the password save.
                 return header, filename
 
             # Return 'Not Found'

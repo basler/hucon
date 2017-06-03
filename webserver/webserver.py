@@ -7,8 +7,19 @@ def main():
     """
     Create the Server and listen on each incomming request.
     """
-    server = HSHttpServer()
 
+    # Default key is hacker:school base64 coded.
+    key = 'aGFja2VyOnNjaG9vbA=='
+
+    # Load the password if possible.
+    try:
+        with open('password', 'r') as file:
+            key = file.read()
+    except Exception as e:
+        pass
+
+    # Create the server and start it.
+    server = HSHttpServer(key)
     server.start()
 
     HSTerm.term('Stop Server')

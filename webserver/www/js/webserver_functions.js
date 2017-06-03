@@ -1,17 +1,20 @@
 // On document ready this function will be called and initialize the complete website.
 docReady(function(){
     // Add the change event to show the filename instead.
-    document.getElementById('fileinput').addEventListener( 'change', function( e )
-    {
-        var fileName = '';
-        if( this.files && this.files.length > 1 )
-            fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
-        else
-            fileName = e.target.value.split( '\\' ).pop();
+    input = document.getElementById('fileinput')
+    if (input) {
+        input.addEventListener( 'change', function( e )
+        {
+            var fileName = '';
+            if( this.files && this.files.length > 1 )
+                fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
+            else
+                fileName = e.target.value.split( '\\' ).pop();
 
-        if( fileName )
-            document.getElementById('fileLabel').querySelector( 'span' ).innerHTML = fileName;
-    });
+            if( fileName )
+                document.getElementById('fileLabel').querySelector( 'span' ).innerHTML = fileName;
+        });
+    }
 });
 
 // When the user clicks anywhere outside of the modal, close it
@@ -97,11 +100,44 @@ function command(value) {
         };
         xhttp.open('POST', '__Execute__', false);
         xhttp.send(val);
+    } else if (value == 'save_password') {
+        oldUsername = document.getElementById('current_username').value;
+        oldPassword = document.getElementById('current_password').value;
+        newUsername = document.getElementById('new_username').value;
+        newPassword = document.getElementById('new_password').value;
+        confirmPassword = document.getElementById('confirm_password').value;
+
+        if (oldUsername == '' || oldPassword == '' || newUsername == '' || newPassword == '' || confirmPassword == '') {
+            apendConsoleLog('You must fill every element.');
+            return
+        }
+
+        if (newPassword != confirmPassword) {
+            apendConsoleLog('The new and confirmed password are not the same.');
+            return
+        }
+
+        oldKey = btoa(oldUsername + ':' + oldPassword);
+        newKey = btoa(newUsername + ':' + newPassword);
+
+        var val = 'command:save_password&oldKey:' + oldKey + '&newKey:' + newKey;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    apendConsoleLog(this.responseText);
+                } else {
+                    alert('Could not save the password on the server.');
+                }
+            }
+        };
+        xhttp.open('POST', '__Set__', false);
+        xhttp.send(val);
     }
 }
 
 function apendConsoleLog(message) {
-    var time = new Date().toLocaleTimeString().replace("/.*(\d{2}:\d{2}:\d{2}).*/", "$1");
+    var time = new Date().toLocaleTimeString().replace('/.*(\d{2}:\d{2}:\d{2}).*/', '$1');
     document.getElementById('consoleLog').value = time + '\n\n' + message;
 
     openConsoleLogDialog()
