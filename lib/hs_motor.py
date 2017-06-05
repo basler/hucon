@@ -3,9 +3,9 @@ from machine import PWM
 import math
 
 
-class HSServo:
+class HSMotor:
     """
-    A simple class for controlling hobby servos.
+    A simple class for controlling hobby servos which are modified to a motor.
 
     Args:
         pin (machine.Pin): The pin where servo is connected. Must support PWM.
@@ -23,12 +23,15 @@ class HSServo:
         self.angle = angle
         self.pwm = PWM(pin, freq=freq, duty=0)
 
-    def set_angle(self, degrees):
-        """Move to the specified angle in ``degrees`` or ``radians``."""
-        if degrees < 0:
-            degrees = 0
-        if degrees > 180:
-            degrees = 180
-        total_range = self.max_us - self.min_us
-        us = self.min_us + total_range * degrees // self.angle
-        self.write_us(us)
+    def set_speed(self, speed):
+        """Set the signal to be ``us`` microseconds long. Zero disables it."""
+        if speed < -100:
+            speed = -100
+        if speed > 100:
+            speed = 100
+        if speed == 0:
+            self.pwm.duty(0)
+            return
+        speed = min(self.max_us, max(self.min_us, speed))
+        duty = speed * 1024 * self.freq // 1000000
+        self.pwm.duty(duty)

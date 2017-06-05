@@ -8,7 +8,7 @@ Blockly.Blocks['servo_object'] = {
         this.setOutput(true, 'Servo');
 
         this.setTooltip(function() {
-            return 'Create a Servo object which is conntected to the given pin.';
+            return 'Create a servo object which is conntected to the given pin.';
         });
     }
 }
@@ -20,7 +20,7 @@ Blockly.Python['servo_object'] = function(block) {
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
-Blockly.Blocks['servo_write_angle'] = {
+Blockly.Blocks['servo_set_angle'] = {
     init: function() {
         this.setColour(208);
 
@@ -40,36 +40,9 @@ Blockly.Blocks['servo_write_angle'] = {
         });
     }
 };
-Blockly.Python['servo_write_angle'] = function(block) {
+Blockly.Python['servo_set_angle'] = function(block) {
     var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
     var angle = Blockly.Python.valueToCode(block, 'Angle', Blockly.Python.ORDER_ATOMIC) || '0';
-    var code = varName + '.write_angle(' + angle + ')\n';
-    return code;
-};
-
-Blockly.Blocks['servo_write_us'] = {
-    init: function() {
-        this.setColour(208);
-
-        this.appendDummyInput()
-            .appendField('Set')
-            .appendField(new Blockly.FieldVariable('servo'), 'VAR');
-        this.appendValueInput('Time')
-            .setCheck('Number')
-            .appendField('us');
-        this.setInputsInline(true);
-        this.setPreviousStatement(true);
-        this.setNextStatement(true);
-
-        var thisBlock = this;
-        this.setTooltip(function() {
-            return 'Set the servo for us on pin ' + thisBlock.getFieldValue('VAR');
-        });
-    }
-};
-Blockly.Python['servo_write_us'] = function(block) {
-    var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
-    var time = Blockly.Python.valueToCode(block, 'Time', Blockly.Python.ORDER_ATOMIC) || '0';
-    var code = varName + '.write_us(' + time + ')\n';
+    var code = varName + '.set_angle(' + angle + ')\n';
     return code;
 };

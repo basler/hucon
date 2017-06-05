@@ -55,6 +55,7 @@ os.system('uglifyjs -c \
     ../webserver/www/js/custom_blocks_machine.js \
     ../webserver/www/js/custom_blocks_neopixel.js \
     ../webserver/www/js/custom_blocks_servo.js \
+    ../webserver/www/js/custom_blocks_motor.js \
     ../webserver/www/js/webserver_blockly.js \
     ../webserver/www/js/webserver_functions.js')
 
