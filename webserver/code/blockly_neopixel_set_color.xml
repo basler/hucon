@@ -1,0 +1,51 @@
+﻿<xml xmlns="http://www.w3.org/1999/xhtml">
+  <block type="variables_set" id="pULLQZL6^GM2#9o#!IW!" x="176" y="179">
+    <field name="VAR">np</field>
+    <value name="VALUE">
+      <block type="neopixel_array" id="]Bux1n5NOTROGCN,7FLP">
+        <value name="VAR">
+          <block type="machine_pin" id="^Znjek)]HJg]V|Z+Ygho">
+            <field name="MACHINE_PIN_CONSTANT">NEOPIXEL</field>
+          </block>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="variables_set" id="155=uU]|%WmZnVom49UI">
+        <field name="VAR">np_left</field>
+        <value name="VALUE">
+          <block type="lists_getIndex" id="a#zg;L=.*OWd4aW-D8t:">
+            <mutation statement="false" at="true"></mutation>
+            <field name="MODE">GET</field>
+            <field name="WHERE">FROM_START</field>
+            <value name="VALUE">
+              <block type="variables_get" id="t)72}oUHdjTx0QMWpi.h">
+                <field name="VAR">np</field>
+              </block>
+            </value>
+            <value name="AT">
+              <block type="math_number" id="F/IAXM(47uCLUO$jEBNJ">
+                <field name="NUM">1</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="variables_set" id=";gGLr4fxyHNR^SsLg}ws">
+            <field name="VAR">np_left</field>
+            <value name="VALUE">
+              <block type="neopixel_colour" id="[#KLq3a5#Ww2kupZzL#%">
+                <field name="COLOUR">#66ff99</field>
+              </block>
+            </value>
+            <next>
+              <block type="neopixel_write" id="~KGAV-xmt4n9Il@Jv2EM">
+                <field name="VAR">np</field>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>
