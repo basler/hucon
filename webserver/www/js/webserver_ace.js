@@ -8,26 +8,21 @@ docReady(function(){
     editor.session.setMode("ace/mode/python");
 });
 
-// Clear the workspace.
 function newFile() {
     editor.setValue('# Write down your code ...\n');
 }
 
-// This function will be called after the load dialog form is shown and the load button within this dialog is pressed.
-function loadFile(e) {
-    var pythonCode = e.target.result;
-    if (pythonCode) {
-        editor.setValue(pythonCode);
+function loadFile(data) {
+    if (data) {
+        editor.setValue(data);
     }
-    apendConsoleLog('Python code loaded from local disk.');
-}
-
-function saveFile() {
-    file = new File([editor.getValue()], 'HackerSchool.py', {type: 'text/plain;charset=utf-8'});
-    saveAs(file);
-    apendConsoleLog('Python code saved on local disk.')
+    apendConsoleLog('Python code loaded.');
 }
 
 function getPythonCode() {
+    return editor.getValue();
+}
+
+function getFileData() {
     return editor.getValue();
 }

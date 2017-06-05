@@ -1,73 +1,46 @@
-// We need for the update of the code the blockly workspace.
 var blocklyWorkspace;
 
 // On document ready this function will be called and initialize the complete website.
 docReady(function(){
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4) {
-            if (this.status == 200) {
-                // Initialize blockly
-                // Do this as a last step in this function to calculate the size correctly!
-                var blocklyArea = document.getElementById('blocklyArea');
-                var blocklyDiv = document.getElementById('blocklyDiv');
-                blocklyWorkspace = Blockly.inject(blocklyDiv, {toolbox: this.responseText});
+    ajax('GET', 'xml/toolbox.xml', '', function(message) {
+        // Initialize blockly
+        // Do this as a last step in this function to calculate the size correctly!
+        var blocklyArea = document.getElementById('blocklyArea');
+        var blocklyDiv = document.getElementById('blocklyDiv');
+        blocklyWorkspace = Blockly.inject(blocklyDiv, {toolbox: message});
 
-                // Add the listener on resize to call the onResize function
-                window.addEventListener('resize', onResize, false);
-                onResize();
-                Blockly.svgResize(blocklyWorkspace);
+        // Add the listener on resize to call the onResize function
+        window.addEventListener('resize', onResize, false);
+        onResize();
+        Blockly.svgResize(blocklyWorkspace);
 
-                // Add the listener on every change to update the code
-                blocklyWorkspace.addChangeListener(udpateCode);
-            } else {
-                alert('Could not load the blockly toolbox!');
-            }
-        }
-    };
-    xhttp.open('GET', 'xml/toolbox.xml', false);
-    xhttp.send();
+        // Add the listener on every change to update the code
+        blocklyWorkspace.addChangeListener(udpateCode);
+    });
 });
 
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-    loadDialog = document.getElementById('loadDialog');
-    if (event.target == loadDialog) {
-        closeLoadDialog();
-    }
-    consoleLogDialog = document.getElementById('consoleLogDialog');
-    if (event.target == consoleLogDialog) {
-        closeConsoleLogDialog();
-    }
-}
-
-// Clear the workspace.
 function newFile() {
     Blockly.mainWorkspace.clear();
 }
 
-// This function will be called after the load dialog form is shown and the load button within this dialog is pressed.
-function loadFile(e) {
-    var xmlText = e.target.result;
-    if (xmlText) {
+function loadFile(data) {
+    if (data) {
         Blockly.mainWorkspace.clear();
-        xmlDom = Blockly.Xml.textToDom(xmlText);
+        xmlDom = Blockly.Xml.textToDom(data);
         Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xmlDom);
     }
     apendConsoleLog('Blockly workspace loaded from local disk.');
 }
 
-function saveFile() {
+function getPythonCode() {
+    return Blockly.Python.workspaceToCode(blocklyWorkspace);
+}
+
+function getFileData() {
     var xmlDom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
     var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
 
-    file = new File([xmlText], 'HackerSchool-blockly.xml', {type: 'text/plain;charset=utf-8'});
-    saveAs(file);
-    apendConsoleLog('Blockly workspace save on local disk.')
-}
-
-function getPythonCode() {
-    return Blockly.Python.workspaceToCode(blocklyWorkspace);
+    return xmlText;
 }
 
 // On every change of the window, this function will be called to update the

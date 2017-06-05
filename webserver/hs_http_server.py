@@ -6,9 +6,11 @@ try:
     # Import different packages on the micro python.
     import uos as os
     import usocket as socket
+    import ujson as json
 except:
     import os
     import socket
+    import json
 
 from hs_term import HSTerm
 
@@ -25,7 +27,10 @@ class HSHttpServer:
     _SERVER_NAME = 'HackerSchool Custon Webserver'
 
     # Folder where all files for the server are stored.
-    _DOCUMENT_ROOT =  os.getcwd() + '/www'
+    _DOCUMENT_ROOT = os.getcwd() + '/www'
+
+    # Folder where all custom code files are stored.
+    _CODE_ROOT = os.getcwd() + '/code'
 
     # Define the port on which the server should listening on.
     _LISTENING_PORT = 8080
@@ -136,8 +141,8 @@ class HSHttpServer:
                 ip, port = str(addr[0]), str(addr[1])
                 gc.collect()
 
-                HSTerm.term('Connection accpted from ' + ip + ':' + port)
-                HSHttpServer.handle_connection(clientsocket, ip, port)
+                HSTerm.term('\nConnection accpted from ' + ip + ':' + port)
+                cls.handle_connection(clientsocket, ip, port)
 
             except KeyboardInterrupt:
                 HSTerm.term('\nClose socket.')
@@ -164,31 +169,31 @@ class HSHttpServer:
         receive_buffer = clientsocket.recv(max_buffer_size)
 
         # Try to find the end of the HTTP header.
-        while receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK_BYTE) == -1:
+        while receive_buffer.find(cls._HTTP_HEADER_END_MARK_BYTE) == -1:
             receive_buffer += clientsocket.recv(max_buffer_size)
 
         # Try to find a 'Content-Length' within the HTTP header to check the length after the '\r\n\r\n' statement.
         # This is needed for large packages when the server received post data.
-        index = receive_buffer.find(HSHttpServer._HTTP_CONTENT_LENGTH_MARK_BYTE)
+        index = receive_buffer.find(cls._HTTP_CONTENT_LENGTH_MARK_BYTE)
         if index > 0:
             # Found a 'Content Length' mark.
             # So, try to find the end of the line to catch up the additional content length.
-            index += HSHttpServer._HTTP_CONTENT_LENGTH_SIZE_BYTE
+            index += cls._HTTP_CONTENT_LENGTH_SIZE_BYTE
             gc.collect()
-            line_end = receive_buffer.find(HSHttpServer._HTTP_LINE_END_MARK_BYTE, index)
+            line_end = receive_buffer.find(cls._HTTP_LINE_END_MARK_BYTE, index)
             gc.collect()
             content_length = int(receive_buffer[index:line_end])
             gc.collect()
 
-        index = receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK_BYTE)
-        packet_len = index + HSHttpServer._HTTP_HEADER_END_SIZE_BYTE + content_length
+        index = receive_buffer.find(cls._HTTP_HEADER_END_MARK_BYTE)
+        packet_len = index + cls._HTTP_HEADER_END_SIZE_BYTE + content_length
 
         # Receive additional data until the package is complete.
         while len(receive_buffer) < packet_len:
             receive_buffer += clientsocket.recv(max_buffer_size)
 
         #  Split the header/data from the receive buffer.
-        (header, data) = receive_buffer.split(HSHttpServer._HTTP_HEADER_END_MARK_BYTE)
+        (header, data) = receive_buffer.split(cls._HTTP_HEADER_END_MARK_BYTE)
 
         # Decode the byet stream into a utf-8 string
         header = header.decode('utf-8')
@@ -196,7 +201,7 @@ class HSHttpServer:
 
         # Handle the request if there is an header.
         if header:
-            (header, filename) = HSHttpServer.handle_request(header, data)
+            (header, filename) = cls.handle_request(header, data)
 
             # Send the response if there is a header. :)
             if '' != header:
@@ -241,7 +246,6 @@ class HSHttpServer:
             open(filename, 'rb')
             return True
         except Exception:
-            HSTerm.term('File %s not found.' % filename)
             return False
 
     @classmethod
@@ -253,7 +257,7 @@ class HSHttpServer:
         try:
             statinfo = os.stat(filename)
             size_in_bytes = statinfo[6]
-            HSTerm.term(str(size_in_bytes))
+            HSTerm.term('Size: %d' % size_in_bytes)
         except Exception as e:
             HSTerm.term('Get file length error: %s' % str(e))
         return size_in_bytes
@@ -263,8 +267,9 @@ class HSHttpServer:
         """
         Get the file content and header for the 'Not Found' page.
         """
-        filename = HSHttpServer._DOCUMENT_ROOT + '/404.html'
-        header = HSHttpServer.get_html_header(404, filename)
+        HSTerm.term('File %s not found.' % filename)
+        filename = cls._DOCUMENT_ROOT + '/404.html'
+        header = cls.get_html_header(404, filename)
 
         return (header, filename)
 
@@ -281,18 +286,18 @@ class HSHttpServer:
             fileext = filename[start_index:end_index]
 
         header = ''
-        header += 'HTTP/1.1 %s\r\n' % HSHttpServer._HTML_STATUS[status]
-        header += 'Server: %s\r\n' % HSHttpServer._SERVER_NAME
+        header += 'HTTP/1.1 %s\r\n' % cls._HTML_STATUS[status]
+        header += 'Server: %s\r\n' % cls._SERVER_NAME
         header += 'Connection: close\r\n'
-        if fileext in HSHttpServer._MIME_TYPE:
-            header += 'Content-Type: %s\r\n' % HSHttpServer._MIME_TYPE[fileext]
+        if fileext in cls._MIME_TYPE:
+            header += 'Content-Type: %s\r\n' % cls._MIME_TYPE[fileext]
         else:
-            header += 'Content-Type: %s\r\n' % HSHttpServer._MIME_TYPE['txt']
-        header += 'Content-Length: %d\r\n' % HSHttpServer.get_file_length(filename)
+            header += 'Content-Type: %s\r\n' % cls._MIME_TYPE['txt']
+        header += 'Content-Length: %d\r\n' % cls.get_file_length(filename)
         if accept_gzip:
             header += 'Content-Encoding: gzip\r\n'
         if status == 401:
-            header += 'WWW-Authenticate: Basic realm="%s"\n\n' % HSHttpServer._SERVER_NAME
+            header += 'WWW-Authenticate: Basic realm="%s"\n\n' % cls._SERVER_NAME
         header += '\r\n'
 
         return header
@@ -324,7 +329,6 @@ class HSHttpServer:
                 if 'gzip' in line:
                     accept_gzip = True
             if 'Authorization' in line:
-                HSTerm.term(line)
                 if cls._authorization_key in line:
                     authorized = True
 
@@ -333,8 +337,8 @@ class HSHttpServer:
 
         # Stop if the user has no authorization to get any page.
         if not authorized:
-            filename = HSHttpServer._DOCUMENT_ROOT + '/index.html'
-            header = HSHttpServer.get_html_header(401, filename)
+            filename = cls._DOCUMENT_ROOT + '/index.html'
+            header = cls.get_html_header(401, filename)
             return (header, filename)
 
         # Handle a POST request
@@ -343,46 +347,40 @@ class HSHttpServer:
             # Clear the exec file.
             HSTerm.clear_exec()
 
-            # Handle the access on a '__Execute__' page.
-            header_path = header_path.strip('/')
-            if '__Execute__' == header_path:
-
-                # Replace all 'print' statements with 'HSTerm.term_exec'
-                data = data.replace('print', 'HSTerm.term_exec')
-
-                # Execute the give data.
-                try:
-                    exec(data)
-                except Exception as e:
-                    HSTerm.term_exec('Error: %s' % str(e))
-
-                # Get the filename and generate the header.
-                filename = HSTerm.exec_filename()
-                header = HSHttpServer.get_html_header(200, filename)
-
-                # Return the result header and the response from the executed data.
-                return header, filename
+            # Set the filename to the exec file anyway.
+            filename = HSTerm.exec_filename()
 
             # Handle a set command.
-            if '__Set__' == header_path:
-
-                # Convert the data into a key/value dictionary.
-                args = {}
-                for arg in data.split('&'):
-                    (key, value) = arg.split(':')
-                    args[key] = value
-
+            header_path = header_path.strip('/')
+            if '__COMMAND__' == header_path:
                 try:
-                    # Handle the command.
-                    if args['command'] == 'save_password':
+                    # Convert the data into a key/value dictionary.
+                    args = json.loads(data)
 
-                        if (args['oldKey'] == HSHttpServer._authorization_key and args['newKey'] != ''):
+                    print(args)
+
+                    # Execute the data which are within the code argument.
+                    if args['command'] == 'execute':
+
+                        # Replace all 'print' statements with 'HSTerm.term_exec'
+                        code = args['code'].replace('print', 'HSTerm.term_exec')
+
+                        # Execute the give data.
+                        try:
+                            exec(code)
+                        except Exception as e:
+                            HSTerm.term_exec('Error: %s' % str(e))
+
+                    # Save the new password key only when the oldkey is the same with the current.
+                    elif args['command'] == 'save_password':
+
+                        if (args['oldKey'] == cls._authorization_key and args['newKey'] != ''):
 
                             HSTerm.term('Store the new password')
                             # Store the password.
-                            HSHttpServer._authorization_key = args['newKey']
+                            cls._authorization_key = args['newKey']
                             with open('password', 'w') as file:
-                                file.write(HSHttpServer._authorization_key)
+                                file.write(cls._authorization_key)
 
                             HSTerm.term_exec('New password written.')
 
@@ -390,17 +388,34 @@ class HSHttpServer:
                             HSTerm.term_exec('Error: Could not store the password.')
                             HSTerm.term_exec('The current Password is not the same!')
 
+                    # Get the list of all available code files.
+                    elif args['command'] == 'get_file_list':
+                        data = {}
+                        data['files'] = os.listdir(cls._CODE_ROOT)
+                        HSTerm.term_exec(json.dumps(data))
+
+                    # Get the data from a specific code file.
+                    elif args['command'] == 'get_file_data':
+                        filename = cls._CODE_ROOT + '/' + args['filename']
+
+                    # Save the data within the given file name.
+                    elif args['command'] == 'save_file_data':
+                        savename = cls._CODE_ROOT + '/' + args['filename']
+                        with open(savename, 'w') as file:
+                            file.write(args['code'])
+                        HSTerm.term_exec('File %s saved.' % savename)
+
                 except Exception as e:
                     HSTerm.term_exec('Internal Error:\n%s' % str(e))
-
-                filename = HSTerm.exec_filename()
-                header = HSHttpServer.get_html_header(200, filename)
-
-                # Return the result header and the response from the password save.
-                return header, filename
+                    header = cls.get_html_header(500, filename)
+                else:
+                    header = cls.get_html_header(200, filename)
+                finally:
+                    # Return the result header and the response from the password save.
+                    return header, filename
 
             # Return 'Not Found'
-            return HSHttpServer.not_found_page()
+            return cls.not_found_page()
 
         # Handle a GET request.
         if 'GET' == header_method:
@@ -420,25 +435,26 @@ class HSHttpServer:
                 filename = 'index.html'
 
             # add the document path to the filename
-            filename = HSHttpServer._DOCUMENT_ROOT + '/' + filename
+            filename = cls._DOCUMENT_ROOT + '/' + filename
 
             if accept_gzip:
-                if HSHttpServer.file_exists(filename + '.gz'):
+                if cls.file_exists(filename + '.gz'):
                     HSTerm.term('Sending gzip version of %s' % filename)
 
                     # prepare everything for a gzip file response.
                     filename += '.gz'
-                    header = HSHttpServer.get_html_header(200, filename, accept_gzip)
+                    header = cls.get_html_header(200, filename, accept_gzip)
 
                     # Return the result header and response for the GET.
                     return (header, filename)
                 else:
                     HSTerm.term('no compressed file found :(')
 
-            if HSHttpServer.file_exists(filename):
-                header = HSHttpServer.get_html_header(200, filename)
+            if cls.file_exists(filename):
+                HSTerm.term('Sending %s' % filename)
+                header = cls.get_html_header(200, filename)
 
                 # Return the result header and response for the GET.
                 return (header, filename)
 
-            return HSHttpServer.not_found_page()
+            return cls.not_found_page()
