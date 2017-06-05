@@ -141,6 +141,10 @@ select {
     border: none;
     width: 90%;
 }
+.right {
+    position: absolute;
+    right: 15px;
+}
 @-webkit-keyframes animatetop {
     from {top: -300px; opacity: 0}
     to {top: 0; opacity: 1}
