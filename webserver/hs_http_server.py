@@ -156,7 +156,7 @@ class HSHttpServer:
         cls._server_socket.close()
 
     @classmethod
-    def handle_connection(cls, clientsocket: socket.socket, ip: str, port: str, max_buffer_size: int = 28):
+    def handle_connection(cls, clientsocket: socket.socket, ip: str, port: str, max_buffer_size: int = 512):
         """
         Handle every connection within this function.
         This function can be called within a new thread or within the main thread.
@@ -224,10 +224,10 @@ class HSHttpServer:
 
                                 HSTerm.term(
                                     '%d Bytes sent in %d seconds with %d Bytes/second' % (
-                                        sent_data, ttime, sent_data/ttime
+                                        sent_data, ttime, sent_data / ttime
                                     )
                                 )
-                                count=0
+                                count = 0
                                 gc.collect()
                             bytes_read = file.read(max_buffer_size)
                 except Exception as e:
@@ -267,7 +267,6 @@ class HSHttpServer:
         """
         Get the file content and header for the 'Not Found' page.
         """
-        HSTerm.term('File %s not found.' % filename)
         filename = cls._DOCUMENT_ROOT + '/404.html'
         header = cls.get_html_header(404, filename)
 
@@ -414,9 +413,6 @@ class HSHttpServer:
                     # Return the result header and the response from the password save.
                     return header, filename
 
-            # Return 'Not Found'
-            return cls.not_found_page()
-
         # Handle a GET request.
         if 'GET' == header_method:
 
@@ -457,4 +453,5 @@ class HSHttpServer:
                 # Return the result header and response for the GET.
                 return (header, filename)
 
-            return cls.not_found_page()
+        HSTerm.term('File %s not found.' % filename)
+        return cls.not_found_page()
