@@ -20,6 +20,43 @@ Blockly.Python['servo_object'] = function(block) {
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
+Blockly.Blocks['servo_object_param'] = {
+    init: function() {
+        this.setColour(208);
+
+        this.appendValueInput('Pin')
+            .setCheck('MachinePin')
+            .appendField('create Servo on')
+        this.appendValueInput('Freq')
+            .setCheck('Number')
+            .appendField('with frequency');
+        this.setInputsInline(true);
+        this.appendValueInput('Min')
+            .setCheck('Number')
+            .appendField('min');
+        this.setInputsInline(true);
+        this.appendValueInput('Max')
+            .setCheck('Number')
+            .appendField('and max');
+        this.setInputsInline(true);
+        this.setOutput(true, 'Servo');
+
+        this.setTooltip(function() {
+            return 'Create a servo object which is conntected to the given pin.';
+        });
+    }
+}
+Blockly.Python['servo_object_param'] = function(block) {
+    Blockly.Python.definitions_['import_servo'] = 'from hs_servo import HSServo as HSServo';
+
+    var argument0 = Blockly.Python.valueToCode(block, 'Pin', Blockly.Python.ORDER_ATOMIC) || 'NULL';
+    var argument1 = Blockly.Python.valueToCode(block, 'Freq', Blockly.Python.ORDER_ATOMIC) || 'NULL';
+    var argument2 = Blockly.Python.valueToCode(block, 'Min', Blockly.Python.ORDER_ATOMIC) || 'NULL';
+    var argument3 = Blockly.Python.valueToCode(block, 'Max', Blockly.Python.ORDER_ATOMIC) || 'NULL';
+    var code = 'HSServo(' + argument0 + ', ' + argument1 + ', ' + argument2 + ', ' + argument3 + ')';
+    return [code, Blockly.Python.ORDER_ATOMIC];
+};
+
 Blockly.Blocks['servo_set_angle'] = {
     init: function() {
         this.setColour(208);

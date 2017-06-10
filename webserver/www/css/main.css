@@ -70,8 +70,9 @@ select {
     background-color: #000000;
 }
 .blocklyToolboxDiv, .injectionDiv {
-    background-color: #000000;
+    background-color: #ddd;
     border: 1px solid #666;
+    color: #000;
 }
 .button_big, .button {
     background-color: #4CAF50; /* Green */

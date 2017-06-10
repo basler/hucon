@@ -29,6 +29,7 @@ function openFileDialog(load, extension) {
     data['command'] = 'get_file_list';
 
     ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
+        console.log(message)
         selection = document.getElementById('fileSelect');
         for(i = selection.options.length - 1 ; i >= 0 ; i--) {
             selection.remove(i);

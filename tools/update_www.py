@@ -17,7 +17,6 @@ files_to_remove = [
     '../webserver/www/blockly/en.js.gz',
     '../webserver/www/blockly/python_compressed.js.gz',
     '../webserver/www/blockly/python_compressed.js.gz',
-    '../webserver/www/docReady/docready.js.gz',
     '../webserver/www/js/webserver.blockly.min.js.gz',
     '../webserver/www/js/webserver.ace.min.js.gz',
     '../webserver/www/xml/toolbox.xml.gz'
@@ -34,7 +33,6 @@ files_to_gzip = [
     '../webserver/www/blockly/python_compressed.js',
     '../webserver/www/blockly/python_compressed.js',
     '../webserver/www/css/main.css',
-    '../webserver/www/docReady/docready.js',
     '../webserver/www/js/webserver.blockly.min.js',
     '../webserver/www/js/webserver.ace.min.js',
     '../webserver/www/xml/toolbox.xmz'
@@ -52,6 +50,7 @@ print('Uglify JS files:')
 print('  ../webserver/www/js/webserver.blockly.min.js')
 os.system('uglifyjs -c \
     -o ../webserver/www/js/webserver.blockly.min.js \
+    ../webserver/www/docReady/docready.js \
     ../webserver/www/js/custom_blocks_machine.js \
     ../webserver/www/js/custom_blocks_neopixel.js \
     ../webserver/www/js/custom_blocks_servo.js \
@@ -62,6 +61,7 @@ os.system('uglifyjs -c \
 print('  ../webserver/www/js/webserver.ace.min.js')
 os.system('uglifyjs -c \
     -o ../webserver/www/js/webserver.ace.min.js \
+    ../webserver/www/docReady/docready.js \
     ../webserver/www/js/webserver_ace.js \
     ../webserver/www/js/webserver_functions.js')
 

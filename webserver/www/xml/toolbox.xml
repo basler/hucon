@@ -313,10 +313,12 @@
     </category>
     <category name="Servo" colour="208">
         <block type="servo_object"></block>
+        <block type="servo_object_param"></block>
         <block type="servo_set_angle"></block>
     </category>
     <category name="Motor" colour="208">
         <block type="motor_object"></block>
+        <block type="motor_object_param"></block>
         <block type="motor_set_speed"></block>
     </category>
 </xml>
