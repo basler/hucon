@@ -304,6 +304,9 @@
     <category name="Machine" colour="208">
         <block type="machine_sleep"></block>
         <block type="machine_pin"></block>
+        <block type="machine_pin_parameter"></block>
+        <block type="machine_pin_get"></block>
+        <block type="machine_pin_set"></block>
     </category>
     <category name="NeoPixel" colour="208">
         <block type="neopixel_array"></block>

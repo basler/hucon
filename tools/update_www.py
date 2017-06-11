@@ -35,7 +35,7 @@ files_to_gzip = [
     '../webserver/www/css/main.css',
     '../webserver/www/js/webserver.blockly.min.js',
     '../webserver/www/js/webserver.ace.min.js',
-    '../webserver/www/xml/toolbox.xmz'
+    '../webserver/www/xml/toolbox.xml'
 ]
 
 # remove all uglified files
