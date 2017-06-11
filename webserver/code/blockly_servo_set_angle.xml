@@ -8,6 +8,7 @@
     <next>
       <block type="variables_set" id="#3X4j09cDW`I,sF|q*fk">
         <field name="VAR">servo</field>
+        <comment pinned="false" h="80" w="160">Erzeuge eine Variable mit den Eigenschaften eines Servos und setze den Winkel auf 90 Grad.</comment>
         <value name="VALUE">
           <block type="servo_object" id="l;V]_VoDiM[nH^Cm{gX[">
             <value name="VAR">

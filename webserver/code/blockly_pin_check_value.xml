@@ -1,0 +1,50 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <block type="variables_set" id="}$k[tQ%g+1~URv0EQUBk" x="240" y="222">
+    <field name="VAR">eingang</field>
+    <comment pinned="false" h="79" w="367">Erzeuge eine Variable mit den Eigenschaften eines Pins.</comment>
+    <value name="VALUE">
+      <block type="machine_pin" id="|Ia$s=@7RK]SQo1bbY84">
+        <field name="Pin">2</field>
+      </block>
+    </value>
+    <next>
+      <block type="controls_if" id="pNJ3TY|Pmfj;S6#2jv;g">
+        <mutation else="1"></mutation>
+        <comment pinned="false" h="84" w="363">Überprüfe den Wert des Eingangs.</comment>
+        <value name="IF0">
+          <block type="logic_compare" id="(u}@x*3rXhJPc|FY_vLd">
+            <field name="OP">EQ</field>
+            <value name="A">
+              <block type="machine_pin_get" id="U(@xshrs3YX}@SH0g%Ni">
+                <field name="Variable">eingang</field>
+              </block>
+            </value>
+            <value name="B">
+              <block type="machine_pin_value" id="AzdOm$)1Zjnu^6B1q?J%">
+                <field name="Value">1</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="DO0">
+          <block type="text_print" id="p|${bq52/-hPNqea5{+.">
+            <value name="TEXT">
+              <shadow type="text" id="nZJLz*|rEBuWQMjDztV0">
+                <field name="TEXT">Ja ich empfange ein Signal am Eingang.</field>
+              </shadow>
+            </value>
+          </block>
+        </statement>
+        <statement name="ELSE">
+          <block type="text_print" id="dH!g=/t)CZ|p;!zBn`XH">
+            <value name="TEXT">
+              <shadow type="text" id="XNdB^hH4DlwjKaB7,Y,P">
+                <field name="TEXT">Hmmm, ich kann nichts sehen.</field>
+              </shadow>
+            </value>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+</xml>

@@ -306,6 +306,7 @@
         <block type="machine_pin"></block>
         <block type="machine_pin_parameter"></block>
         <block type="machine_pin_get"></block>
+        <block type="machine_pin_value"></block>
         <block type="machine_pin_set"></block>
     </category>
     <category name="NeoPixel" colour="208">

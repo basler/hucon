@@ -7,18 +7,28 @@ var MACHINE_PINS = [
     ['GPIO 5', '5'],
 ];
 
+var MACHINE_PIN_VALUES = [
+    ['Off', '0'],
+    ['On', '1']
+];
+
+var MACHINE_PIN_DIRECTIONS = [
+    ['In', 'Pin.IN'],
+    ['Out', 'Pin.OUT']
+];
+
 Blockly.Blocks['machine_pin'] = {
     init: function() {
         this.setColour(208);
 
         this.appendDummyInput()
             .appendField('pin')
-            .appendField(new Blockly.FieldDropdown(MACHINE_PINS) , 'MACHINE_PIN_CONSTANT')
+            .appendField(new Blockly.FieldDropdown(MACHINE_PINS) , 'Pin')
         this.setOutput(true, 'MachinePin');
 
         var thisBlock = this;
         this.setTooltip(function() {
-            var pin_number = thisBlock.getFieldValue('MACHINE_PIN_CONSTANT');
+            var pin_number = thisBlock.getFieldValue('Pin');
             return 'Get a pin object on ' + pin_number;
         });
     }
@@ -26,7 +36,7 @@ Blockly.Blocks['machine_pin'] = {
 Blockly.Python['machine_pin'] = function(block) {
     Blockly.Python.definitions_['import_machine_pin'] = 'from machine import Pin as Pin';
 
-    var pin = block.getFieldValue('MACHINE_PIN_CONSTANT');
+    var pin = block.getFieldValue('Pin');
     var code = 'Pin(' + pin + ')';
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
@@ -37,19 +47,16 @@ Blockly.Blocks['machine_pin_parameter'] = {
 
         this.appendDummyInput()
             .appendField('pin')
-            .appendField(new Blockly.FieldDropdown(MACHINE_PINS) , 'MACHINE_PIN_CONSTANT')
+            .appendField(new Blockly.FieldDropdown(MACHINE_PINS) , 'Pin')
         this.appendDummyInput()
             .appendField('direction')
-            .appendField(new Blockly.FieldDropdown([
-                ['In', 'Pin.IN'],
-                ['Out', 'Pin.OUT'],
-                ]) , 'MACHINE_PIN_DIRECTION')
+            .appendField(new Blockly.FieldDropdown(MACHINE_PIN_DIRECTIONS) , 'Direction')
         this.setOutput(true, 'MachinePin');
 
         var thisBlock = this;
         this.setTooltip(function() {
-            var pin_number = thisBlock.getFieldValue('MACHINE_PIN_CONSTANT');
-            var pin_direction = thisBlock.getFieldValue('MACHINE_PIN_DIRECTION');
+            var pin_number = thisBlock.getFieldValue('Pin');
+            var pin_direction = thisBlock.getFieldValue('Direction');
             return 'Get a pin object on ' + pin_number + ' with the directio ' + pin_direction;
         });
     }
@@ -57,8 +64,8 @@ Blockly.Blocks['machine_pin_parameter'] = {
 Blockly.Python['machine_pin_parameter'] = function(block) {
     Blockly.Python.definitions_['import_machine_pin'] = 'from machine import Pin as Pin';
 
-    var pin = block.getFieldValue('MACHINE_PIN_CONSTANT');
-    var dir = block.getFieldValue('MACHINE_PIN_DIRECTION');
+    var pin = block.getFieldValue('Pin');
+    var dir = block.getFieldValue('Direction');
     var code = 'Pin(' + pin + ', ' + dir + ')';
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
@@ -69,18 +76,38 @@ Blockly.Blocks['machine_pin_get'] = {
 
         this.appendDummyInput()
             .appendField('get value from')
-            .appendField(new Blockly.FieldVariable('pin'), 'VAR');
-        this.setOutput(true, 'Number');
+            .appendField(new Blockly.FieldVariable('pin'), 'Variable');
+        this.setOutput(true, 'MachinePinValue');
 
         var thisBlock = this;
         this.setTooltip(function() {
-            return 'Get the value from the machine pin ' + thisBlock.getFieldValue('VAR');
+            return 'Get the value from the machine pin ' + thisBlock.getFieldValue('Variable');
         });
     }
 };
 Blockly.Python['machine_pin_get'] = function(block) {
-    var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('Variable'), Blockly.Variables.NAME_TYPE);
     var code = varName + '.value()';
+    return [code, Blockly.Python.ORDER_ATOMIC];
+};
+
+Blockly.Blocks['machine_pin_value'] = {
+    init: function() {
+        this.setColour(208);
+
+        this.appendDummyInput()
+            .appendField('Pin')
+            .appendField(new Blockly.FieldDropdown(MACHINE_PIN_VALUES) , 'Value');
+        this.setOutput(true, 'MachinePinValue');
+
+        var thisBlock = this;
+        this.setTooltip(function() {
+            return 'Definition which value are possible.';
+        });
+    }
+};
+Blockly.Python['machine_pin_value'] = function(block) {
+    var code = block.getFieldValue('Value');
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
@@ -90,25 +117,22 @@ Blockly.Blocks['machine_pin_set'] = {
 
         this.appendDummyInput()
             .appendField('Set')
-            .appendField(new Blockly.FieldVariable('pin'), 'VAR');
+            .appendField(new Blockly.FieldVariable('pin'), 'Variable');
         this.appendDummyInput()
             .appendField('to')
-            .appendField(new Blockly.FieldDropdown([
-                ['Off', '0'],
-                ['On', '1'],
-                ]) , 'MACHINE_PIN_VALUE');
+            .appendField(new Blockly.FieldDropdown(MACHINE_PIN_VALUES) , 'MACHINE_PIN_VALUE');
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
         var thisBlock = this;
         this.setTooltip(function() {
-            return 'Set the value on pin ' + thisBlock.getFieldValue('VAR');
+            return 'Set the value on pin ' + thisBlock.getFieldValue('Variable');
         });
     }
 };
 Blockly.Python['machine_pin_set'] = function(block) {
-    var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('Variable'), Blockly.Variables.NAME_TYPE);
     var pin_value = block.getFieldValue('MACHINE_PIN_VALUE');
     var code = varName + '.value(' + pin_value + ')\n';
     return code;
@@ -120,14 +144,14 @@ Blockly.Blocks['machine_sleep'] = {
 
         this.appendDummyInput()
             .appendField('Sleep for')
-            .appendField(new Blockly.FieldNumber('100') , 'MILLISECONDS')
+            .appendField(new Blockly.FieldNumber('100') , 'Milliseconds')
             .appendField('milliseconds')
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
         var thisBlock = this;
         this.setTooltip(function() {
-            var time = thisBlock.getFieldValue('MILLISECONDS');
+            var time = thisBlock.getFieldValue('Milliseconds');
             return 'Sleep for ' + time + 'milliseconds.';
         });
     }
@@ -135,7 +159,7 @@ Blockly.Blocks['machine_sleep'] = {
 Blockly.Python['machine_sleep'] = function(block) {
     Blockly.Python.definitions_['import_time'] = 'import time';
 
-    var time = block.getFieldValue('MILLISECONDS');
+    var time = block.getFieldValue('Milliseconds');
     var code = ''
     code += 'time.sleep(' + time/1000 + ')\n';
     return code;

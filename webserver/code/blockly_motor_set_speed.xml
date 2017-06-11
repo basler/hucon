@@ -8,11 +8,17 @@
     <next>
       <block type="variables_set" id="Kh3px`:;_k-r6%T`EX.*">
         <field name="VAR">motor</field>
+        <comment pinned="false" h="80" w="160">Erzeuge eine Variable mit den Eigenschaften eines Motor.</comment>
         <value name="VALUE">
           <block type="motor_object" id="LWz:R$st@[_?]*x9-zZn">
-            <value name="VAR">
-              <block type="machine_pin" id="*(TVx;t]0(=nzYm?a9wR">
-                <field name="MACHINE_PIN_CONSTANT">SERVO_1</field>
+            <value name="Pin">
+              <block type="machine_pin" id="nyL:K652-EAoS(!mqWkW">
+                <field name="MACHINE_PIN_CONSTANT">12</field>
+              </block>
+            </value>
+            <value name="Offset">
+              <block type="math_number" id="]E|TrX75Tw^)Y4TqBx(E">
+                <field name="NUM">0</field>
               </block>
             </value>
           </block>

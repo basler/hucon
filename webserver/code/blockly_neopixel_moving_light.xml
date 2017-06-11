@@ -1,7 +1,11 @@
 <xml xmlns="http://www.w3.org/1999/xhtml">
-  <block type="procedures_defnoreturn" id=",q?5S#(ppumJT-0Do4:n" x="69" y="43">
-    <field name="NAME">run</field>
-    <comment pinned="false" h="80" w="160">Describe this function...</comment>
+  <block type="procedures_defnoreturn" id=",q?5S#(ppumJT-0Do4:n" x="226" y="-121">
+    <field name="NAME">LED_Leuchten</field>
+    <comment pinned="false" h="95" w="341">
+Diese Funktion lässt die LED's in unterschiedlichen Farben leuchten.
+
+Hier wird nur die Funktion definiert aber nicht ausgeführt!
+    </comment>
     <statement name="STACK">
       <block type="variables_set" id="CCE?_fyMAphNA2CM%sS+">
         <field name="VAR">np</field>
@@ -193,5 +197,9 @@
         </next>
       </block>
     </statement>
+  </block>
+  <block type="procedures_callnoreturn" id="rMV5YysUBcI1|l1Na=]i" x="228" y="380">
+    <mutation name="LED_Leuchten"></mutation>
+    <comment pinned="false" h="80" w="160">Führe die Funktion LED_Leuchten aus.</comment>
   </block>
 </xml>
