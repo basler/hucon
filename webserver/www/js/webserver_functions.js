@@ -55,34 +55,42 @@ function openFileDialog(load, extension) {
 function fileOkClicked() {
     var load = JSON.parse(document.getElementById('fileOkButton').value);
 
-    var data = {}
     if (load) {
+        var data = {}
         data['command'] = 'get_file_data';
-    } else {
-        data['command'] = 'save_file_data';
-        data['code'] = getFileData()
-    }
-    data['filename'] = document.getElementById('fileText').value;
 
-    if (data['filename'] == '') {
-        if (load) {
-            alert('Please select a file load.')
-        } else {
-            alert('Write a name for the file to save.')
+        data['filename'] = document.getElementById('fileText').value;
+
+        if (data['filename'] == '') {
+            alert('Please select a file to load.')
+            return
         }
-        return
-    }
 
-    // Hide the load dialog modal.
-    closeFileDialog();
+        // Hide the load dialog modal.
+        closeFileDialog();
 
-    ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
-        if (load) {
+        var url = '__FILE_ACCESS__?command=load&filename=' + data['filename'];
+
+        ajax('POST', url, "", function(message) {
             loadFile(message);
-        } else {
-            apendConsoleLog(message);
+        });
+    } else {
+        var filename = document.getElementById('fileText').value;
+
+        if (filename == '') {
+            alert('Write a name for the file to save.')
+            return
         }
-    });
+
+        // Hide the load dialog modal.
+        closeFileDialog();
+
+        var url = '__FILE_ACCESS__?command=save&filename=' + filename;
+
+        ajax('POST', url, getFileData(), function(message) {
+            apendConsoleLog(message);
+        });
+    }
 }
 
 // Close the load file dialog
@@ -106,11 +114,13 @@ function closeConsoleLogDialog() {
 // This function will send via ajax a message to the server.
 function command(value) {
 
-    var data = {};
-    data['command'] = value;
-
     if (value == 'execute') {
-        data['code'] = getPythonCode()
+        var url = '__FILE_ACCESS__?command=execute';
+        var code = getPythonCode().replace(/print/g, 'HSTerm.term_exec')
+
+        ajax('POST', url, code, function(message) {
+            apendConsoleLog(message);
+        });
 
     } else if (value == 'save_password') {
         oldUsername = document.getElementById('current_username').value;
@@ -132,13 +142,15 @@ function command(value) {
         oldKey = btoa(oldUsername + ':' + oldPassword);
         newKey = btoa(newUsername + ':' + newPassword);
 
+        var data = {};
+        data['command'] = value;
         data['oldKey'] = oldKey;
         data['newKey'] = newKey;
+        ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
+            apendConsoleLog(message);
+        });
     }
 
-    ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
-        apendConsoleLog(message);
-    });
 }
 
 // This fnction will show up the console log and insert the message into it.

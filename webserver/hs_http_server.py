@@ -25,7 +25,7 @@ class HSHttpServer:
     """
 
     # Name of this server for the HTTP header.
-    _SERVER_NAME = 'HackerSchool Custon Webserver'
+    _SERVER_NAME = 'HackerSchool Custom Webserver'
 
     # Folder where all files for the server are stored.
     _DOCUMENT_ROOT = os.getcwd() + '/www'
@@ -44,6 +44,10 @@ class HSHttpServer:
 
     # Private key for the authorization to the key.
     _authorization_key = ''
+
+    # Maximal size of data nibbles which can be directly handled.
+    # Must be a pow of 2!
+    _MAX_BUFFER_SIZE = 128
 
     # Define the HTML MIME Types which are possible to send with this webserver implementation.
     # There are more types defined here: https://wiki.selfhtml.org/wiki/Referenz:MIME-Typen
@@ -76,20 +80,8 @@ class HSHttpServer:
         500: '500 Internal Server Error',
     }
 
-    # Mark to search for the content length during the receive of the bytestream.
-    _HTTP_CONTENT_LENGTH_MARK_BYTE = b'Content-Length: '
-
-    # Length of the content mark.
-    _HTTP_CONTENT_LENGTH_SIZE_BYTE = 16
-
-    # Mark to search for a line end during the receive of the bytestream.
-    _HTTP_LINE_END_MARK_BYTE = b'\r\n'
-
     # Mark to search for the end of the header end during the receive of the bytestream.
     _HTTP_HEADER_END_MARK_BYTE = b'\r\n\r\n'
-
-    # Length of the header end mark.
-    _HTTP_HEADER_END_SIZE_BYTE = 4
 
     def __init__(self, key: str):
         """
@@ -144,12 +136,17 @@ class HSHttpServer:
                 clientsocket.settimeout(5.0)
 
                 try:
+                    gc.collect()
                     self.handle_connection(clientsocket, ip, port)
                 except Exception as e:
                     HSTerm.term('Connection error: %s' % str(e))
                 finally:
                     clientsocket.close()
                     gc.collect()
+                    try:
+                        HSTerm.term('Free memory: %d' % gc.mem_free())
+                    except:
+                        pass
 
             except KeyboardInterrupt:
                 HSTerm.term('\nClose socket.')
@@ -162,7 +159,7 @@ class HSHttpServer:
         # Close the socket listening after the user want to stop it.
         self._server_socket.close()
 
-    def handle_connection(self, clientsocket: socket.socket, ip: str, port: str, max_buffer_size: int = 128):
+    def handle_connection(self, clientsocket: socket.socket, ip: str, port: str):
         """
         Handle every connection within this function.
         This function can be called within a new thread or within the main thread.
@@ -170,74 +167,265 @@ class HSHttpServer:
         header = ''
         data = ''
         content_length = 0
-        gc.collect()
+
         #  receive the first package.
-        receive_buffer = clientsocket.recv(max_buffer_size)
+        receive_buffer = clientsocket.recv(HSHttpServer._MAX_BUFFER_SIZE)
 
         # Try to find the end of the HTTP header.
         while receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK_BYTE) == -1:
-            receive_buffer += clientsocket.recv(max_buffer_size)
-
-        # Try to find a 'Content-Length' within the HTTP header to check the length after the '\r\n\r\n' statement.
-        # This is needed for large packages when the server received post data.
-        index = receive_buffer.find(HSHttpServer._HTTP_CONTENT_LENGTH_MARK_BYTE)
-        if index > 0:
-            # Found a 'Content Length' mark.
-            # So, try to find the end of the line to catch up the additional content length.
-            index += HSHttpServer._HTTP_CONTENT_LENGTH_SIZE_BYTE
-            gc.collect()
-            line_end = receive_buffer.find(HSHttpServer._HTTP_LINE_END_MARK_BYTE, index)
-            gc.collect()
-            content_length = int(receive_buffer[index:line_end])
-            gc.collect()
-
-        index = receive_buffer.find(HSHttpServer._HTTP_HEADER_END_MARK_BYTE)
-        packet_len = index + HSHttpServer._HTTP_HEADER_END_SIZE_BYTE + content_length
-
-        # Receive additional data until the package is complete.
-        while len(receive_buffer) < packet_len:
-            receive_buffer += clientsocket.recv(max_buffer_size)
+            receive_buffer += clientsocket.recv(HSHttpServer._MAX_BUFFER_SIZE)
 
         #  Split the header/data from the receive buffer.
         (header, data) = receive_buffer.split(HSHttpServer._HTTP_HEADER_END_MARK_BYTE)
 
         # Decode the byet stream into a utf-8 string
         header = header.decode('utf-8')
-        data = data.decode('utf-8')
+        header_lines = header.split('\r\n')
 
-        # Handle the request if there is an header.
-        if header:
-            (header, filename) = HSHttpServer.handle_request(self._authorization_key, header, data)
+        # Parse some parameter from the header.
+        accept_gzip = False
+        authorized = False
+        content_length = None
+        for line in header_lines:
+            if 'Accept-Encoding' in line:
+                if 'gzip' in line:
+                    accept_gzip = True
+            if 'Authorization' in line:
+                if self._authorization_key in line:
+                    authorized = True
+            if 'Content-Length' in line:
+                content_length = int(line[line.find(':') + 1:])
 
-            # Send the response if there is a header. :)
-            if '' != header:
-                clientsocket.sendall(bytes(header, 'utf-8'))
+        # Stop if the user has no authorization to get any page.
+        if not authorized:
+            HSTerm.term('no authorisation')
+            filename = HSHttpServer._DOCUMENT_ROOT + '/401.html'
+            header = HSHttpServer.get_html_header(401, filename)
+            HSHttpServer.send_response(clientsocket, header, filename)
+            return
+
+        # The first line is the one we need to get the information about the request.
+        header_line = header_lines[0]
+        header_line = header_line.split()
+
+        # Break down the request line into components
+        (method, path, version) = header_line
+        path = path.strip('/')
+
+        HSTerm.term('Method: ' + method)
+        HSTerm.term('Path: ' + path)
+
+        # The POST request can be a file access or a special command. Handle the file access a little bit different
+        # because the file can be bigger than the free space in ram. For the file access it is needed to get the
+        # parameter before the data is received to store the data directly.
+        # The GET parameter is a direct read access.
+        if method == 'POST':
+
+            # Clear the exec file.
+            HSTerm.clear_exec()
+
+            # Set the filename to the exec file anyway.
+            filename = HSTerm.exec_filename()
+
+            if path.startswith('__FILE_ACCESS__?'):
                 try:
-                    with open(filename, 'rb') as file:
-                        start_time = time.time()
-                        sent_data = 0
-                        bytes_read = file.read(max_buffer_size)
-                        count = 0
-                        gc.collect()
-                        while bytes_read:
-                            clientsocket.sendall(bytes_read)
-                            sent_data += max_buffer_size
-                            count += 1
-                            if count > (1024 * 10 / max_buffer_size):
-                                ttime = time.time() - start_time
-                                if ttime == 0:
-                                    ttime = 1
+                    # Extract the variables and handle the file access
+                    variables = HSHttpServer.get_dict_from_url(path)
 
-                                HSTerm.term(
-                                    '    %d Bytes sent in %d seconds with %d Bytes/second' % (
-                                        sent_data, ttime, sent_data / ttime
-                                    )
-                                )
-                                count = 0
-                                gc.collect()
-                            bytes_read = file.read(max_buffer_size)
+                    HSTerm.term('FileAccess: %s' % variables['command'])
+
+                    if variables['command'] == 'save':
+                        # Store all incomming data into the file.
+                        HSTerm.term('Save file %s' % variables['filename'])
+                        savename = HSHttpServer._CODE_ROOT + '/' + variables['filename']
+                        with open(savename, 'wb') as file:
+                            file.write(data)
+                            received_data = len(data)
+                            while received_data < content_length:
+                                data = clientsocket.recv(HSHttpServer._MAX_BUFFER_SIZE)
+                                file.write(data)
+                                received_data += len(data)
+                        HSTerm.term_exec('File %s saved.' % savename)
+                        HSTerm.term_exec('%d bytes written.' % received_data)
+
+                    elif variables['command'] == 'execute':
+                        # Execute the code from RAM when the content is smaller than 1k
+                        if content_length < 1024:
+                            HSTerm.term('Execute from RAM.')
+
+                            while len(data) < content_length:
+                                data += clientsocket.recv(HSHttpServer._MAX_BUFFER_SIZE)
+                            data = data.decode('utf-8')
+
+                            # Execute the give data.
+                            try:
+                                exec(data, globals())
+                            except Exception as e:
+                                HSTerm.term_exec('Error: %s' % str(e))
+
+                        else:
+                            # Store the data into a file and execute them.
+                            HSTerm.term('Execute from file exec_file.py')
+                            savename = '/exec_file.py'
+                            with open(savename, 'wb') as file:
+                                file.write(data)
+                                received_data = len(data)
+                                while received_data < content_length:
+                                    data = clientsocket.recv(HSHttpServer._MAX_BUFFER_SIZE)
+                                    file.write(data)
+                                    received_data += len(data)
+
+                            # Execute the give data.
+                            try:
+                                exec(open(savename2).read())
+                            except Exception as e:
+                                HSTerm.term_exec('Error: %s' % str(e))
+
+                    elif variables['command'] == 'load':
+                        # Return the file.
+                        filename = HSHttpServer._CODE_ROOT + '/' + variables['filename']
+
+                    else:
+                        # The given command is not known.
+                        filename = HSHttpServer._DOCUMENT_ROOT + '/404.html'
+                        header = HSHttpServer.get_html_header(404, filename)
+                        HSHttpServer.send_response(clientsocket, header, filename)
+                        return
+
                 except Exception as e:
-                    HSTerm.term('Handle connection error: %s' % str(e))
+                    HSTerm.term_exec('Internal Error:\n%s' % str(e))
+                    header = HSHttpServer.get_html_header(500, filename)
+                else:
+                    header = HSHttpServer.get_html_header(200, filename)
+
+            elif path.startswith('__COMMAND__'):
+                try:
+                    # Receive additional data until the package is complete.
+                    # These data package is small, so load it into ram.
+                    while len(data) < content_length:
+                        data += clientsocket.recv(HSHttpServer._MAX_BUFFER_SIZE)
+                    data = data.decode('utf-8')
+
+                    # Convert the json data into a key/value dictionary.
+                    args = json.loads(data)
+
+                    HSTerm.term('Command: %s' % args['command'])
+
+                    # Save the new password key only when the oldkey is the same with the current.
+                    if args['command'] == 'save_password':
+
+                        if (args['oldKey'] == self._authorization_key and args['newKey'] != ''):
+
+                            HSTerm.term('Store the new password')
+                            # Store the password.
+                            self._authorization_key = args['newKey']
+                            with open('password', 'w') as file:
+                                file.write(self._authorization_key)
+
+                            HSTerm.term_exec('New password written.')
+
+                        else:
+                            HSTerm.term_exec('Error: Could not store the password.')
+                            HSTerm.term_exec('The current Password is not the same!')
+
+                    # Get the list of all available code files.
+                    elif args['command'] == 'get_file_list':
+
+                        data = {}
+                        data['files'] = os.listdir(HSHttpServer._CODE_ROOT)
+                        json_dump = json.dumps(data)
+                        HSTerm.term_exec(json_dump)
+                        HSTerm.term('Returns: %s' % json_dump)
+
+                    else:
+                        # The given command is not known.
+                        filename = HSHttpServer._DOCUMENT_ROOT + '/404.html'
+                        header = HSHttpServer.get_html_header(404, filename)
+                        HSHttpServer.send_response(clientsocket, header, filename)
+                        return
+
+                except Exception as e:
+                    HSTerm.term_exec('Internal Error:\n%s' % str(e))
+                    header = HSHttpServer.get_html_header(500, filename)
+                else:
+                    header = HSHttpServer.get_html_header(200, filename)
+
+            else:
+                filename = HSHttpServer._DOCUMENT_ROOT + '/404.html'
+                header = HSHttpServer.get_html_header(404, filename)
+
+        elif method == 'GET':
+
+            # Split the arguments from the file path.
+            path_with_arguments = path.split('?')
+
+            # Ignore the arguments. We need only the file path.
+            if len(path_with_arguments) > 0:
+                filename = path_with_arguments[0]
+
+            # use the index.html when the path is empty.
+            if '' == filename:
+                filename = 'index.html'
+
+            # add the document path to the filename
+            filename = HSHttpServer._DOCUMENT_ROOT + '/' + filename
+
+            if accept_gzip:
+                if HSHttpServer.file_exists(filename + '.gz'):
+                    HSTerm.term('Sending gzip version of %s' % filename)
+
+                    # prepare everything for a gzip file response.
+                    filename += '.gz'
+                    header = HSHttpServer.get_html_header(200, filename, accept_gzip)
+                else:
+                    HSTerm.term('no compressed file found :(')
+                    HSTerm.term('Sending %s' % filename)
+                    header = HSHttpServer.get_html_header(200, filename)
+
+            elif HSHttpServer.file_exists(filename):
+                HSTerm.term('Sending %s' % filename)
+                header = HSHttpServer.get_html_header(200, filename)
+
+            else:
+                HSTerm.term('File %s not found.' % filename)
+                filename = HSHttpServer._DOCUMENT_ROOT + '/404.html'
+                header = HSHttpServer.get_html_header(404, filename)
+
+        else:
+            HSTerm.term('Unknown HTML method.')
+            filename = HSHttpServer._DOCUMENT_ROOT + '/404.html'
+            header = HSHttpServer.get_html_header(404, filename)
+
+        HSHttpServer.send_response(clientsocket, header, filename)
+
+    @staticmethod
+    def send_response(clientsocket: socket.socket, header: str, filename: str):
+        # Send the response back to the client.
+        clientsocket.sendall(bytes(header, 'utf-8'))
+        try:
+            with open(filename, 'rb') as file:
+                start_time = time.time()
+                sent_data = 0
+                bytes_read = file.read(HSHttpServer._MAX_BUFFER_SIZE)
+                count = 0
+                while bytes_read:
+                    clientsocket.sendall(bytes_read)
+                    sent_data += HSHttpServer._MAX_BUFFER_SIZE
+                    count += 1
+                    if count > (1024 * 10 / HSHttpServer._MAX_BUFFER_SIZE):
+                        ttime = time.time() - start_time
+                        if ttime == 0:
+                            ttime = 1
+
+                        HSTerm.term(
+                            '    %d Bytes sent in %d seconds with %d Bytes/second' % (
+                                sent_data, ttime, sent_data / ttime
+                            )
+                        )
+                        count = 0
+                    bytes_read = file.read(HSHttpServer._MAX_BUFFER_SIZE)
+        except Exception as e:
+            HSTerm.term('Send response error: %s' % str(e))
 
     @staticmethod
     def file_exists(filename: str) -> bool:
@@ -263,16 +451,6 @@ class HSHttpServer:
         except Exception as e:
             HSTerm.term('Get file length error: %s' % str(e))
         return size_in_bytes
-
-    @staticmethod
-    def not_found_page() -> (str, str):
-        """
-        Get the file content and header for the 'Not Found' page.
-        """
-        filename = HSHttpServer._DOCUMENT_ROOT + '/404.html'
-        header = HSHttpServer.get_html_header(404, filename)
-
-        return (header, filename)
 
     @staticmethod
     def get_html_header(status: int, filename: str, accept_gzip: bool = False) -> str:
@@ -304,161 +482,13 @@ class HSHttpServer:
         return header
 
     @staticmethod
-    def handle_request(key: str, header: str, data: str) -> (str, str):
+    def get_dict_from_url(url: str) -> str:
         """
-        Handle the request.
+        Get a dict of all variables from an url.
         """
-
-        # The first line is the one we need to get the information about the request.
-        header_lines = header.split('\r\n')
-        header_line = header_lines[0]
-        header_line = header_line.split()
-
-        # Break down the request line into components
-        (header_method,  # GET
-         header_path,    # /hello
-         header_version  # HTTP/1.1
-         ) = header_line
-
-        HSTerm.term('Method: ' + header_method)
-        HSTerm.term('Path: ' + header_path)
-
-        accept_gzip = False
-        authorized = False
-        for line in header_lines:
-            if 'Accept-Encoding' in line:
-                if 'gzip' in line:
-                    accept_gzip = True
-            if 'Authorization' in line:
-                if key in line:
-                    authorized = True
-
-        header = ''
-        filename = ''
-
-        # Stop if the user has no authorization to get any page.
-        if not authorized:
-            filename = HSHttpServer._DOCUMENT_ROOT + '/index.html'
-            header = HSHttpServer.get_html_header(401, filename)
-            return (header, filename)
-
-        # Handle a POST request
-        if 'POST' == header_method:
-
-            # Clear the exec file.
-            HSTerm.clear_exec()
-
-            # Set the filename to the exec file anyway.
-            filename = HSTerm.exec_filename()
-
-            # Handle a set command.
-            header_path = header_path.strip('/')
-            if '__COMMAND__' == header_path:
-                try:
-                    # Convert the data into a key/value dictionary.
-                    args = json.loads(data)
-
-                    HSTerm.term('Command: %s' % args['command'])
-
-                    # Execute the data which are within the code argument.
-                    if args['command'] == 'execute':
-
-                        # Replace all 'print' statements with 'HSTerm.term_exec'
-                        code = args['code'].replace('print', 'HSTerm.term_exec')
-
-                        # Execute the give data.
-                        try:
-                            exec(code)
-                        except Exception as e:
-                            HSTerm.term_exec('Error: %s' % str(e))
-
-                    # Save the new password key only when the oldkey is the same with the current.
-                    elif args['command'] == 'save_password':
-
-                        if (args['oldKey'] == key and args['newKey'] != ''):
-
-                            HSTerm.term('Store the new password')
-                            # Store the password.
-                            key = args['newKey']
-                            with open('password', 'w') as file:
-                                file.write(key)
-
-                            HSTerm.term_exec('New password written.')
-
-                        else:
-                            HSTerm.term_exec('Error: Could not store the password.')
-                            HSTerm.term_exec('The current Password is not the same!')
-
-                    # Get the list of all available code files.
-                    elif args['command'] == 'get_file_list':
-
-                        data = {}
-                        data['files'] = os.listdir(HSHttpServer._CODE_ROOT)
-                        json_dump = json.dumps(data)
-                        HSTerm.term_exec(json_dump)
-                        HSTerm.term('Returns: %s' % json_dump)
-
-                    # Get the data from a specific code file.
-                    elif args['command'] == 'get_file_data':
-
-                        filename = HSHttpServer._CODE_ROOT + '/' + args['filename']
-
-                    # Save the data within the given file name.
-                    elif args['command'] == 'save_file_data':
-
-                        savename = HSHttpServer._CODE_ROOT + '/' + args['filename']
-                        with open(savename, 'w') as file:
-                            file.write(args['code'])
-                        HSTerm.term_exec('File %s saved.' % savename)
-
-                except Exception as e:
-                    HSTerm.term_exec('Internal Error:\n%s' % str(e))
-                    header = HSHttpServer.get_html_header(500, filename)
-                else:
-                    header = HSHttpServer.get_html_header(200, filename)
-                finally:
-                    # Return the result header and the response from the password save.
-                    return header, filename
-
-        # Handle a GET request.
-        if 'GET' == header_method:
-
-            # Get the filename with the extension.
-            header_path = header_path.strip('/')
-
-            # Split the arguments from the file path.
-            path_with_arguments = header_path.split('?')
-
-            # Ignore the arguments. We need only the file path.
-            if len(path_with_arguments) > 0:
-                filename = path_with_arguments[0]
-
-            # use the index.html when the path is empty.
-            if '' == filename:
-                filename = 'index.html'
-
-            # add the document path to the filename
-            filename = HSHttpServer._DOCUMENT_ROOT + '/' + filename
-
-            if accept_gzip:
-                if HSHttpServer.file_exists(filename + '.gz'):
-                    HSTerm.term('Sending gzip version of %s' % filename)
-
-                    # prepare everything for a gzip file response.
-                    filename += '.gz'
-                    header = HSHttpServer.get_html_header(200, filename, accept_gzip)
-
-                    # Return the result header and response for the GET.
-                    return (header, filename)
-                else:
-                    HSTerm.term('no compressed file found :(')
-
-            if HSHttpServer.file_exists(filename):
-                HSTerm.term('Sending %s' % filename)
-                header = HSHttpServer.get_html_header(200, filename)
-
-                # Return the result header and response for the GET.
-                return (header, filename)
-
-        HSTerm.term('File %s not found.' % filename)
-        return HSHttpServer.not_found_page()
+        variables = url.split('?')[1]
+        variables = variables.replace('&', '","')
+        variables = variables.replace('=', '":"')
+        variables = '{"%s"}' % variables
+        variables = json.loads(variables)
+        return variables

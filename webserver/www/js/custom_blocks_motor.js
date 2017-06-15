@@ -17,7 +17,7 @@ Blockly.Blocks['motor_object'] = {
     }
 }
 Blockly.Python['motor_object'] = function(block) {
-    Blockly.Python.definitions_['import_motor'] = 'from hs_motor import HSMotor as HSMotor';
+    Blockly.Python.definitions_['import_motor'] = 'from hs_motor import HSMotor';
 
     var argument0 = Blockly.Python.valueToCode(block, 'Pin', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var argument1 = Blockly.Python.valueToCode(block, 'Offset', Blockly.Python.ORDER_ATOMIC) || 'NULL';
@@ -31,14 +31,19 @@ Blockly.Blocks['motor_object_param'] = {
 
         this.appendValueInput('Pin')
             .setCheck('MachinePin')
-            .appendField('create Motor on')
+            .appendField('create Motor on');
         this.appendValueInput('Offset')
             .setCheck('Number')
-            .appendField('with offset');
+            .appendField('offset');
         this.appendValueInput('Freq')
             .setCheck('Number')
-            .appendField('and frequency');
-        this.setInputsInline(true);
+            .appendField('frequency');
+        this.appendValueInput('MinUs')
+            .setCheck('Number')
+            .appendField('min us');
+        this.appendValueInput('MaxUs')
+            .setCheck('Number')
+            .appendField('min us');
         this.setOutput(true, 'Motor');
 
         this.setTooltip(function() {
@@ -47,12 +52,14 @@ Blockly.Blocks['motor_object_param'] = {
     }
 }
 Blockly.Python['motor_object_param'] = function(block) {
-    Blockly.Python.definitions_['import_motor'] = 'from hs_motor import HSMotor as HSMotor';
+    Blockly.Python.definitions_['import_motor'] = 'from hs_motor import HSMotor';
 
     var argument0 = Blockly.Python.valueToCode(block, 'Pin', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var argument1 = Blockly.Python.valueToCode(block, 'Offset', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var argument2 = Blockly.Python.valueToCode(block, 'Freq', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var code = 'HSMotor(' + argument0 + ', ' + argument1 + ', ' + argument2 + ')';
+    var argument3 = Blockly.Python.valueToCode(block, 'MinUs', Blockly.Python.ORDER_ATOMIC) || 'NULL';
+    var argument4 = Blockly.Python.valueToCode(block, 'MaxUs', Blockly.Python.ORDER_ATOMIC) || 'NULL';
+    var code = 'HSMotor(' + argument0 + ', ' + argument1 + ', ' + argument2 + ', ' + argument3 + ', ' + argument4 + ')';
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 

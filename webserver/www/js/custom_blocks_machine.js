@@ -34,7 +34,7 @@ Blockly.Blocks['machine_pin'] = {
     }
 }
 Blockly.Python['machine_pin'] = function(block) {
-    Blockly.Python.definitions_['import_machine_pin'] = 'from machine import Pin as Pin';
+    Blockly.Python.definitions_['import_machine_pin'] = 'from machine import Pin';
 
     var pin = block.getFieldValue('Pin');
     var code = 'Pin(' + pin + ')';
@@ -62,7 +62,7 @@ Blockly.Blocks['machine_pin_parameter'] = {
     }
 }
 Blockly.Python['machine_pin_parameter'] = function(block) {
-    Blockly.Python.definitions_['import_machine_pin'] = 'from machine import Pin as Pin';
+    Blockly.Python.definitions_['import_machine_pin'] = 'from machine import Pin';
 
     var pin = block.getFieldValue('Pin');
     var dir = block.getFieldValue('Direction');

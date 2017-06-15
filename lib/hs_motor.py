@@ -14,22 +14,32 @@ class HSMotor:
 
     """
     @classmethod
-    def __init__(cls, pin: machine.Pin, offset: int = 0, freq: int = 50):
-        cls.center = 512 + offset
-        cls.pwm = PWM(pin, freq = freq, duty = 0)
+    def __init__(cls, pin: machine.Pin, offset: int = 0, freq: int = 50, min_us: int = 1100, max_us: int = 1900):
+        cls.freq = freq
+        cls.min_us = min_us
+        cls.max_us = max_us
+        cls.total_range = max_us - min_us
+        cls.offset = offset
+        cls.pwm = PWM(pin, freq = cls.freq, duty = 0)
+
+    @classmethod
+    def write_us(cls, us: int):
+        """Set the signal to be ``us`` microseconds long. Zero disables it."""
+        us = min(cls.max_us, max(cls.min_us, us))
+        duty = us * 1024 * cls.freq // 1000000
+        cls.pwm.duty(duty)
 
     @classmethod
     def set_speed(cls, speed):
         """Set the signal to be `%`. Zero disables it."""
 
-        # Stop the motor at null speed
-        duty = 0
-        # Forward speed.
-        if speed > 0:
-            duty = (1023 - cls.center) * speed / 100 + cls.center
-        # Backward speed.
-        if speed < 0:
-            duty = cls.center * speed / 100 + cls.center
+        speed = min(100, max(-100, speed))
+        if speed == 0:
+            cls.pwm.duty(0)
+            return
 
-        duty = min(1023, max(0, duty))
-        cls.pwm.duty(duty)
+        speed = speed + cls.offset
+
+        us = cls.min_us + (cls.total_range * (speed + 100) // 200)
+        print('us: %d' % us)
+        cls.write_us(us)

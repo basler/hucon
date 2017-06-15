@@ -13,7 +13,7 @@ Blockly.Blocks['servo_object'] = {
     }
 }
 Blockly.Python['servo_object'] = function(block) {
-    Blockly.Python.definitions_['import_servo'] = 'from hs_servo import HSServo as HSServo';
+    Blockly.Python.definitions_['import_servo'] = 'from hs_servo import HSServo';
 
     var argument0 = Blockly.Python.valueToCode(block, 'VAR', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var code = 'HSServo(' + argument0 + ')';
@@ -26,19 +26,16 @@ Blockly.Blocks['servo_object_param'] = {
 
         this.appendValueInput('Pin')
             .setCheck('MachinePin')
-            .appendField('create Servo on')
+            .appendField('create Servo on');
         this.appendValueInput('Freq')
             .setCheck('Number')
             .appendField('with frequency');
-        this.setInputsInline(true);
-        this.appendValueInput('Min')
+        this.appendValueInput('MinUs')
             .setCheck('Number')
             .appendField('min');
-        this.setInputsInline(true);
-        this.appendValueInput('Max')
+        this.appendValueInput('MaxUs')
             .setCheck('Number')
             .appendField('and max');
-        this.setInputsInline(true);
         this.setOutput(true, 'Servo');
 
         this.setTooltip(function() {
@@ -47,12 +44,12 @@ Blockly.Blocks['servo_object_param'] = {
     }
 }
 Blockly.Python['servo_object_param'] = function(block) {
-    Blockly.Python.definitions_['import_servo'] = 'from hs_servo import HSServo as HSServo';
+    Blockly.Python.definitions_['import_servo'] = 'from hs_servo import HSServo';
 
     var argument0 = Blockly.Python.valueToCode(block, 'Pin', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var argument1 = Blockly.Python.valueToCode(block, 'Freq', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var argument2 = Blockly.Python.valueToCode(block, 'Min', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var argument3 = Blockly.Python.valueToCode(block, 'Max', Blockly.Python.ORDER_ATOMIC) || 'NULL';
+    var argument2 = Blockly.Python.valueToCode(block, 'MinUs', Blockly.Python.ORDER_ATOMIC) || 'NULL';
+    var argument3 = Blockly.Python.valueToCode(block, 'MaxUs', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var code = 'HSServo(' + argument0 + ', ' + argument1 + ', ' + argument2 + ', ' + argument3 + ')';
     return [code, Blockly.Python.ORDER_ATOMIC];
 };

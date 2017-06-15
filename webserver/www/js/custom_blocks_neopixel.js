@@ -13,7 +13,7 @@ Blockly.Blocks['neopixel_array'] = {
     }
 }
 Blockly.Python['neopixel_array'] = function(block) {
-    Blockly.Python.definitions_['import_neopixel'] = 'from neopixel import NeoPixel as NeoPixel';
+    Blockly.Python.definitions_['import_neopixel'] = 'from neopixel import NeoPixel';
 
     var argument0 = Blockly.Python.valueToCode(block, 'VAR', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var code = 'NeoPixel(' + argument0 + ', 2)';
