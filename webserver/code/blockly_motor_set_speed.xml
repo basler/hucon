@@ -13,7 +13,7 @@
           <block type="motor_object" id="LWz:R$st@[_?]*x9-zZn">
             <value name="Pin">
               <block type="machine_pin" id="nyL:K652-EAoS(!mqWkW">
-                <field name="MACHINE_PIN_CONSTANT">12</field>
+                <field name="Pin">12</field>
               </block>
             </value>
             <value name="Offset">

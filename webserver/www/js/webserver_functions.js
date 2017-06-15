@@ -12,15 +12,25 @@ window.onclick = function(event) {
 
 // Open the load file dialog.
 function openFileDialog(load, extension) {
-    document.getElementById('fileText').hidden = load
-    document.getElementById('fileOkButton').value = load
+    var parameter = {};
+    parameter['load'] = load;
+    parameter['extension'] = extension;
+
+    var title = '';
+    var buttonText = '';
+
     if (load) {
-        document.getElementById('fileDialogTitle').innerHTML = 'Load File';
-        document.getElementById('fileOkButton').innerHTML = 'Load';
+        title = 'Load file';
+        buttonText = 'Load';
     } else {
-        document.getElementById('fileDialogTitle').innerHTML = 'Save File';
-        document.getElementById('fileOkButton').innerHTML = 'Save';
+        title = 'Save file';
+        buttonText = 'Save';
     }
+
+    document.getElementById('fileText').hidden = load
+    document.getElementById('fileOkButton').value = JSON.stringify(parameter);
+    document.getElementById('fileDialogTitle').innerHTML = title;
+    document.getElementById('fileOkButton').innerHTML = buttonText;
 
     fileDialog = document.getElementById('fileDialog');
     fileDialog.style.display = 'block';
@@ -29,7 +39,6 @@ function openFileDialog(load, extension) {
     data['command'] = 'get_file_list';
 
     ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
-        console.log(message)
         selection = document.getElementById('fileSelect');
         for(i = selection.options.length - 1 ; i >= 0 ; i--) {
             selection.remove(i);
@@ -37,12 +46,20 @@ function openFileDialog(load, extension) {
 
         var data = JSON.parse(message);
 
+        // Create an empty option for the save dialog to prevent an overwrite of existing files.
+        if (!load) {
+            var opt = document.createElement('option');
+            opt.text = '';
+            opt.value = '';
+            selection.options.add(opt);
+        }
+
         for (i=0; i<data['files'].length; i++) {
             var filename = data['files'][i]
             if (filename.endsWith(extension)) {
                 var opt = document.createElement('option');
-                opt.text = filename;
-                opt.value = filename;
+                opt.text = filename.slice(0, -extension.length);
+                opt.value = filename.slice(0, -extension.length);
                 selection.options.add(opt);
             }
         }
@@ -52,51 +69,63 @@ function openFileDialog(load, extension) {
 }
 
 // This function will be called after the load dialog form is shown and the load button within this dialog is pressed.
-function fileOkClicked() {
-    var load = JSON.parse(document.getElementById('fileOkButton').value);
+function fileDialogOk() {
+    var parameter = JSON.parse(document.getElementById('fileOkButton').value);
+    var filename = document.getElementById('fileText').value;
+    var command = '';
+    var allertmessage = '';
+    var data = '';
+    var callback;
 
-    if (load) {
-        var data = {}
-        data['command'] = 'get_file_data';
-
-        data['filename'] = document.getElementById('fileText').value;
-
-        if (data['filename'] == '') {
-            alert('Please select a file to load.')
-            return
-        }
-
-        // Hide the load dialog modal.
-        closeFileDialog();
-
-        var url = '__FILE_ACCESS__?command=load&filename=' + data['filename'];
-
-        ajax('POST', url, "", function(message) {
+    if (parameter['load']) {
+        command = 'load';
+        message = 'Please select a file to load.';
+        callback = function(message) {
             loadFile(message);
-        });
+            console.log(message);
+        };
     } else {
-        var filename = document.getElementById('fileText').value;
-
-        if (filename == '') {
-            alert('Write a name for the file to save.')
-            return
-        }
-
-        // Hide the load dialog modal.
-        closeFileDialog();
-
-        var url = '__FILE_ACCESS__?command=save&filename=' + filename;
-
-        ajax('POST', url, getFileData(), function(message) {
+        command = 'save';
+        message = 'Write a name for the file to save.'
+        data = getFileData();
+        callback = function (message) {
             apendConsoleLog(message);
-        });
+            console.log(message);
+        };
     }
+
+    if (filename == '') {
+        alert(message);
+        return;
+    }
+
+    // Check the file name restrictions
+    var reg = /^[A-Za-z0-9_]+$/;
+    if (!reg.test(filename)) {
+        alert('You have to enter a valid filename.\nOnly characters from a-z, numbers and _ are allowed.');
+        return;
+    }
+
+    // Hide the load dialog modal.
+    closeFileDialog();
+
+    var url = '__FILE_ACCESS__?command=' + command + '&filename=' + filename + parameter['extension'];
+
+    ajax('POST', url, data, callback);
 }
 
 // Close the load file dialog
 function closeFileDialog() {
     fileialog = document.getElementById('fileDialog');
     fileDialog.style.display = 'none';
+}
+
+// This fnction will show up the console log and insert the message into it.
+function apendConsoleLog(message) {
+    var time = new Date().toLocaleTimeString().replace('/.*(\d{2}:\d{2}:\d{2}).*/', '$1');
+    document.getElementById('consoleLog').value = time + '\n\n' + message;
+
+    openConsoleLogDialog()
 }
 
 // Open the load file dialog.
@@ -118,9 +147,7 @@ function command(value) {
         var url = '__FILE_ACCESS__?command=execute';
         var code = getPythonCode().replace(/print/g, 'HSTerm.term_exec')
 
-        ajax('POST', url, code, function(message) {
-            apendConsoleLog(message);
-        });
+        ajax('POST', url, code, apendConsoleLog);
 
     } else if (value == 'save_password') {
         oldUsername = document.getElementById('current_username').value;
@@ -146,19 +173,9 @@ function command(value) {
         data['command'] = value;
         data['oldKey'] = oldKey;
         data['newKey'] = newKey;
-        ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
-            apendConsoleLog(message);
-        });
+        ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
     }
 
-}
-
-// This fnction will show up the console log and insert the message into it.
-function apendConsoleLog(message) {
-    var time = new Date().toLocaleTimeString().replace('/.*(\d{2}:\d{2}:\d{2}).*/', '$1');
-    document.getElementById('consoleLog').value = time + '\n\n' + message;
-
-    openConsoleLogDialog()
 }
 
 // This function will handle an easy acces to some server requests.

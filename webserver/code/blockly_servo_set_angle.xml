@@ -13,7 +13,7 @@
           <block type="servo_object" id="l;V]_VoDiM[nH^Cm{gX[">
             <value name="VAR">
               <block type="machine_pin" id="Y;kOx4mVKMt[n4Qq~?AW">
-                <field name="MACHINE_PIN_CONSTANT">SERVO_1</field>
+                <field name="Pin">13</field>
               </block>
             </value>
           </block>

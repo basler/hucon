@@ -1,5 +1,9 @@
 <xml xmlns="http://www.w3.org/1999/xhtml">
-  <block type="procedures_defnoreturn" id=",q?5S#(ppumJT-0Do4:n" x="226" y="-121">
+  <block type="procedures_callnoreturn" id="rMV5YysUBcI1|l1Na=]i" x="159" y="-50">
+    <mutation name="LED_Leuchten"></mutation>
+    <comment pinned="false" h="80" w="160">Führe die Funktion LED_Leuchten aus.</comment>
+  </block>
+  <block type="procedures_defnoreturn" id=",q?5S#(ppumJT-0Do4:n" x="388" y="-54">
     <field name="NAME">LED_Leuchten</field>
     <comment pinned="false" h="95" w="341">
 Diese Funktion lässt die LED's in unterschiedlichen Farben leuchten.
@@ -13,7 +17,7 @@ Hier wird nur die Funktion definiert aber nicht ausgeführt!
           <block type="neopixel_array" id="P]o2S,NNF!ccodBgtG-V">
             <value name="VAR">
               <block type="machine_pin" id="P]uRJP8Ft6A`DRD.}NQ,">
-                <field name="MACHINE_PIN_CONSTANT">NEOPIXEL</field>
+                <field name="Pin">14</field>
               </block>
             </value>
           </block>
@@ -172,7 +176,7 @@ Hier wird nur die Funktion definiert aber nicht ausgeführt!
                                                 </value>
                                                 <next>
                                                   <block type="machine_sleep" id="b6DuUQs|4Tm=g.NI^_MG">
-                                                    <field name="MILLISECONDS">100</field>
+                                                    <field name="Milliseconds">100</field>
                                                   </block>
                                                 </next>
                                               </block>
@@ -197,9 +201,5 @@ Hier wird nur die Funktion definiert aber nicht ausgeführt!
         </next>
       </block>
     </statement>
-  </block>
-  <block type="procedures_callnoreturn" id="rMV5YysUBcI1|l1Na=]i" x="228" y="380">
-    <mutation name="LED_Leuchten"></mutation>
-    <comment pinned="false" h="80" w="160">Führe die Funktion LED_Leuchten aus.</comment>
   </block>
 </xml>

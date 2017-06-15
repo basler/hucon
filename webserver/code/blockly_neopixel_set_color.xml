@@ -6,7 +6,7 @@
       <block type="neopixel_array" id="]Bux1n5NOTROGCN,7FLP">
         <value name="VAR">
           <block type="machine_pin" id="^Znjek)]HJg]V|Z+Ygho">
-            <field name="MACHINE_PIN_CONSTANT">NEOPIXEL</field>
+            <field name="Pin">14</field>
           </block>
         </value>
       </block>
@@ -33,9 +33,32 @@
           </block>
         </value>
         <next>
-          <block type="neopixel_write" id="~KGAV-xmt4n9Il@Jv2EM">
-            <field name="VAR">np</field>
-            <comment pinned="false" h="80" w="160">Schreiben den Wert in die LED um diese auch zu setzen.</comment>
+          <block type="lists_setIndex" id="rbA$gUYsH0=Fnt[%6!3|">
+            <mutation at="true"></mutation>
+            <field name="MODE">SET</field>
+            <field name="WHERE">FROM_START</field>
+            <comment pinned="false" h="65" w="406">Setze die erste LED auf Rot</comment>
+            <value name="LIST">
+              <block type="variables_get" id="M~4SD7tvzUi*q9Dk7@xZ">
+                <field name="VAR">np</field>
+              </block>
+            </value>
+            <value name="AT">
+              <block type="math_number" id="N=-p:_XT7oJvFK~a4u6q">
+                <field name="NUM">2</field>
+              </block>
+            </value>
+            <value name="TO">
+              <block type="neopixel_colour" id="-;1zbXq32Q;s{g!uZ_5T">
+                <field name="COLOUR">#009900</field>
+              </block>
+            </value>
+            <next>
+              <block type="neopixel_write" id="~KGAV-xmt4n9Il@Jv2EM">
+                <field name="VAR">np</field>
+                <comment pinned="false" h="80" w="160">Schreiben den Wert in die LED um diese auch zu setzen.</comment>
+              </block>
+            </next>
           </block>
         </next>
       </block>
