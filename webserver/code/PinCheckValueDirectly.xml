@@ -1,0 +1,39 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <block type="controls_if" id="pNJ3TY|Pmfj;S6#2jv;g" x="245" y="182">
+    <mutation else="1"></mutation>
+    <comment pinned="false" h="84" w="363">Überprüfe den Wert des Eingangs.</comment>
+    <value name="IF0">
+      <block type="logic_compare" id="(u}@x*3rXhJPc|FY_vLd">
+        <field name="OP">EQ</field>
+        <value name="A">
+          <block type="machine_pin_get_direct" id="]a.xE3_7vNH+x{5`ju6v">
+            <field name="Pin">2</field>
+          </block>
+        </value>
+        <value name="B">
+          <block type="machine_pin_value" id="AzdOm$)1Zjnu^6B1q?J%">
+            <field name="Value">1</field>
+          </block>
+        </value>
+      </block>
+    </value>
+    <statement name="DO0">
+      <block type="text_print" id="p|${bq52/-hPNqea5{+.">
+        <value name="TEXT">
+          <shadow type="text" id="nZJLz*|rEBuWQMjDztV0">
+            <field name="TEXT">Ja ich empfange ein Signal am Eingang.</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+    <statement name="ELSE">
+      <block type="text_print" id="dH!g=/t)CZ|p;!zBn`XH">
+        <value name="TEXT">
+          <shadow type="text" id="XNdB^hH4DlwjKaB7,Y,P">
+            <field name="TEXT">Hmmm, ich kann nichts sehen.</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+  </block>
+</xml>

@@ -6,6 +6,7 @@ docReady(function(){
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/tomorrow_night");
     editor.session.setMode("ace/mode/python");
+    editor.$blockScrolling = Infinity
 });
 
 function newFile() {

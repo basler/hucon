@@ -2,6 +2,9 @@
 import gc
 import time
 
+# Call the garbage collector.
+gc.collect()
+
 try:
     # Import different packages on the micro python.
     import uos as os
@@ -11,6 +14,9 @@ except:
     import os
     import socket
     import json
+
+# Call the garbage collector.
+gc.collect()
 
 from hs_term import HSTerm
 import hs_network
@@ -47,7 +53,7 @@ class HSHttpServer:
 
     # Maximal size of data nibbles which can be directly handled.
     # Must be a pow of 2!
-    _MAX_BUFFER_SIZE = 128
+    _MAX_BUFFER_SIZE = 256
 
     # Define the HTML MIME Types which are possible to send with this webserver implementation.
     # There are more types defined here: https://wiki.selfhtml.org/wiki/Referenz:MIME-Typen
@@ -277,7 +283,7 @@ class HSHttpServer:
 
                             # Execute the give data.
                             try:
-                                exec(open(savename2).read())
+                                exec(open(savename).read(), globals())
                             except Exception as e:
                                 HSTerm.term_exec('Error: %s' % str(e))
 
@@ -311,8 +317,21 @@ class HSHttpServer:
 
                     HSTerm.term('Command: %s' % args['command'])
 
+                    # Set the wifi connection and reset the device.
+                    if args['command'] == 'set_wifi':
+                        HSTerm.term('Set wifi connection to %s@%s' % (args['apName'], args['password']))
+                        hs_network.set_wifi(args['apName'], args['password'])
+
+                    # Get the list of all available wifis.
+                    elif args['command'] == 'get_wifis':
+                        data = {}
+                        data['wifis'] = hs_network.get_wifis()
+                        json_dump = json.dumps(data)
+                        HSTerm.term_exec(json_dump)
+                        HSTerm.term('Returns: %s' % json_dump)
+
                     # Save the new password key only when the oldkey is the same with the current.
-                    if args['command'] == 'save_password':
+                    elif args['command'] == 'save_password':
 
                         if (args['oldKey'] == self._authorization_key and args['newKey'] != ''):
 
@@ -325,6 +344,9 @@ class HSHttpServer:
                             HSTerm.term_exec('New password written.')
 
                         else:
+                            HSTerm.term('auth key: %s' % self._authorization_key)
+                            HSTerm.term('old key: %s' % args['oldKey'])
+                            HSTerm.term('new key: %s' % args['newKey'])
                             HSTerm.term_exec('Error: Could not store the password.')
                             HSTerm.term_exec('The current Password is not the same!')
 
@@ -336,6 +358,15 @@ class HSHttpServer:
                         json_dump = json.dumps(data)
                         HSTerm.term_exec(json_dump)
                         HSTerm.term('Returns: %s' % json_dump)
+
+                    # Run the file which is saved on the device
+                    elif args['command'] == 'run':
+                        run_file = HSHttpServer._CODE_ROOT + '/' + args['filename']
+                        print('run: %s' % run_file)
+                        try:
+                            exec(open(run_file).read(), globals())
+                        except Exception as e:
+                            HSTerm.term_exec('Error: %s' % str(e))
 
                     else:
                         # The given command is not known.
@@ -418,8 +449,8 @@ class HSHttpServer:
                             ttime = 1
 
                         HSTerm.term(
-                            '    %d Bytes sent in %d seconds with %d Bytes/second' % (
-                                sent_data, ttime, sent_data / ttime
+                            '    %d Bytes sent in %d seconds with %d KB/second' % (
+                                sent_data, ttime, sent_data / ttime / 1024
                             )
                         )
                         count = 0

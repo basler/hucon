@@ -18,22 +18,22 @@ a {
     color: white;
 }
 select {
-  color: #000000;
-  font-size: 18px;
-  width: 100%;
-  padding: 10px;
-  padding: 0 10px 0 10px 0;
-  border: 0 !important;
-  /* needed */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  /* SVG background image */
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><polyline points='5,25 50,75 95,25' stroke='black' stroke-width='10' stroke-linecap='round' fill='none' stroke-linejoin='round'/></svg>") no-repeat;
-  background-size: 12px;
-  background-position: calc(100% - 20px) center;
-  background-repeat: no-repeat;
-  background-color: #FFFFFF;
+    color: #000000;
+    font-size: 18px;
+    width: 100%;
+    padding: 10px;
+    padding: 0 10px 0 10px 0;
+    border: 0 !important;
+    /* needed */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    /* SVG background image */
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><polyline points='5,25 50,75 95,25' stroke='black' stroke-width='10' stroke-linecap='round' fill='none' stroke-linejoin='round'/></svg>") no-repeat;
+    background-size: 12px;
+    background-position: calc(100% - 20px) center;
+    background-repeat: no-repeat;
+    background-color: #FFFFFF;
 }
 #pythonCode {
     width: 100%;
@@ -47,7 +47,7 @@ select {
 #header {
     height: 120px;
     padding: 5px;
-    background-image: url(Logo.jpg);
+    background-image: url(https://juwis.github.io/hackerschool/webserver/www/css/Logo.jpg);
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -66,7 +66,6 @@ select {
     height: 100%;
 }
 .blocklySvg {
-    background-image: url(BlocklyBackground.png);
     background-color: #000000;
 }
 .blocklyToolboxDiv, .injectionDiv {

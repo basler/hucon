@@ -1,3 +1,5 @@
+var currentFile = '';
+
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
     fileDialog = document.getElementById('fileDialog');
@@ -15,6 +17,8 @@ function openFileDialog(load, extension) {
     var parameter = {};
     parameter['load'] = load;
     parameter['extension'] = extension;
+
+    console.log('currentFile: ' + currentFile);
 
     var title = '';
     var buttonText = '';
@@ -45,7 +49,6 @@ function openFileDialog(load, extension) {
         }
 
         var data = JSON.parse(message);
-
         // Create an empty option for the save dialog to prevent an overwrite of existing files.
         if (!load) {
             var opt = document.createElement('option');
@@ -54,16 +57,22 @@ function openFileDialog(load, extension) {
             selection.options.add(opt);
         }
 
+        var selectedIndex = 0;
         for (i=0; i<data['files'].length; i++) {
             var filename = data['files'][i]
             if (filename.endsWith(extension)) {
                 var opt = document.createElement('option');
-                opt.text = filename.slice(0, -extension.length);
-                opt.value = filename.slice(0, -extension.length);
+                var value = filename.slice(0, -extension.length);
+                opt.text = value;
+                opt.value = value;
                 selection.options.add(opt);
+                if (value == currentFile) {
+                    selectedIndex = selection.options.length - 1;
+                }
             }
         }
 
+        selection.options[selectedIndex].selected = true;
         document.getElementById('fileText').value = selection.options[selection.selectedIndex].value;
     });
 }
@@ -73,31 +82,8 @@ function fileDialogOk() {
     var parameter = JSON.parse(document.getElementById('fileOkButton').value);
     var filename = document.getElementById('fileText').value;
     var command = '';
-    var allertmessage = '';
     var data = '';
     var callback;
-
-    if (parameter['load']) {
-        command = 'load';
-        message = 'Please select a file to load.';
-        callback = function(message) {
-            loadFile(message);
-            console.log(message);
-        };
-    } else {
-        command = 'save';
-        message = 'Write a name for the file to save.'
-        data = getFileData();
-        callback = function (message) {
-            apendConsoleLog(message);
-            console.log(message);
-        };
-    }
-
-    if (filename == '') {
-        alert(message);
-        return;
-    }
 
     // Check the file name restrictions
     var reg = /^[A-Za-z0-9_]+$/;
@@ -106,12 +92,39 @@ function fileDialogOk() {
         return;
     }
 
+    currentFile = filename;
+
+    if (parameter['load']) {
+        command = 'load';
+        callback = function(message) {
+            var fileData = message;
+            if (parameter['extension'] == '.py') {
+                fileData = fileData.replace(/HSTerm.term_exec/g, 'print')
+            }
+            loadFile(fileData);
+        };
+    } else {
+        command = 'save';
+        data = getFileData();
+        if (parameter['extension'] == '.py') {
+            data = data.replace(/print/g, 'HSTerm.term_exec');
+        }
+        callback = apendConsoleLog;
+    }
+
     // Hide the load dialog modal.
     closeFileDialog();
 
     var url = '__FILE_ACCESS__?command=' + command + '&filename=' + filename + parameter['extension'];
-
     ajax('POST', url, data, callback);
+
+    // Store also the python code when blockly code is saved.
+    if (!parameter['load'] && parameter['extension'] != '.py') {
+        var code = getPythonCode().replace(/print/g, 'HSTerm.term_exec');
+
+        var url = '__FILE_ACCESS__?command=' + command + '&filename=' + filename + '.py';
+        ajax('POST', url, code, callback);
+    }
 }
 
 // Close the load file dialog
@@ -123,9 +136,13 @@ function closeFileDialog() {
 // This fnction will show up the console log and insert the message into it.
 function apendConsoleLog(message) {
     var time = new Date().toLocaleTimeString().replace('/.*(\d{2}:\d{2}:\d{2}).*/', '$1');
-    document.getElementById('consoleLog').value = time + '\n\n' + message;
+    var log = document.getElementById('consoleLog').value;
+    document.getElementById('consoleLog').value = time + '\n' + message + '\n' + log;
 
-    openConsoleLogDialog()
+    try {
+        openConsoleLogDialog()
+    }
+    catch(err) {}
 }
 
 // Open the load file dialog.
@@ -143,7 +160,14 @@ function closeConsoleLogDialog() {
 // This function will send via ajax a message to the server.
 function command(value) {
 
-    if (value == 'execute') {
+    if (value == 'set_wifi') {
+        var data = {};
+        data['command'] = value;
+        data['apName'] = document.getElementById('wifiText').value;
+        data['password'] = document.getElementById('password').value;
+        ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
+
+    } else if (value == 'execute') {
         var url = '__FILE_ACCESS__?command=execute';
         var code = getPythonCode().replace(/print/g, 'HSTerm.term_exec')
 
@@ -173,6 +197,14 @@ function command(value) {
         data['command'] = value;
         data['oldKey'] = oldKey;
         data['newKey'] = newKey;
+        ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
+
+    } else if (value == 'run') {
+
+        var data = {};
+        data['command'] = 'run'
+        data['filename'] = document.getElementById('fileText').value + '.py';
+
         ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
     }
 

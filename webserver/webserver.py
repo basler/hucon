@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
-from hs_http_server import HSHttpServer
-from hs_term import HSTerm
+try:
+    from hs_http_server import HSHttpServer
+    from hs_term import HSTerm
+except Exception as e:
+    print('Could not import the http server: %s' % str(e))
 
 def main():
     """

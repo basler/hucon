@@ -27,9 +27,9 @@ function loadFile(data) {
     if (data) {
         Blockly.mainWorkspace.clear();
         xmlDom = Blockly.Xml.textToDom(data);
-        Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xmlDom);
+        Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
     }
-    apendConsoleLog('Blockly workspace loaded from local disk.');
+    apendConsoleLog('Blockly workspace loaded from local disk.\n');
 }
 
 function getPythonCode() {

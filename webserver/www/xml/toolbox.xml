@@ -301,13 +301,20 @@
     <category id="catVariables" colour="330" custom="VARIABLE" name="Variables"></category>
     <category id="catFunctions" colour="290" custom="PROCEDURE" name="Functions"></category>
     <sep></sep>
+    <category name="Python" colour="208">
+        <block type="python_int"></block>
+        <block type="python_float"></block>
+        <block type="python_string"></block>
+    </category>
     <category name="Machine" colour="208">
         <block type="machine_sleep"></block>
         <block type="machine_pin"></block>
         <block type="machine_pin_parameter"></block>
         <block type="machine_pin_get"></block>
+        <block type="machine_pin_get_direct"></block>
         <block type="machine_pin_value"></block>
         <block type="machine_pin_set"></block>
+        <block type="machine_pin_set_direct"></block>
     </category>
     <category name="NeoPixel" colour="208">
         <block type="neopixel_array"></block>
