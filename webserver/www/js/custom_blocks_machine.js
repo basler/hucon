@@ -216,3 +216,32 @@ Blockly.Python['machine_sleep'] = function(block) {
     code += 'time.sleep(' + time/1000 + ')\n';
     return code;
 };
+
+Blockly.Blocks['machine_sleep_value'] = {
+    init: function() {
+        this.setColour(208);
+
+        this.appendDummyInput()
+            .appendField('Sleep for')
+        this.appendValueInput('Milliseconds')
+            .setCheck('Number')
+            .appendField('milliseconds');
+        this.setInputsInline(true);
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+
+        var thisBlock = this;
+        this.setTooltip(function() {
+            var time = thisBlock.getFieldValue('Milliseconds');
+            return 'Sleep for ' + time + 'milliseconds.';
+        });
+    }
+};
+Blockly.Python['machine_sleep_value'] = function(block) {
+    Blockly.Python.definitions_['import_time'] = 'import time';
+
+    var time = block.getFieldValue('Milliseconds');
+    var code = ''
+    code += 'time.sleep(' + time/1000 + ')\n';
+    return code;
+};
