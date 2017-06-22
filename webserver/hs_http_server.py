@@ -40,7 +40,7 @@ class HSHttpServer:
     _CODE_ROOT = os.getcwd() + '/code'
 
     # Define the port on which the server should listening on.
-    _LISTENING_PORT = 8080
+    _LISTENING_PORT = 80
 
     # Private server socket to listen for new connections.
     _server_socket = None
