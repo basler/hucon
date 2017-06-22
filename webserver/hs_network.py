@@ -9,6 +9,11 @@ def get_ip_address():
     try:
         sta_if = network.WLAN(network.STA_IF)
         ip, _, _, _ = sta_if.ifconfig()
+
+        if ip == '0.0.0.0':
+            ap_if = network.WLAN(network.AP_IF)
+            ip, _, _, _ = ap_if.ifconfig()
+
     except Exception as e:
         ip = str(socket.gethostbyname(socket.gethostname()))
 
