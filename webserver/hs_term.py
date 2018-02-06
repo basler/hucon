@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 
 
 class HSTerm:
 
     @staticmethod
-    def term(message: str):
+    def term(message):
         """
         Print a message on the terminal.
         """
@@ -19,7 +19,7 @@ class HSTerm:
             file.write('')
 
     @staticmethod
-    def term_exec(message: str):
+    def term_exec(message):
         """
         Write a line into the exec file and append a html and normal line break.
         """
@@ -27,7 +27,7 @@ class HSTerm:
             file.write(message + '\n')
 
     @staticmethod
-    def exec_filename() -> str:
+    def exec_filename():
         """
         Return the exec filename.
         """

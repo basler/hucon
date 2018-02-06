@@ -324,8 +324,8 @@
         <block type="neopixel_write"></block>
     </category>
     <category name="Servo" colour="208">
+        <block type="servo_channel"></block>
         <block type="servo_object"></block>
-        <block type="servo_object_param"></block>
         <block type="servo_set_angle"></block>
     </category>
     <category name="Motor" colour="208">

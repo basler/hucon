@@ -1,0 +1,42 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <block type="controls_for" id="SvGt_rXl)-*teaP0:n*A" x="131" y="147">
+    <field name="VAR">i</field>
+    <value name="FROM">
+      <shadow type="math_number" id="y4QPh18R~6/+tuh;;9h9">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <value name="TO">
+      <shadow type="math_number" id="wre%7LJjzCl+Zf6IP#=J">
+        <field name="NUM">5</field>
+      </shadow>
+    </value>
+    <value name="BY">
+      <shadow type="math_number" id="uLDf/k^lS@C;j%rn^Vuh">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <statement name="DO">
+      <block type="text_print" id="fzIfN/q2#Fb$tUs1_cE~">
+        <value name="TEXT">
+          <shadow type="text" id="gP^#I6L5c(J(qB)INKeF">
+            <field name="TEXT">abc</field>
+          </shadow>
+          <block type="text_join" id="_S#eSdCoedAn-cA~RejG">
+            <mutation items="2"></mutation>
+            <value name="ADD0">
+              <block type="text" id="#|{OB`Hkz!iLoW5s=5ug">
+                <field name="TEXT">HackerSchool Rocks </field>
+              </block>
+            </value>
+            <value name="ADD1">
+              <block type="variables_get" id="[I|MVF00Mt]@+TcnfYj(">
+                <field name="VAR">i</field>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </statement>
+  </block>
+</xml>
