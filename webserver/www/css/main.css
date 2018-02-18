@@ -47,7 +47,7 @@ select {
 #header {
     height: 120px;
     padding: 5px;
-    background-image: url(images/Logo.jpg);
+    background-image: url(../images/Logo.jpg);
     background-repeat: no-repeat;
     background-position: center;
 }

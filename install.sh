@@ -16,9 +16,9 @@ grep -q 'list interpreter' /etc/config/uhttpd || sed -i "/^config uhttpd 'main'/
 # and restart the micro http deamon
 /etc/init.d/uhttpd restart
 
-# add the hs_py_lib to the site packages
-ln -s "$SCRIPT_DIR/hs_py_lib" /usr/lib/python2.7/site-packages/hs_py_lib
+# add the hackerschool to the site packages
+ln -s "$SCRIPT_DIR/python_lib" /usr/lib/python2.7/site-packages/hackerschool
 
 # add the server to start at boot
-sed -i '/hs_start_server.sh/d' /etc/rc.local
-sed -i "/^exit 0/i sh $SCRIPT_DIR/hs_start_server.sh" /etc/rc.local
+sed -i '/start_server.sh/d' /etc/rc.local
+sed -i "/^exit 0/i sh $SCRIPT_DIR/start_server.sh" /etc/rc.local

@@ -6,7 +6,7 @@ from BaseHTTPServer import HTTPServer
 import os
 import json
 
-from hs_term import HSTerm
+from HSTerm import HSTerm
 
 
 class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -125,6 +125,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
                         data = {}
                         data['files'] = os.listdir(self.server._CODE_ROOT)
+                        data['files'].sort()
                         json_dump = json.dumps(data)
                         HSTerm.term('Returns: %s' % json_dump)
 

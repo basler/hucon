@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="de">
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Hacker School :)</title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Hacker School web server -->
+    <script type="text/javascript" src="docReady/docready.js"></script>
+    <script type="text/javascript" src="js/webserver_functions.js"></script>
+
+    <script type="text/javascript">
+        docReady(function(){
+            var data = {};
+            data['command'] = 'get_file_list';
+
+            document.getElementById('fileText').hidden = true
+
+            ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
+                selection = document.getElementById('fileSelect');
+                for(i = selection.options.length - 1 ; i >= 0 ; i--) {
+                    selection.remove(i);
+                }
+
+                var data = JSON.parse(message);
+                var extension = '.py';
+
+                for (i=0; i<data['files'].length; i++) {
+                    var filename = data['files'][i];
+                    if (filename.endsWith(extension)) {
+                        var opt = document.createElement('option');
+                        opt.text = filename.slice(0, -extension.length);
+                        opt.value = filename.slice(0, -extension.length);
+                        selection.options.add(opt);
+                    }
+                }
+
+                document.getElementById('fileText').value = selection.options[selection.selectedIndex].value;
+            });
+        });
+    </script>
+
+<head>
+</head>
+<body id="body">
+    <table>
+        <tr>
+            <td colspan="2"><h1>Hacker School</h1></td>
+        </tr>
+        <tr>
+            <td colspan="2" id="commands">
+                <button onclick="location.href='index.html'" class="button">Index</button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                Execute Script
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="select-editable">
+                    <select id="fileSelect" onchange="this.nextElementSibling.value=this.value"></select>
+                    <input id="fileText" type="text" name="format" value=""/>
+                </div>
+            </td>
+            <td style="width: 100px;">
+                <button onclick="command('run')" class="button" style="height: 43px;">Run</button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                Console Log:
+            </td>
+        </tr>
+        <tr style="height: 100%">
+            <td colspan="2">
+                <textarea class="text" style="height: 100%" id="consoleLog"></textarea>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

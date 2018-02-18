@@ -3,12 +3,8 @@ Blockly.Blocks['motor_object'] = {
         this.setColour(208);
 
         this.appendValueInput('Pin')
-            .setCheck('MachinePin')
+            .setCheck('MachineServoChannel')
             .appendField('create Motor on')
-        this.appendValueInput('Offset')
-            .setCheck('Number')
-            .appendField('with offset');
-        this.setInputsInline(true);
         this.setOutput(true, 'Motor');
 
         this.setTooltip(function() {
@@ -17,50 +13,38 @@ Blockly.Blocks['motor_object'] = {
     }
 }
 Blockly.Python['motor_object'] = function(block) {
-    Blockly.Python.definitions_['import_motor'] = 'from hs_motor import HSMotor';
+    Blockly.Python.definitions_['import_motor'] = 'from hackerschool import Motor';
 
     var argument0 = Blockly.Python.valueToCode(block, 'Pin', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var argument1 = Blockly.Python.valueToCode(block, 'Offset', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var code = 'HSMotor(' + argument0 + ', ' + argument1 + ')';
+    var code = 'Motor(' + argument0 + ')';
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
-Blockly.Blocks['motor_object_param'] = {
+Blockly.Blocks['motor_set_offset'] = {
     init: function() {
         this.setColour(208);
 
-        this.appendValueInput('Pin')
-            .setCheck('MachinePin')
-            .appendField('create Motor on');
+        this.appendDummyInput()
+            .appendField('Set')
+            .appendField(new Blockly.FieldVariable('motor'), 'VAR');
         this.appendValueInput('Offset')
             .setCheck('Number')
             .appendField('offset');
-        this.appendValueInput('Freq')
-            .setCheck('Number')
-            .appendField('frequency');
-        this.appendValueInput('MinUs')
-            .setCheck('Number')
-            .appendField('min us');
-        this.appendValueInput('MaxUs')
-            .setCheck('Number')
-            .appendField('min us');
-        this.setOutput(true, 'Motor');
+        this.setInputsInline(true);
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
 
+        var thisBlock = this;
         this.setTooltip(function() {
-            return 'Create a motor object which is conntected to the given pin.';
+            return 'Set the motor offset for channel ' + thisBlock.getFieldValue('VAR');
         });
     }
-}
-Blockly.Python['motor_object_param'] = function(block) {
-    Blockly.Python.definitions_['import_motor'] = 'from hs_motor import HSMotor';
-
-    var argument0 = Blockly.Python.valueToCode(block, 'Pin', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var argument1 = Blockly.Python.valueToCode(block, 'Offset', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var argument2 = Blockly.Python.valueToCode(block, 'Freq', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var argument3 = Blockly.Python.valueToCode(block, 'MinUs', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var argument4 = Blockly.Python.valueToCode(block, 'MaxUs', Blockly.Python.ORDER_ATOMIC) || 'NULL';
-    var code = 'HSMotor(' + argument0 + ', ' + argument1 + ', ' + argument2 + ', ' + argument3 + ', ' + argument4 + ')';
-    return [code, Blockly.Python.ORDER_ATOMIC];
+};
+Blockly.Python['motor_set_offset'] = function(block) {
+    var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    var offset = Blockly.Python.valueToCode(block, 'Offset', Blockly.Python.ORDER_ATOMIC) || '0';
+    var code = varName + '.offset = ' + offset + '\n';
+    return code;
 };
 
 Blockly.Blocks['motor_set_speed'] = {

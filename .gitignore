@@ -3,3 +3,5 @@ webserver/www/tmpfile.py
 webserver/exec_file.txt
 *.sublime*
 password
+webserver/www/exec_file.txt
+*.pyc

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 
-from hs_http_server import HSHttpServer
-from hs_term import HSTerm
+from HSHttpServer import HSHttpServer
+from HSTerm import HSTerm
 
 
 # Default key is hacker:school base64 coded.

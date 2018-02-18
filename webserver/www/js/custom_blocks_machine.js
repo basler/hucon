@@ -17,28 +17,41 @@ var MACHINE_PIN_DIRECTIONS = [
     ['Out', 'Pin.OUT']
 ];
 
-Blockly.Blocks['machine_pin'] = {
+var MACHINE_SERVO_PINS = [
+    ['Channel 1', '0'],
+    ['Channel 2', '1'],
+    ['Channel 3', '2'],
+    ['Channel 4', '3'],
+    ['Channel 5', '4'],
+    ['Channel 6', '5'],
+    ['Channel 7', '6'],
+    ['Channel 8', '7'],
+    ['Channel 9', '8'],
+    ['Channel 10', '9'],
+    ['Channel 11', '10'],
+    ['Channel 12', '11'],
+    ['Channel 13', '12'],
+    ['Channel 14', '13'],
+];
+
+Blockly.Blocks['machine_servo_channel'] = {
     init: function() {
         this.setColour(208);
 
         this.appendDummyInput()
-            .appendField('pin')
-            .appendField(new Blockly.FieldDropdown(MACHINE_PINS) , 'Pin')
-        this.setOutput(true, 'MachinePin');
+            .appendField(new Blockly.FieldDropdown(MACHINE_SERVO_PINS) , 'ServoChannel')
+        this.setOutput(true, 'MachineServoChannel');
 
         var thisBlock = this;
         this.setTooltip(function() {
-            var pin_number = thisBlock.getFieldValue('Pin');
-            return 'Get a pin object on ' + pin_number;
+            var channel_number = thisBlock.getFieldValue('ServoChannel');
+            return 'Get servo object on channel ' + channel_number;
         });
     }
 }
-Blockly.Python['machine_pin'] = function(block) {
-    Blockly.Python.definitions_['import_machine_pin'] = 'from machine import Pin';
-
-    var pin = block.getFieldValue('Pin');
-    var code = 'Pin(' + pin + ')';
-    return [code, Blockly.Python.ORDER_ATOMIC];
+Blockly.Python['machine_servo_channel'] = function(block) {
+    var channel = block.getFieldValue('ServoChannel');
+    return [channel, Blockly.Python.ORDER_ATOMIC];
 };
 
 Blockly.Blocks['machine_pin_parameter'] = {
@@ -196,7 +209,7 @@ Blockly.Blocks['machine_sleep'] = {
 
         this.appendDummyInput()
             .appendField('Sleep for')
-            .appendField(new Blockly.FieldNumber('100') , 'Milliseconds')
+            .appendField(new Blockly.FieldNumber('100'), 'Milliseconds')
             .appendField('milliseconds')
         this.setPreviousStatement(true);
         this.setNextStatement(true);
@@ -225,16 +238,17 @@ Blockly.Blocks['machine_sleep_value'] = {
             .appendField('Sleep for')
         this.appendValueInput('Milliseconds')
             .setCheck('Number')
-            .appendField('milliseconds');
+        this.appendDummyInput()
+            .appendField('milliseconds')
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        var thisBlock = this;
-        this.setTooltip(function() {
-            var time = thisBlock.getFieldValue('Milliseconds');
-            return 'Sleep for ' + time + 'milliseconds.';
-        });
+        // var thisBlock = this;
+        // this.setTooltip(function() {
+        //     var time = thisBlock.getFieldValue('Milliseconds');
+        //     return 'Sleep for ' + time + 'milliseconds.';
+        // });
     }
 };
 Blockly.Python['machine_sleep_value'] = function(block) {

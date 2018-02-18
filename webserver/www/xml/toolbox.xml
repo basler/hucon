@@ -309,7 +309,7 @@
     <category name="Machine" colour="208">
         <block type="machine_sleep"></block>
         <block type="machine_sleep_value"></block>
-        <block type="machine_pin"></block>
+        <block type="machine_servo_channel"></block>
         <block type="machine_pin_parameter"></block>
         <block type="machine_pin_get"></block>
         <block type="machine_pin_get_direct"></block>
@@ -317,20 +317,14 @@
         <block type="machine_pin_set"></block>
         <block type="machine_pin_set_direct"></block>
     </category>
-    <category name="NeoPixel" colour="208">
-        <block type="neopixel_array"></block>
-        <block type="neopixel_colour"></block>
-        <block type="neopixel_colour_rgb"></block>
-        <block type="neopixel_write"></block>
-    </category>
     <category name="Servo" colour="208">
-        <block type="servo_channel"></block>
         <block type="servo_object"></block>
+        <block type="servo_set_offset"></block>
         <block type="servo_set_angle"></block>
     </category>
     <category name="Motor" colour="208">
         <block type="motor_object"></block>
-        <block type="motor_object_param"></block>
+        <block type="motor_set_offset"></block>
         <block type="motor_set_speed"></block>
     </category>
 </xml>
