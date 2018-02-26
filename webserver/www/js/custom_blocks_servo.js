@@ -1,6 +1,8 @@
+var COLOR_SERVO = 30;
+
 Blockly.Blocks['servo_object'] = {
     init: function() {
-        this.setColour(208);
+        this.setColour(COLOR_SERVO);
 
         this.appendValueInput('VAR')
             .setCheck('MachineServoChannel')
@@ -22,7 +24,7 @@ Blockly.Python['servo_object'] = function(block) {
 
 Blockly.Blocks['servo_set_offset'] = {
     init: function() {
-        this.setColour(208);
+        this.setColour(COLOR_SERVO);
 
         this.appendDummyInput()
             .appendField('Set')
@@ -49,7 +51,7 @@ Blockly.Python['servo_set_offset'] = function(block) {
 
 Blockly.Blocks['servo_set_angle'] = {
     init: function() {
-        this.setColour(208);
+        this.setColour(COLOR_SERVO);
 
         this.appendDummyInput()
             .appendField('Set')

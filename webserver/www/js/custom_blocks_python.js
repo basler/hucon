@@ -15,7 +15,7 @@ Blockly.Blocks['python_int'] = {
     }
 }
 Blockly.Python['python_int'] = function(block) {
-    var input = block.getFieldValue('Value') || '0';
+    var input = Blockly.Python.valueToCode(block, 'Value', Blockly.Python.ORDER_ATOMIC) || '0';
     return ['int(' + input + ')', Blockly.Python.ORDER_ATOMIC];
 };
 
@@ -36,7 +36,7 @@ Blockly.Blocks['python_float'] = {
     }
 }
 Blockly.Python['python_float'] = function(block) {
-    var input = block.getFieldValue('Value') || '0.0';
+    var input = Blockly.Python.valueToCode(block, 'Value', Blockly.Python.ORDER_ATOMIC) || '0.0';
     return ['float(' + input + ')', Blockly.Python.ORDER_ATOMIC];
 };
 
@@ -56,6 +56,6 @@ Blockly.Blocks['python_string'] = {
     }
 }
 Blockly.Python['python_string'] = function(block) {
-    var input = block.getFieldValue('Value') || '';
+    var input = Blockly.Python.valueToCode(block, 'Value', Blockly.Python.ORDER_ATOMIC) || '';
     return ['str(' + input + ')', Blockly.Python.ORDER_ATOMIC];
 };

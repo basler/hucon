@@ -301,28 +301,24 @@
     <category id="catVariables" colour="330" custom="VARIABLE" name="Variables"></category>
     <category id="catFunctions" colour="290" custom="PROCEDURE" name="Functions"></category>
     <sep></sep>
-    <category name="Python" colour="208">
+<!--     <category name="Python" colour="250">
         <block type="python_int"></block>
         <block type="python_float"></block>
         <block type="python_string"></block>
     </category>
-    <category name="Machine" colour="208">
+ -->    <category name="Machine" colour="180">
         <block type="machine_sleep"></block>
         <block type="machine_sleep_value"></block>
+        <block type="machine_eye"></block>
         <block type="machine_servo_channel"></block>
-        <block type="machine_pin_parameter"></block>
-        <block type="machine_pin_get"></block>
-        <block type="machine_pin_get_direct"></block>
-        <block type="machine_pin_value"></block>
-        <block type="machine_pin_set"></block>
-        <block type="machine_pin_set_direct"></block>
+        <block type="machine_motor_channel"></block>
     </category>
-    <category name="Servo" colour="208">
+    <category name="Servo" colour="30">
         <block type="servo_object"></block>
         <block type="servo_set_offset"></block>
         <block type="servo_set_angle"></block>
     </category>
-    <category name="Motor" colour="208">
+    <category name="Motor" colour="60">
         <block type="motor_object"></block>
         <block type="motor_set_offset"></block>
         <block type="motor_set_speed"></block>

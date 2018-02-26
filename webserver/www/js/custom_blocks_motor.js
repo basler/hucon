@@ -1,10 +1,12 @@
+var COLOR_MOTOR = 60;
+
 Blockly.Blocks['motor_object'] = {
     init: function() {
-        this.setColour(208);
+        this.setColour(COLOR_MOTOR);
 
         this.appendValueInput('Pin')
-            .setCheck('MachineServoChannel')
-            .appendField('create Motor on')
+            .setCheck('MachineMotorChannel')
+            .appendField('create Motor on');
         this.setOutput(true, 'Motor');
 
         this.setTooltip(function() {
@@ -22,7 +24,7 @@ Blockly.Python['motor_object'] = function(block) {
 
 Blockly.Blocks['motor_set_offset'] = {
     init: function() {
-        this.setColour(208);
+        this.setColour(COLOR_MOTOR);
 
         this.appendDummyInput()
             .appendField('Set')
@@ -49,7 +51,7 @@ Blockly.Python['motor_set_offset'] = function(block) {
 
 Blockly.Blocks['motor_set_speed'] = {
     init: function() {
-        this.setColour(208);
+        this.setColour(COLOR_MOTOR);
 
         this.appendDummyInput()
             .appendField('Set')
