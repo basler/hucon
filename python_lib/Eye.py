@@ -11,37 +11,81 @@ import PCA9685
 
 class Eye(object):
     '''Eye driver class'''
-    _MIN_PULSE_WIDTH = 600
-    _MAX_PULSE_WIDTH = 2400
-    _DEFAULT_PULSE_WIDTH = 1500
+    _MIN_PULSE_WIDTH = 0
+    _MAX_PULSE_WIDTH = 1024
+    _DEFAULT_PULSE_WIDTH = 0
     _FREQUENCY = 60
 
     _DEBUG = False
     _DEBUG_INFO = 'DEBUG "Eye.py":'
 
-    def __init__(self, channel, offset=0, lock=True, address=0x49):
-        ''' Init an eye on specific channel, this offset '''
-        if channel<0 or channel > 16:
-            raise ValueError("Eye channel \"{0}\" is not in (0, 15).".format(channel))
+    def __init__(self, position, lock=True, address=0x4A):
+        ''' Init an eye on specific position, this offset '''
+        if position<1 or position>4:
+            raise ValueError("Eye position \"{0}\" is not in (1, 4).".format(position))
         if self._DEBUG:
             print self._DEBUG_INFO, "Debug on"
-        self.channel = channel
-        self.offset = offset
+        self.position = position
         self.lock = lock
 
         self.pwm = PCA9685.PWM(address=address)
         self.pwm.setup()
         self.frequency = self._FREQUENCY
-        self.set_angle(90)
+        self._set_channel(position)
+        self.red = 0
+        self.green = 0
+        self.blue = 0
+        self.set_color(self.red, self.green, self.blue)
 
+    def _set_channel(self, position):
+        if position == 1:
+            self.channel_red   = 2
+            self.channel_green = 1
+            self.channel_blue  = 0
+        elif position == 2:
+            self.channel_red   = 15
+            self.channel_green = 14
+            self.channel_blue  = 13
+        elif position == 3:
+            self.channel_red   = 7
+            self.channel_green = 6
+            self.channel_blue  = 5
+        else:
+            self.channel_red   = 12
+            self.channel_green = 11
+            self.channel_blue  = 10
 
-    def _angle_to_analog(self, angle):
-        ''' Calculate 12-bit analog value from giving angle '''
-        pulse_wide   = self.pwm.map(angle, 0, 180, self._MIN_PULSE_WIDTH, self._MAX_PULSE_WIDTH)
+    def _color_to_analog(self, color):
+        ''' Calculate 12-bit analog value from giving color '''
+        pulse_wide   = self.pwm.map(color, 0, 255, self._MIN_PULSE_WIDTH, self._MAX_PULSE_WIDTH)
         analog_value = int(float(pulse_wide) / 1000000 * self.frequency * 4096)
         if self._DEBUG:
-            print self._DEBUG_INFO, 'Angle %d equals Analog_value %d' % (angle, analog_value)
+            print self._DEBUG_INFO, 'Color %d equals Analog_value %d' % (color, analog_value)
         return analog_value
+
+    @property
+    def red(self):
+        return self._red
+
+    @red.setter
+    def red(self, value):
+        self._red = value
+
+    @property
+    def green(self):
+        return self._green
+
+    @green.setter
+    def green(self, value):
+        self._green = value
+
+    @property
+    def blue(self):
+        return self._blue
+
+    @blue.setter
+    def blue(self, value):
+        self._blue = value
 
     @property
     def frequency(self):
@@ -52,32 +96,47 @@ class Eye(object):
         self._frequency = value
         self.pwm.frequency = value
 
-    @property
-    def offset(self):
-        return self._offset
+    def set_color(self, red=None, green=None, blue=None):
 
-    @offset.setter
-    def offset(self, value):
-        ''' Set offset for much user-friendly '''
-        self._offset = value
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Set offset to %d' % self.offset
-
-    def set_angle(self, angle):
-        ''' Turn the eye with giving angle. '''
-        if self.lock:
-            if angle > 180:
-                angle = 180
-            if angle < 0:
-                angle = 0
+        if red == None:
+            red = self.red
         else:
-            if angle<0 or angle>180:
-                raise ValueError("Eye \"{0}\" turn angle \"{1}\" is not in (0, 180).".format(self.channel, angle))
-        angle += self.offset
-        val = self._angle_to_analog(angle)
-        self.pwm.write(self.channel, 0, val)
+            self.red = red
+        if green == None:
+            green = self.green
+        else:
+            self.green = green
+        if blue == None:
+            blue = self.blue
+        else:
+            self.blue = blue
+
+        ''' Set the color on the pre seted eye. '''
+        if self.lock:
+            if red > 255:
+                red = 255
+            if red < 0:
+                red = 0
+            if green > 255:
+                green = 255
+            if green < 0:
+                green = 0
+            if blue > 255:
+                blue = 255
+            if blue < 0:
+                blue = 0
+        else:
+            if red<0 or red>255 or green<0 or green>255 or blue<0 or blue>255:
+                raise ValueError("Eye \"{0}\" RGB({1}, {2}, {3}) is not in (0, 255).".format(self.channel, red, green, blue))
+        val_red = self._color_to_analog(red)
+        val_green = self._color_to_analog(green)
+        val_blue = self._color_to_analog(blue)
+
+        self.pwm.write(self.channel_red,   0, val_red)
+        self.pwm.write(self.channel_green, 0, val_green)
+        self.pwm.write(self.channel_blue,  0, val_blue)
         if self._DEBUG:
-            print self._DEBUG_INFO, 'Turn angle = %d' % angle
+            print self._DEBUG_INFO, 'Set color = %d %d %d' % (red, green, blue)
 
     @property
     def debug(self):
@@ -96,53 +155,62 @@ class Eye(object):
         else:
             print self._DEBUG_INFO, "Set debug off"
 
-def range_test():
-    '''Eye driver test on channel 0'''
-    import time
-    a = Eye(0)
-    print self._DEBUG_INFO, "Set Angle: 0"
-    a.set_angle(0)
-    time.sleep(0.1)
-    print self._DEBUG_INFO, "Set Angle: 90"
-    a.set_angle(90)
-    time.sleep(0.1)
-    print self._DEBUG_INFO, "Set Angle: 180"
-    a.set_angle(180)
-    time.sleep(0.1)
-    print self._DEBUG_INFO, "Set Angle: 90"
-    a.set_angle(90)
-    time.sleep(0.1)
-
 def test():
-    '''Eye driver test on channel 0'''
+    '''Eye driver test on all position'''
     import time
-    a = Eye(0)
-    for i in range(0, 180, 5):
-        print i
-        a.set_angle(i)
-        time.sleep(0.1)
-    for i in range(180, 0, -5):
-        print i
-        a.set_angle(i)
-        time.sleep(0.1)
-    for i in range(0, 91, 2):
-        a.set_angle(i)
-        time.sleep(0.05)
-    print i
+
+    for position in range(1, 5):
+        print "Position: ", position
+        eye = Eye(position)
+
+        for i in range(0, 256, 5):
+            print "R: ", i
+            eye.red = i
+            eye.set_color()
+            time.sleep(0.02)
+
+        eye.set_color(0,0,0)
+        for i in range(0, 256, 5):
+            print "G: ", i
+            eye.green = i
+            eye.set_color()
+            time.sleep(0.02)
+
+        eye.set_color(0,0,0)
+        for i in range(0, 256, 5):
+            print "B: ", i
+            eye.blue = i
+            eye.set_color()
+            time.sleep(0.02)
+
+        eye.set_color(0,0,0)
 
 def install():
-    all_eyes = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
-    for i in range(16):
-        all_eyes[i] = Eye(i)
-    for eye in all_eyes:
-        eye.set_angle(90)
+    '''Eye driver install test on all position'''
+    import time
+
+    eye1 = Eye(1)
+    eye2 = Eye(2)
+    eye3 = Eye(3)
+    eye4 = Eye(4)
+
+    eye1.set_color(255, 0, 0)
+    eye2.set_color(0, 255, 0)
+    eye3.set_color(0, 0, 255)
+    eye4.set_color(255, 255, 255)
+
+    time.sleep(2)
+
+    eye1.set_color(0, 0, 0)
+    eye2.set_color(0, 0, 0)
+    eye3.set_color(0, 0, 0)
+    eye4.set_color(0, 0, 0)
+
 
 if __name__ == '__main__':
     import sys
     if len(sys.argv) == 2:
         if sys.argv[1] == "install":
             install()
-        elif sys.argv[1] == "range_test":
-            range_test()
     else:
         test()
