@@ -81,9 +81,9 @@ Blockly.Python['machine_eye'] = function(block) {
 };
 
 var MACHINE_SERVO_PINS = [
-    ['Channel 1',  '0'],
+    ['Channel 1',  '2'],
     ['Channel 2',  '1'],
-    ['Channel 3',  '2'],
+    ['Channel 3',  '0'],
     ['Channel 4',  '3'],
     ['Channel 5',  '4'],
     ['Channel 6',  '5'],
@@ -117,29 +117,12 @@ Blockly.Python['machine_servo_channel'] = function(block) {
     return [channel, Blockly.Python.ORDER_ATOMIC];
 };
 
-var MACHINE_MOTOR_PINS = [
-    ['Channel 1',  '0'],
-    ['Channel 2',  '1'],
-    ['Channel 3',  '2'],
-    ['Channel 4',  '3'],
-    ['Channel 5',  '4'],
-    ['Channel 6',  '5'],
-    ['Channel 7',  '6'],
-    ['Channel 8',  '7'],
-    ['Channel 9',  '8'],
-    ['Channel 10', '9'],
-    ['Channel 11', '10'],
-    ['Channel 12', '11'],
-    ['Channel 13', '12'],
-    ['Channel 14', '13'],
-];
-
 Blockly.Blocks['machine_motor_channel'] = {
     init: function() {
         this.setColour(COLOR_MOTOR);
 
         this.appendDummyInput()
-            .appendField(new Blockly.FieldDropdown(MACHINE_MOTOR_PINS) , 'MotorChannel')
+            .appendField(new Blockly.FieldDropdown(MACHINE_SERVO_PINS) , 'MotorChannel')
         this.setOutput(true, 'MachineMotorChannel');
 
         var thisBlock = this;
