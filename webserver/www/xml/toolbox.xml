@@ -315,6 +315,8 @@
     </category>
     <category name="Eye" colour="0">
         <block type="eye_object"></block>
+        <block type="eye_colour"></block>
+        <block type="eye_colour_rgb"></block>
     </category>
     <category name="Servo" colour="30">
         <block type="servo_object"></block>
