@@ -9,13 +9,6 @@ opkg update
 opkg install python python-light pyOnionI2C pyPwmExp libonioni2c
 opkg upgrade libonioni2c pyOnionI2C
 
-# insert the python interpreter for the cgi-modules
-grep -q 'list interpreter' /etc/config/uhttpd || sed -i "/^config uhttpd 'main'/a \\        list interpreter '.py=/usr/bin/python3'
-" /etc/config/uhttpd
-
-# and restart the micro http deamon
-/etc/init.d/uhttpd restart
-
 # add the hackerschool to the site packages
 ln -s "$SCRIPT_DIR/python_lib" /usr/lib/python2.7/site-packages/hackerschool
 
