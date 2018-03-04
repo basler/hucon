@@ -1,10 +1,8 @@
-from hs_motor import HSMotor
-from machine import Pin
+from hackerschool import Motor
 
 motor = None
 
 
-HSTerm.term_exec('Set the Motor to full speed forward.')
-# Erzeuge eine Variable mit den Eigenschaften eines Motor.
-motor = HSMotor(Pin(12), 0)
+HSTerm.term_exec('Set the motor to full speed forward.')
+motor = Motor(2)
 motor.set_speed(100)

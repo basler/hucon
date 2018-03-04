@@ -1,0 +1,28 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <variables></variables>
+  <block type="text_print" id="oWL+S3Aj6;;IBElX|(5)" x="461" y="179">
+    <value name="TEXT">
+      <shadow type="text" id="az/W(*HTekuf$Y;q@Qr8">
+        <field name="TEXT">Hello HackerSchool</field>
+      </shadow>
+    </value>
+    <next>
+      <block type="procedures_callnoreturn" id="x5iF(ko4Cml)%Yrui@s#">
+        <mutation name="FunctionA"></mutation>
+      </block>
+    </next>
+  </block>
+  <block type="procedures_defnoreturn" id="WJ%}7.#NW6erj-JH@!a9" x="793" y="218">
+    <field name="NAME">FunctionA</field>
+    <comment pinned="true" h="32" w="280">I am a Function and I will print a message.</comment>
+    <statement name="STACK">
+      <block type="text_print" id="~@W`dVWe8`zZy9POdO^W">
+        <value name="TEXT">
+          <shadow type="text" id="7-^~[O+IT4A[|uDc`rSv">
+            <field name="TEXT">Hello from the function!</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+  </block>
+</xml>

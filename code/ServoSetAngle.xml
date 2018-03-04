@@ -1,28 +1,30 @@
 <xml xmlns="http://www.w3.org/1999/xhtml">
-  <block type="text_print" id="rT+@s!]6yJIPqF*mp?bj" x="232" y="100">
+  <variables>
+    <variable type="" id="O5%Gj5up;qE:uQPQ|dD!">servo</variable>
+  </variables>
+  <block type="text_print" id="Z5wirOmH5Hui=hzsX3`J" x="197" y="145">
     <value name="TEXT">
-      <shadow type="text" id="{:/Bi|jVK-kA:q|ux-%0">
+      <shadow type="text" id="sJ7ldl{1qd,=qWGa2]#n">
         <field name="TEXT">Set the servo to 90 degrees.</field>
       </shadow>
     </value>
     <next>
-      <block type="variables_set" id="#3X4j09cDW`I,sF|q*fk">
-        <field name="VAR">servo</field>
-        <comment pinned="false" h="80" w="160">Erzeuge eine Variable mit den Eigenschaften eines Servos und setze den Winkel auf 90 Grad.</comment>
+      <block type="variables_set" id="Ua6k!Z7Xg+$~Vu*%ZCMk">
+        <field name="VAR" id="O5%Gj5up;qE:uQPQ|dD!" variabletype="">servo</field>
         <value name="VALUE">
-          <block type="servo_object" id="l;V]_VoDiM[nH^Cm{gX[">
+          <block type="servo_object" id="d7@H7gB@a022ao`?_pj@">
             <value name="VAR">
-              <block type="machine_pin" id="Y;kOx4mVKMt[n4Qq~?AW">
-                <field name="Pin">13</field>
+              <block type="machine_servo_channel" id="]N|nmDAVrIpZ7Xl8}gD-">
+                <field name="ServoChannel">2</field>
               </block>
             </value>
           </block>
         </value>
         <next>
-          <block type="servo_set_angle" id="rEuoayNbSo{r.)0APCU2">
-            <field name="VAR">servo</field>
+          <block type="servo_set_angle" id="]^GiP06wSiKeVFc{C@0a">
+            <field name="VAR" id="O5%Gj5up;qE:uQPQ|dD!" variabletype="">servo</field>
             <value name="Angle">
-              <block type="math_number" id="|D]]5P*muM3+mX)52ANr">
+              <block type="math_number" id="{Ct}4EJO3$#RIJ~SG!oy">
                 <field name="NUM">90</field>
               </block>
             </value>
