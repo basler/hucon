@@ -47,7 +47,7 @@ select {
 #header {
     height: 120px;
     padding: 5px;
-    background-image: url(https://juwis.github.io/hackerschool/webserver/www/css/Logo.jpg);
+    background-image: url(../images/Logo.svg);
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -74,7 +74,6 @@ select {
     color: #000;
 }
 .button_big, .button {
-    background-color: #4CAF50; /* Green */
     border: none;
     color: white;
     padding: 5px;
@@ -90,6 +89,15 @@ select {
     padding: 15px 32px;
     font-size: 20px;
     font-weight: bold;
+}
+.orange {
+    background-color: #F99D33;
+}
+.blue {
+    background-color: #14487E;
+}
+.light_blue {
+    background-color: #006AB3;
 }
 .center_xy {
     position: absolute;
@@ -114,7 +122,7 @@ select {
 }
 .modal-header {
     padding: 2px 10px;
-    background-color: #5cb85c;
+    background-color: #006AB3;
     color: white;
 }
 .modal-body {

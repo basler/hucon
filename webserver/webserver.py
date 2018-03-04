@@ -1,18 +1,19 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 
-try:
-    from hs_http_server import HSHttpServer
-    from hs_term import HSTerm
-except Exception as e:
-    print('Could not import the http server: %s' % str(e))
+
+from HSHttpServer import HSHttpServer
+from HSTerm import HSTerm
+
+
+# Default key is hacker:school base64 coded.
+key = 'aGFja2VyOnNjaG9vbA=='
+
 
 def main():
     """
     Create the Server and listen on each incomming request.
     """
-
-    # Default key is hacker:school base64 coded.
-    key = 'aGFja2VyOnNjaG9vbA=='
+    global key
 
     # Load the password if possible.
     try:

@@ -1,0 +1,36 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <variables>
+    <variable type="" id="pn*9*rYSvrUeiW~SpBs[">motor</variable>
+  </variables>
+  <block type="text_print" id="Z.#u@7QBVKTVs[.KQ?]F" x="191" y="154">
+    <value name="TEXT">
+      <shadow type="text" id="n.@rTnRn65`,mV6A|DtR">
+        <field name="TEXT">Set the motor to full speed forward.</field>
+      </shadow>
+    </value>
+    <next>
+      <block type="variables_set" id="zbt?fo{bH:^Ijsa|%HB5">
+        <field name="VAR" id="pn*9*rYSvrUeiW~SpBs[" variabletype="">motor</field>
+        <value name="VALUE">
+          <block type="motor_object" id="2$~TIhbKKed8ghfKp%hv">
+            <value name="Pin">
+              <block type="machine_motor_channel" id="WA7-!:AS_H$D^a1LirXw">
+                <field name="MotorChannel">2</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="motor_set_speed" id="sYnS)sqItaqS7bep9AK4">
+            <field name="VAR" id="pn*9*rYSvrUeiW~SpBs[" variabletype="">motor</field>
+            <value name="Value">
+              <block type="math_number" id="z0M^n)wy-Jk|G0c.I^j7">
+                <field name="NUM">100</field>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

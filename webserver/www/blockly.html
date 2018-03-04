@@ -2,19 +2,26 @@
 <html lang="de">
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.5">
     <title>Hacker School :) - (external site)</title>
 
     <!-- Blockly Sourcen -->
-    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/blockly_compressed.js"></script>
-    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/blocks_compressed.js"></script>
-    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/python_compressed.js"></script>
-    <script type="text/javascript" src="https://juwis.github.io/hackerschool/webserver/www/blockly/en.js"></script>
+    <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
+    <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
+    <script type="text/javascript" src="blockly/python_compressed.js"></script>
+    <script type="text/javascript" src="blockly/en.js"></script>
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/main.css">
 
-    <!-- Hacker School web server -->
-    <script type="text/javascript" src="js/webserver.blockly.min.js"></script>
+    <script type="text/javascript" src="docReady/docready.js"></script>
+    <script type="text/javascript" src="js/custom_blocks_python.js"></script>
+    <script type="text/javascript" src="js/custom_blocks_machine.js"></script>
+    <script type="text/javascript" src="js/custom_blocks_eye.js"></script>
+    <script type="text/javascript" src="js/custom_blocks_servo.js"></script>
+    <script type="text/javascript" src="js/custom_blocks_motor.js"></script>
+    <script type="text/javascript" src="js/webserver_blockly.js"></script>
+    <script type="text/javascript" src="js/webserver_functions.js"></script>
 
 <head>
 </head>
@@ -25,11 +32,11 @@
         </tr>
         <tr>
             <td id="commands" colspan="2">
-                <button onclick="newFile()" class="button">New</button>
-                <button onclick="openFileDialog(true, '.xml')" class="button">Load</button>
-                <button onclick="openFileDialog(false, '.xml')" class="button">Save</button>
-                <button onclick="command('execute')" class="button">Run</button>
-                <button onclick="location.href='index.html'" class="button right">Index</button>
+                <button onclick="newFile()" class="button orange">New</button>
+                <button onclick="openFileDialog(true, '.xml')" class="button orange">Load</button>
+                <button onclick="openFileDialog(false, '.xml')" class="button orange">Save</button>
+                <button onclick="command('execute')" class="button orange">Run</button>
+                <button onclick="location.href='index.html'" class="button right blue">Index</button>
             </td>
         </tr>
         <tr>
@@ -55,8 +62,8 @@
                     <input id="fileText" type="text" name="format" value=""/>
                 </div>
                 <br>
-                <button id="fileOkButton" onclick="fileDialogOk()" class="button"></button>
-                <button onclick="closeFileDialog()" class="button">Cancel</button>
+                <button id="fileOkButton" onclick="fileDialogOk()" class="button orange"></button>
+                <button onclick="closeFileDialog()" class="button orange">Cancel</button>
             </div>
         </div>
     </div>
@@ -68,7 +75,7 @@
             </div>
             <div class="modal-body">
                 <textarea class="text" id="consoleLog"></textarea>
-                <button onclick="closeConsoleLogDialog()" class="button">Close</button>
+                <button onclick="closeConsoleLogDialog()" class="button orange">Close</button>
             </div>
         </div>
     </div>
