@@ -36,9 +36,8 @@ Blockly.Blocks['servo_set_offset'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        var thisBlock = this;
         this.setTooltip(function() {
-            return 'Set the servo offset for channel ' + thisBlock.getFieldValue('VAR');
+            return 'Set the servo offset. The Value can be between -100 and 100.';
         });
     }
 };
@@ -63,9 +62,8 @@ Blockly.Blocks['servo_set_angle'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        var thisBlock = this;
         this.setTooltip(function() {
-            return 'Set the servo angle on channel ' + thisBlock.getFieldValue('VAR');
+            return 'Set the servo angle between 0 and 180 degree.';
         });
     }
 };

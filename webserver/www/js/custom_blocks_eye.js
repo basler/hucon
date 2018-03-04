@@ -36,9 +36,8 @@ Blockly.Blocks['eye_colour'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        var thisBlock = this;
         this.setTooltip(function() {
-            return 'Define for an element this color ' + thisBlock.getFieldValue('Colour');
+            return 'Set the color for the eye. Use the color field to define the red, green and blue value.';
         });
     }
 }
@@ -75,12 +74,8 @@ Blockly.Blocks['eye_colour_rgb'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        var thisBlock = this;
         this.setTooltip(function() {
-            var r = thisBlock.getFieldValue('R');
-            var g = thisBlock.getFieldValue('G');
-            var b = thisBlock.getFieldValue('B');
-            return 'Define for an element this color (' + r + ', ' + g + ', ' + b + ')';
+            return 'Set the color for the eye. Use seperated values for red, green and blue.';
         });
     }
 }

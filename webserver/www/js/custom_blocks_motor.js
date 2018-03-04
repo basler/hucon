@@ -10,7 +10,7 @@ Blockly.Blocks['motor_object'] = {
         this.setOutput(true, 'Motor');
 
         this.setTooltip(function() {
-            return 'Create a motor object which is conntected to the given pin.';
+            return 'Create a motor object which is conntected to the given channel.';
         });
     }
 }
@@ -38,7 +38,7 @@ Blockly.Blocks['motor_set_offset'] = {
 
         var thisBlock = this;
         this.setTooltip(function() {
-            return 'Set the motor offset for channel ' + thisBlock.getFieldValue('VAR');
+            return 'Set the motor offset. The Value can be between -100 and 100.';
         });
     }
 };
@@ -56,7 +56,7 @@ Blockly.Blocks['motor_set_speed'] = {
         this.appendDummyInput()
             .appendField('Set')
             .appendField(new Blockly.FieldVariable('motor'), 'VAR');
-        this.appendValueInput('Time')
+        this.appendValueInput('Value')
             .setCheck('Number')
             .appendField('speed to');
         this.setInputsInline(true);
@@ -65,13 +65,13 @@ Blockly.Blocks['motor_set_speed'] = {
 
         var thisBlock = this;
         this.setTooltip(function() {
-            return 'Set the motor speed on pin ' + thisBlock.getFieldValue('VAR');
+            return 'Set the motor speed between -100 (backward) and 100 (forward).';
         });
     }
 };
 Blockly.Python['motor_set_speed'] = function(block) {
     var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
-    var time = Blockly.Python.valueToCode(block, 'Time', Blockly.Python.ORDER_ATOMIC) || '0';
-    var code = varName + '.set_speed(' + time + ')\n';
+    var value = Blockly.Python.valueToCode(block, 'Value', Blockly.Python.ORDER_ATOMIC) || '0';
+    var code = varName + '.set_speed(' + value + ')\n';
     return code;
 };

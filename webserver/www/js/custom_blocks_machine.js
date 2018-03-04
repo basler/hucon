@@ -68,10 +68,8 @@ Blockly.Blocks['machine_eye'] = {
             .appendField(new Blockly.FieldDropdown(MACHINE_EYES) , 'Eye')
         this.setOutput(true, 'MachineEye');
 
-        var thisBlock = this;
         this.setTooltip(function() {
-            var channel_number = thisBlock.getFieldValue('Eye');
-            return 'Get servo object on channel ' + channel_number;
+            return 'Get the right value for the eye position.';
         });
     }
 }
@@ -105,10 +103,8 @@ Blockly.Blocks['machine_servo_channel'] = {
             .appendField(new Blockly.FieldDropdown(MACHINE_SERVO_PINS) , 'ServoChannel')
         this.setOutput(true, 'MachineServoChannel');
 
-        var thisBlock = this;
         this.setTooltip(function() {
-            var channel_number = thisBlock.getFieldValue('ServoChannel');
-            return 'Get servo object on channel ' + channel_number;
+            return 'Get the right number for the given servo channel.';
         });
     }
 }
@@ -125,10 +121,8 @@ Blockly.Blocks['machine_motor_channel'] = {
             .appendField(new Blockly.FieldDropdown(MACHINE_SERVO_PINS) , 'MotorChannel')
         this.setOutput(true, 'MachineMotorChannel');
 
-        var thisBlock = this;
         this.setTooltip(function() {
-            var channel_number = thisBlock.getFieldValue('MotorChannel');
-            return 'Get motro object on channel ' + channel_number;
+            return 'Get the right number for the given motor channel.';
         });
     }
 }
