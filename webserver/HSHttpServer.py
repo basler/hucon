@@ -127,7 +127,6 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         data['files'] = os.listdir(self.server._CODE_ROOT)
                         data['files'].sort()
                         json_dump = json.dumps(data)
-                        HSTerm.term('Returns: %s' % json_dump)
 
                         self.send_response(200)
                         self.send_header('Content-type', 'text/html')
@@ -138,12 +137,10 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     # Run the file which is saved on the device
                     elif args['command'] == 'run':
                         run_file = self.server._CODE_ROOT + '/' + args['filename']
-                        print('run: %s' % run_file)
                         try:
                             exec(open(run_file).read(), globals())
                         except Exception as e:
                             HSTerm.term_exec('Error: %s' % str(e))
-                        self.sendFile(200, filename)
 
                     else:
                         # The given command is not known.
