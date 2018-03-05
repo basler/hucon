@@ -9,7 +9,5 @@ To install this project on your Omega2+ do the follwing steps on your console::
 
     # get the sources as tar file and un-tar it
     cd /root
-    wget https://github.com/juwis/hackerschool/archive/master.tar.gz
-    tar -zxvf master.tar.gz
-    cd hackerschool-master
-    sh install.sh
+    wget https://github.com/juwis/hackerschool/releases/download/[ReleaseName]/hackerschool.run
+    sh hackerschool.run

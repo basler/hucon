@@ -1,0 +1,14 @@
+sudo: false
+dist: trusty
+jobs:
+  include:
+  - stage: GitHub Release
+    script: sh deploy.sh
+    deploy:
+      provider: releases
+      api_key:
+        secure: FW3M3jmI3aabGEwnkN819wRgzfvBdluEepJLQg8018IwWxieoTRBQC5RrxmJXmhiXcqooxYPd2Y9GyH55iKt3xJbkGpZ2E4tctyVwnlsr8/TLiVS86T8783MjGO9Voc/HnDbcKM1hSZf3EZ6I3fRLO8NNXlWYd5hjBreitwNX3DNNBEBbGJRY6ov6IiqVSqNALwh9OVAJe14tZ+k0HcX2TmL2WAYwgvIfsT0t7yaZRXJw/mhWYDlaOafUtQEHkVm9fH6XBGTqWyYhtHyp8GBTTW+2FeIoRtdRKvPp5hEGGAZxP3JZktbdoANQzE2wonZNMaORhK7EpvuhAwx36pB4+iRT1l9o5xa0LJjgBOrXX3w0HUeXKpjPmoVazeHmNLZLCzICq4J1KH3g7BFaiEoqDuw4dLOyJeHTGVytH5QsS3m3e2KebJrol6OPxwVUu5khhjF3S//ZtnO98/p3fKhqglOla5I4eYYt8TpIfOcsIEwyt/Vo7j4GRKgUJqoqeTAWc5ET094b7pfhUawpwWlmbpH+tDl9zVc9Yx/9UMXdx+v89rsS6+ALW4SARkqHWqD96jiXEz8xaZs7gabYChPeO/8eqmWSLMM3evjBd1xaDLodOGlDX02R5s6+HBaM1HCdLkkaHrVi53GyxMJVt7KXUbGDIcxTvLoUWxUWDWSkxo=
+      file: hackerschool.run
+      skip_cleanup: true
+      on:
+        tags: true
