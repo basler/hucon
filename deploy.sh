@@ -11,9 +11,9 @@ tmp=__extract__$RANDOM
 
 printf "#!/bin/bash
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
-mkdir hackerschool | tail -n+\$PAYLOAD_LINE \$0 | tar -xvzC ./hackerschool
+mkdir -p /root/hackerschool | tail -n+\$PAYLOAD_LINE \$0 | tar -xvzC /root/hackerschool
 
-sh hackerschool/install.sh
+sh /root/hackerschool/install.sh
 
 exit 0
 __PAYLOAD_BELOW__\n" > "$tmp"
