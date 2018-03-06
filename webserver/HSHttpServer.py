@@ -41,7 +41,6 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
-            # HSTerm.term("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n" % (str(self.path), str(self.headers), post_data.decode('utf-8')))
 
             # Clear the exec file.
             HSTerm.clear_exec()
@@ -134,6 +133,19 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         self.wfile.write(json_dump)
                         return
 
+                    # Get the version of this project.
+                    elif args['command'] == 'get_version':
+
+                        data = {}
+                        data['version'] = self.server._version
+                        json_dump = json.dumps(data)
+
+                        self.send_response(200)
+                        self.send_header('Content-type', 'text/html')
+                        self.end_headers()
+                        self.wfile.write(json_dump)
+                        return
+
                     # Run the file which is saved on the device
                     elif args['command'] == 'run':
                         run_file = self.server._CODE_ROOT + '/' + args['filename']
@@ -192,16 +204,27 @@ class HSHttpServer(HTTPServer):
     # Folder where all custom code files are stored.
     _CODE_ROOT = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'code')
 
+    # Path to the version file.
+    _VERSION_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), '__version__')
+
     # Define the port on which the server should listening on.
     _LISTENING_PORT = 8080
 
     # Private key for the authorization to the key.
     _authorization_key = ''
 
+    # Current version of the server.
+    _version = 'beta\n'
+
     def __init__(self, key):
         """
         Create a socket to get its own ip address.
         """
+        if os.path.exists(self._VERSION_FILE):
+            with open(self._VERSION_FILE, 'r') as file:
+                self._version = file.readline()
+
+        HSTerm.term("HackerSchool v. %s" % self._version)
         HSTerm.term("Code path: '%s'" % self._CODE_ROOT)
         HSTerm.term("WWW path: '%s'\n" % self._DOCUMENT_ROOT)
         self._authorization_key = key
