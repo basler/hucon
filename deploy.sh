@@ -3,7 +3,7 @@ BASEDIR=`dirname "${0}"`
 cd "$BASEDIR"
 
 # compress the needed files into one tar image
-echo $1 >> __version__
+echo $1 > __version__
 tar -czvf hackerschool.tar.gz __version__ README.md code/ install.sh python_lib/ start_server.sh uninstall.sh webserver/
 
 # generate a self extracting tar image
