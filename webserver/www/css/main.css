@@ -50,6 +50,7 @@ select {
     background-image: url(../images/Logo.svg);
     background-repeat: no-repeat;
     background-position: center;
+    vertical-align: top;
 }
 #commands {
     height: 40px;

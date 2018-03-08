@@ -15,10 +15,16 @@
     <script type="text/javascript">
         docReady(function(){
             var data = {};
+            data['command'] = 'get_version';
+            ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
+                var data = JSON.parse(message);
+                console.log(data['version'])
+                document.getElementById('version').innerHTML = data['version'];
+            });
+
+            var data = {};
             data['command'] = 'get_file_list';
-
             document.getElementById('fileText').hidden = true
-
             ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
                 selection = document.getElementById('fileSelect');
                 for(i = selection.options.length - 1 ; i >= 0 ; i--) {
@@ -48,7 +54,7 @@
 <body id="body">
     <table>
         <tr>
-            <td id="header" colspan="2"></td>
+            <td id="header" colspan="2"><div id="version"></div></td>
         </tr>
         <tr>
             <td colspan="2" id="commands">

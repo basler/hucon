@@ -15,9 +15,6 @@
         docReady(function(){
             var data = {};
             data['command'] = 'get_version';
-
-            // document.getElementById('version').hidden = true;
-
             ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
 
                 var data = JSON.parse(message);
