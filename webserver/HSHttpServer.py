@@ -132,7 +132,6 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         self.send_header('Content-type', 'text/html')
                         self.end_headers()
                         self.wfile.write(json_dump)
-                        return
 
                     # Get the version of this project.
                     elif args['command'] == 'get_version':
@@ -145,7 +144,6 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         self.send_header('Content-type', 'text/html')
                         self.end_headers()
                         self.wfile.write(json_dump)
-                        return
 
                     # Run the file which is saved on the device
                     elif args['command'] == 'run':
@@ -154,6 +152,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                             exec(open(run_file).read(), globals())
                         except Exception as e:
                             HSTerm.term_exec('Error: %s' % str(e))
+                        self.sendFile(200, filename)
 
                     # Update all files from the project.
                     elif args['command'] == 'update':
@@ -172,21 +171,13 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                             self.wfile.write('\nThe system will be updated / reboot and is available in a few seconds.\n\n\n')
                             subprocess.check_output(['sh', self.server._UPDATE_FILE, '-u', '-r'])
 
-                        return
-
                     else:
                         # The given command is not known.
                         self.sendFile(404, '404.html')
-                        return
 
                 except Exception as e:
                     HSTerm.term_exec('Internal Error:\n%s' % str(e))
                     self.sendFile(500, filename)
-                    return
-
-                else:
-                    self.sendFile(200, filename)
-                    return
 
         else:
             self.do_AUTHHEAD()
