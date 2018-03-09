@@ -38,6 +38,13 @@ fi
 if [ $do_update ]; then
     if [ "$latestVersion" != "$currentVersion" ]; then
         echo "Update the system from $currentVersion to $latestVersion"
+
+        # remove the old package if needed.
+        if [ -f hackerschool.run ]; then
+            rm hackerschool.run
+        fi
+
+        # download the new package
         downloadUrl="https://github.com/juwis/hackerschool/releases/download/$latestVersion/hackerschool.run"
 
         # Download the new package
