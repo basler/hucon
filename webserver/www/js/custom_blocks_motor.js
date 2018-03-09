@@ -6,12 +6,10 @@ Blockly.Blocks['motor_object'] = {
 
         this.appendValueInput('Pin')
             .setCheck('MachineMotorChannel')
-            .appendField('create Motor on');
+            .appendField('create motor on');
         this.setOutput(true, 'Motor');
 
-        this.setTooltip(function() {
-            return 'Create a motor object which is conntected to the given channel.';
-        });
+        this.setTooltip('Create a motor object which is conntected to the given channel.');
     }
 }
 Blockly.Python['motor_object'] = function(block) {
@@ -27,7 +25,7 @@ Blockly.Blocks['motor_set_offset'] = {
         this.setColour(COLOR_MOTOR);
 
         this.appendDummyInput()
-            .appendField('Set')
+            .appendField('set')
             .appendField(new Blockly.FieldVariable('motor'), 'VAR');
         this.appendValueInput('Offset')
             .setCheck('Number')
@@ -36,10 +34,7 @@ Blockly.Blocks['motor_set_offset'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        var thisBlock = this;
-        this.setTooltip(function() {
-            return 'Set the motor offset. The Value can be between -100 and 100.';
-        });
+        this.setTooltip('Set the motor offset. The Value can be between -100 and 100.');
     }
 };
 Blockly.Python['motor_set_offset'] = function(block) {
@@ -54,7 +49,7 @@ Blockly.Blocks['motor_set_speed'] = {
         this.setColour(COLOR_MOTOR);
 
         this.appendDummyInput()
-            .appendField('Set')
+            .appendField('set')
             .appendField(new Blockly.FieldVariable('motor'), 'VAR');
         this.appendValueInput('Value')
             .setCheck('Number')
@@ -63,10 +58,7 @@ Blockly.Blocks['motor_set_speed'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        var thisBlock = this;
-        this.setTooltip(function() {
-            return 'Set the motor speed between -100 (backward) and 100 (forward).';
-        });
+        this.setTooltip('Set the motor speed between -100 (backward) and 100 (forward).');
     }
 };
 Blockly.Python['motor_set_speed'] = function(block) {

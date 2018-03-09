@@ -6,12 +6,10 @@ Blockly.Blocks['eye_object'] = {
 
         this.appendValueInput('Position')
             .setCheck('MachineEye')
-            .appendField('create Eye for');
+            .appendField('create eye for');
         this.setOutput(true, 'Eye');
 
-        this.setTooltip(function() {
-            return 'Create an eye object which is on the given position.';
-        });
+        this.setTooltip('Create an eye object which is on the given position.');
     }
 }
 Blockly.Python['eye_object'] = function(block) {
@@ -27,7 +25,7 @@ Blockly.Blocks['eye_colour'] = {
         this.setColour(COLOR_EYE);
 
         this.appendDummyInput()
-            .appendField('Set')
+            .appendField('set')
             .appendField(new Blockly.FieldVariable('eye'), 'VAR');
         this.appendDummyInput()
             .appendField('eye color')
@@ -36,9 +34,7 @@ Blockly.Blocks['eye_colour'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip(function() {
-            return 'Set the color for the eye. Use the color field to define the red, green and blue value.';
-        });
+        this.setTooltip('Set the color for the eye. Use the color field to define the red, green and blue value.');
     }
 }
 Blockly.Python['eye_colour'] = function(block) {
@@ -57,26 +53,24 @@ Blockly.Blocks['eye_colour_rgb'] = {
         this.setColour(COLOR_EYE);
 
         this.appendDummyInput()
-            .appendField('Set')
+            .appendField('set')
             .appendField(new Blockly.FieldVariable('eye'), 'VAR');
         this.appendDummyInput()
             .appendField('eye color');
         this.appendValueInput('R')
             .setCheck('Number')
-            .appendField('Red');
+            .appendField('red');
         this.appendValueInput('G')
             .setCheck('Number')
-            .appendField('Green');
+            .appendField('green');
         this.appendValueInput('B')
             .setCheck('Number')
-            .appendField('Blue');
+            .appendField('blue');
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip(function() {
-            return 'Set the color for the eye. Use seperated values for red, green and blue.';
-        });
+        this.setTooltip('Set the color for the eye. Use seperated values for red, green and blue.');
     }
 }
 Blockly.Python['eye_colour_rgb'] = function(block) {

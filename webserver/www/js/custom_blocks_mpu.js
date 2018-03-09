@@ -5,7 +5,7 @@ Blockly.Blocks['mpu_object'] = {
         this.setColour(COLOR_MOTION_TRACKING);
 
         this.appendDummyInput()
-            .appendField('MPU-6050 Six Axis');
+            .appendField('MPU-6050 six axis');
         this.setOutput(true, 'MPU');
 
         this.setTooltip('Create a motion tracking object.');
@@ -23,7 +23,7 @@ Blockly.Blocks['mpu_get_temperature'] = {
         this.setColour(COLOR_MOTION_TRACKING);
 
         this.appendDummyInput()
-            .appendField('Get temperatur from')
+            .appendField('get temperatur from')
             .appendField(new Blockly.FieldVariable('mpu'), 'VAR');
         this.setOutput(true, 'Number');
 
@@ -41,7 +41,7 @@ Blockly.Blocks['mpu_get_accelerometer_data'] = {
         this.setColour(COLOR_MOTION_TRACKING);
 
         this.appendDummyInput()
-            .appendField('Get accelerometer data from')
+            .appendField('get accelerometer data from')
             .appendField(new Blockly.FieldVariable('mpu'), 'VAR');
         this.setOutput(true, 'MPU_Data');
 
@@ -59,7 +59,7 @@ Blockly.Blocks['mpu_get_gyroscope_data'] = {
         this.setColour(COLOR_MOTION_TRACKING);
 
         this.appendDummyInput()
-            .appendField('Get gyroscope data from')
+            .appendField('get gyroscope data from')
             .appendField(new Blockly.FieldVariable('mpu'), 'VAR');
         this.setOutput(true, 'MPU_Data');
 
@@ -83,7 +83,7 @@ Blockly.Blocks['mpu_get_mpu_data'] = {
         this.setColour(COLOR_MOTION_TRACKING);
 
         this.appendDummyInput()
-            .appendField('Get data from')
+            .appendField('get data from')
             .appendField(new Blockly.FieldVariable('mpu'), 'VAR');
         this.appendDummyInput()
             .appendField('position')
