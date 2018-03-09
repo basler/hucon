@@ -16,7 +16,7 @@ while :; do
 done
 
 # Get the latest/current version from the website.
-latestVersion=$(curl https://github.com/juwis/hackerschool/releases/latest 2>/dev/null | sed "s/[a-zA-Z<> \"\/=:]//g" | sed "s/^\.//g" | sed "s/\.$//g")
+latestVersion=$(curl -k https://github.com/juwis/hackerschool/releases/latest 2>/dev/null | sed "s/[a-zA-Z<> \"\/=:]//g" | sed "s/^\.//g" | sed "s/\.$//g")
 currentVersion="unknown"
 
 if [ -f $SCRIPT_DIR/__version__ ]; then

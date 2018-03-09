@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 opkg update
 
 # install needed packages
-opkg install python python-light pyOnionI2C pyPwmExp libonioni2c
+opkg install curl python python-light pyOnionI2C pyPwmExp libonioni2c
 opkg upgrade libonioni2c pyOnionI2C
 
 # add the hackerschool to the site packages
