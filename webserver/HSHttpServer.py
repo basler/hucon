@@ -159,18 +159,19 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     elif args['command'] == 'update':
 
                         # Run the update script and save the content to send.
-                        bash = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-c', '-u'], stdout=subprocess.PIPE)
+                        bash = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-c'], stdout=subprocess.PIPE)
                         data = bash.communicate()[0]
 
                         self.send_response(200)
                         self.send_header('Content-type', 'text/html')
                         self.end_headers()
                         self.wfile.write(data)
-                        self.wfile.write('\nThe system will reboot and is available in a few seconds.\n\n\n')
 
-                        # Reboot only if there was an update.
-                        if bash.returncode == 0:
-                            subprocess.check_output(['sh', self.server._UPDATE_FILE, '-r'])
+                        # Reboot only if there is an update.
+                        if bash.returncode == 1:
+                            self.wfile.write('\nThe system will reboot and is available in a few seconds.\n\n\n')
+                            subprocess.check_output(['sh', self.server._UPDATE_FILE, '-u', '-r'])
+
                         return
 
                     else:

@@ -26,6 +26,12 @@ fi
 # Print the latest version.
 if [ $do_check ]; then
     echo "The latest version is: $latestVersion"
+    if [ "$latestVersion" != "$currentVersion" ]; then
+        echo "There is an update available."
+        exit 1
+    else
+        echo "You are using the up to date version."
+    fi
 fi
 
 # Update the package?
@@ -41,7 +47,6 @@ if [ $do_update ]; then
         sh hackerschool.run
     else
         echo "You are using the up to date version."
-        exit 1
     fi
 fi
 
