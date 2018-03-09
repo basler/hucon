@@ -10,6 +10,7 @@ opkg install curl python python-light pyOnionI2C pyPwmExp libonioni2c
 opkg upgrade libonioni2c pyOnionI2C
 
 # add the hackerschool to the site packages
+rm /usr/lib/python2.7/site-packages/hackerschool
 ln -s "$SCRIPT_DIR/python_lib" /usr/lib/python2.7/site-packages/hackerschool
 
 # add the server to start at boot
