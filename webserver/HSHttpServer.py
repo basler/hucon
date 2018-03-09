@@ -5,6 +5,7 @@ import SimpleHTTPServer
 from BaseHTTPServer import HTTPServer
 import os
 import json
+import subprocess
 
 from HSTerm import HSTerm
 
@@ -154,6 +155,24 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         except Exception as e:
                             HSTerm.term_exec('Error: %s' % str(e))
 
+                    # Update all files from the project.
+                    elif args['command'] == 'update':
+
+                        # Run the update script and save the content to send.
+                        bash = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-c', '-u'], stdout=subprocess.PIPE)
+                        data = bash.communicate()[0]
+
+                        self.send_response(200)
+                        self.send_header('Content-type', 'text/html')
+                        self.end_headers()
+                        self.wfile.write(data)
+                        self.wfile.write('\nThe system will reboot and is available in a few seconds.\n\n\n')
+
+                        # Reboot only if there was an update.
+                        if bash.returncode == 0:
+                            subprocess.check_output(['sh', self.server._UPDATE_FILE, '-r'])
+                        return
+
                     else:
                         # The given command is not known.
                         self.sendFile(404, '404.html')
@@ -206,6 +225,9 @@ class HSHttpServer(HTTPServer):
 
     # Path to the version file.
     _VERSION_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), '__version__')
+
+    # Path to the update file.
+    _UPDATE_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'update.sh')
 
     # Define the port on which the server should listening on.
     _LISTENING_PORT = 8080
