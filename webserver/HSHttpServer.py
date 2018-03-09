@@ -169,7 +169,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
                         # Reboot only if there is an update.
                         if bash.returncode == 1:
-                            self.wfile.write('\nThe system will reboot and is available in a few seconds.\n\n\n')
+                            self.wfile.write('\nThe system will be updated / reboot and is available in a few seconds.\n\n\n')
                             subprocess.check_output(['sh', self.server._UPDATE_FILE, '-u', '-r'])
 
                         return
