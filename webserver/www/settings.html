@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="cache-control" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=0.8">
-    <title>Hacker School :)</title>
+    <title>Hacker School :) - Settings</title>
 
     <link rel="stylesheet" href="css/main.css">
 
@@ -32,19 +32,22 @@
     <div id="header"><div id="version"></div></div>
     <div class="center_xy">
 
-        <button onclick="location.href='blockly.html'" class="button_big orange">Blockly</button><br>
-        <button onclick="location.href='editor.html'" class="button_big orange">Editor</button><br>
+        <button onclick="location.href='change_password.html'" class="button_big orange">Change Password</button><br>
+        <button onclick="command('update')" class="button_big orange">Update</button>
+        <p></p>
+        <button onclick="location.href='index.html'" class="button_big blue">Index</button>
+    </div>
 
-        <p>The following site is good when<br>
-        the device has no internet con-<br>
-        nection.</p>
-
-        <button onclick="location.href='mobile.html'" class="button_big blue">Mobile</button><br>
-
-        <p>You can change your password<br>
-        with the following site.</p>
-
-        <button onclick="location.href='settings.html'" class="button_big light_blue">Settings</button><br>
+    <div id="consoleLogDialog" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Console Log</h2>
+            </div>
+            <div class="modal-body">
+                <textarea class="text" id="consoleLog"></textarea>
+                <button onclick="closeConsoleLogDialog()" class="button orange">Close</button>
+            </div>
+        </div>
     </div>
 
 </body>

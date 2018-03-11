@@ -5,6 +5,7 @@ import SimpleHTTPServer
 from BaseHTTPServer import HTTPServer
 import os
 import json
+import subprocess
 
 from HSTerm import HSTerm
 
@@ -41,7 +42,6 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
-            # HSTerm.term("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n" % (str(self.path), str(self.headers), post_data.decode('utf-8')))
 
             # Clear the exec file.
             HSTerm.clear_exec()
@@ -132,7 +132,18 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         self.send_header('Content-type', 'text/html')
                         self.end_headers()
                         self.wfile.write(json_dump)
-                        return
+
+                    # Get the version of this project.
+                    elif args['command'] == 'get_version':
+
+                        data = {}
+                        data['version'] = self.server._version
+                        json_dump = json.dumps(data)
+
+                        self.send_response(200)
+                        self.send_header('Content-type', 'text/html')
+                        self.end_headers()
+                        self.wfile.write(json_dump)
 
                     # Run the file which is saved on the device
                     elif args['command'] == 'run':
@@ -141,20 +152,38 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                             exec(open(run_file).read(), globals())
                         except Exception as e:
                             HSTerm.term_exec('Error: %s' % str(e))
+                        self.sendFile(200, filename)
+
+                    # Update all files from the project.
+                    elif args['command'] == 'update':
+
+                        # Run the update script and save the content to send.
+                        bash = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-c'], stdout=subprocess.PIPE)
+                        data = bash.communicate()[0]
+
+                        self.send_response(200)
+                        self.send_header('Content-type', 'text/html')
+                        self.end_headers()
+                        self.wfile.write(data)
+                        self.wfile.write(b'\r\n')
+                        self.wfile.write(b'\r\n')
+                        self.wfile.flush();
+
+                        # Reboot only if there is an update.
+                        if bash.returncode == 1:
+                            self.wfile.write('\nThe system will be updated / reboot and is available in a few seconds.\n\n\n')
+                            self.wfile.write(b'\r\n')
+                            self.wfile.write(b'\r\n')
+                            self.wfile.flush();
+                            subprocess.check_output(['sh', self.server._UPDATE_FILE, '-u', '-r'])
 
                     else:
                         # The given command is not known.
                         self.sendFile(404, '404.html')
-                        return
 
                 except Exception as e:
                     HSTerm.term_exec('Internal Error:\n%s' % str(e))
                     self.sendFile(500, filename)
-                    return
-
-                else:
-                    self.sendFile(200, filename)
-                    return
 
         else:
             self.do_AUTHHEAD()
@@ -192,16 +221,30 @@ class HSHttpServer(HTTPServer):
     # Folder where all custom code files are stored.
     _CODE_ROOT = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'code')
 
+    # Path to the version file.
+    _VERSION_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), '__version__')
+
+    # Path to the update file.
+    _UPDATE_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'update.sh')
+
     # Define the port on which the server should listening on.
     _LISTENING_PORT = 8080
 
     # Private key for the authorization to the key.
     _authorization_key = ''
 
+    # Current version of the server.
+    _version = 'beta\n'
+
     def __init__(self, key):
         """
         Create a socket to get its own ip address.
         """
+        if os.path.exists(self._VERSION_FILE):
+            with open(self._VERSION_FILE, 'r') as file:
+                self._version = file.readline()
+
+        HSTerm.term("HackerSchool v. %s" % self._version)
         HSTerm.term("Code path: '%s'" % self._CODE_ROOT)
         HSTerm.term("WWW path: '%s'\n" % self._DOCUMENT_ROOT)
         self._authorization_key = key

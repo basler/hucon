@@ -1,0 +1,32 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <variables>
+    <variable type="" id="ZdXQ}%C{qV2::E?nYNU~">mpu</variable>
+  </variables>
+  <block type="text_print" id="X29kCUF1Mf}{0a4:z8gq" x="236" y="184">
+    <value name="TEXT">
+      <shadow type="text" id="*M)PN?a96:X?QFF(:LVE">
+        <field name="TEXT">Get the data from the accelerometer.</field>
+      </shadow>
+    </value>
+    <next>
+      <block type="variables_set" id=",cK^?y:IDgBKWja;R`~L">
+        <field name="VAR" id="ZdXQ}%C{qV2::E?nYNU~" variabletype="">mpu</field>
+        <value name="VALUE">
+          <block type="mpu_object" id="!:HTUg(GB/R1[.no.l+#"></block>
+        </value>
+        <next>
+          <block type="text_print" id="D)eu:0lPuEfaN0^Bh.i(">
+            <value name="TEXT">
+              <shadow type="text" id="yc{h@Yz2)9!Ls%y2%|~)">
+                <field name="TEXT">abc</field>
+              </shadow>
+              <block type="mpu_get_accelerometer_data" id="sEejjB]b*i+%M5LoZ]X;">
+                <field name="VAR" id="ZdXQ}%C{qV2::E?nYNU~" variabletype="">mpu</field>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

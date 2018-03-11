@@ -8,25 +8,20 @@ Blockly.Blocks['machine_sleep'] = {
         this.setColour(COLOR_MACHINE);
 
         this.appendDummyInput()
-            .appendField('Sleep for')
+            .appendField('sleep for')
             .appendField(new Blockly.FieldNumber('100'), 'Milliseconds')
             .appendField('milliseconds')
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        var thisBlock = this;
-        this.setTooltip(function() {
-            var time = thisBlock.getFieldValue('Milliseconds');
-            return 'Sleep for ' + time + ' milliseconds.';
-        });
+        this.setTooltip('Sleep for an amout of time.');
     }
 };
 Blockly.Python['machine_sleep'] = function(block) {
     Blockly.Python.definitions_['import_time'] = 'import time';
 
     var time = block.getFieldValue('Milliseconds');
-    var code = ''
-    code += 'time.sleep(' + time/1000 + ')\n';
+    code = 'time.sleep(' + time/1000 + ')\n';
     return code;
 };
 
@@ -35,21 +30,22 @@ Blockly.Blocks['machine_sleep_value'] = {
         this.setColour(COLOR_MACHINE);
 
         this.appendDummyInput()
-            .appendField('Sleep for')
+            .appendField('sleep for')
             .appendField(new Blockly.FieldVariable('index'), 'VAR');
         this.appendDummyInput()
             .appendField('milliseconds');
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
+
+        this.setTooltip('Sleep for an amout of time.');
     }
 };
 Blockly.Python['machine_sleep_value'] = function(block) {
     Blockly.Python.definitions_['import_time'] = 'import time';
 
     var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
-    var code = ''
-    code += 'time.sleep(' + varName + ' / 1000)\n';
+    code = 'time.sleep(' + varName + ' / 1000)\n';
     return code;
 };
 
@@ -68,9 +64,7 @@ Blockly.Blocks['machine_eye'] = {
             .appendField(new Blockly.FieldDropdown(MACHINE_EYES) , 'Eye')
         this.setOutput(true, 'MachineEye');
 
-        this.setTooltip(function() {
-            return 'Get the right value for the eye position.';
-        });
+        this.setTooltip('Get the right value for the eye position.');
     }
 }
 Blockly.Python['machine_eye'] = function(block) {
@@ -79,20 +73,20 @@ Blockly.Python['machine_eye'] = function(block) {
 };
 
 var MACHINE_SERVO_PINS = [
-    ['Channel 1',  '2'],
-    ['Channel 2',  '1'],
-    ['Channel 3',  '0'],
-    ['Channel 4',  '3'],
-    ['Channel 5',  '4'],
-    ['Channel 6',  '5'],
-    ['Channel 7',  '6'],
-    ['Channel 8',  '7'],
-    ['Channel 9',  '8'],
-    ['Channel 10', '9'],
-    ['Channel 11', '10'],
-    ['Channel 12', '11'],
-    ['Channel 13', '12'],
-    ['Channel 14', '13'],
+    ['channel 1',  '2'],
+    ['channel 2',  '1'],
+    ['channel 3',  '0'],
+    ['channel 4',  '3'],
+    ['channel 5',  '4'],
+    ['channel 6',  '5'],
+    ['channel 7',  '6'],
+    ['channel 8',  '7'],
+    ['channel 9',  '8'],
+    ['channel 10', '9'],
+    ['channel 11', '10'],
+    ['channel 12', '11'],
+    ['channel 13', '12'],
+    ['channel 14', '13'],
 ];
 
 Blockly.Blocks['machine_servo_channel'] = {
@@ -103,9 +97,7 @@ Blockly.Blocks['machine_servo_channel'] = {
             .appendField(new Blockly.FieldDropdown(MACHINE_SERVO_PINS) , 'ServoChannel')
         this.setOutput(true, 'MachineServoChannel');
 
-        this.setTooltip(function() {
-            return 'Get the right number for the given servo channel.';
-        });
+        this.setTooltip('Get the right number for the given servo channel.');
     }
 }
 Blockly.Python['machine_servo_channel'] = function(block) {
@@ -121,9 +113,7 @@ Blockly.Blocks['machine_motor_channel'] = {
             .appendField(new Blockly.FieldDropdown(MACHINE_SERVO_PINS) , 'MotorChannel')
         this.setOutput(true, 'MachineMotorChannel');
 
-        this.setTooltip(function() {
-            return 'Get the right number for the given motor channel.';
-        });
+        this.setTooltip('Get the right number for the given motor channel.');
     }
 }
 Blockly.Python['machine_motor_channel'] = function(block) {

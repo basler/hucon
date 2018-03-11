@@ -328,4 +328,11 @@
             </value>
         </block>
     </category>
+    <category name="Motion Tracking" colour="90">
+        <block type="mpu_object"></block>
+        <block type="mpu_get_temperature"></block>
+        <block type="mpu_get_accelerometer_data"></block>
+        <block type="mpu_get_gyroscope_data"></block>
+        <block type="mpu_get_mpu_data"></block>
+    </category>
 </xml>

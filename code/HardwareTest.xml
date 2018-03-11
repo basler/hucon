@@ -1,0 +1,385 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <variables>
+    <variable type="" id="rK%wbuY3H2{SRvtU{sOm">eyes</variable>
+    <variable type="" id="jH]}zIUAlnvG%P-5XHRb">servo</variable>
+    <variable type="" id="li{Y;oT^CLs5_nM8k9QD">motor</variable>
+    <variable type="" id="QeQuq-NO!TQo=Yu3B+x6">j</variable>
+    <variable type="" id="ZdXQ}%C{qV2::E?nYNU~">eye</variable>
+    <variable type="" id="/5SYVJn_j/;gZz{S|E{]">i</variable>
+  </variables>
+  <block type="procedures_defnoreturn" id="fQS`,uOqtmEhm.b4c|Lm" x="577" y="27">
+    <field name="NAME">test_eyes</field>
+    <comment pinned="false" h="80" w="160">Describe this function...</comment>
+    <statement name="STACK">
+      <block type="variables_set" id="DD)4r#qit8A;WJ:wCB79">
+        <field name="VAR" id="rK%wbuY3H2{SRvtU{sOm" variabletype="">eyes</field>
+        <value name="VALUE">
+          <block type="lists_create_with" id="mD%bIl.5NjR,u$0sI,Ju">
+            <mutation items="4"></mutation>
+            <value name="ADD0">
+              <block type="eye_object" id="+[%VMti:V0y4Ra#9e_@q">
+                <value name="Position">
+                  <block type="machine_eye" id="m~~qvJG9l!C/^r:e[0`j">
+                    <field name="Eye">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <value name="ADD1">
+              <block type="eye_object" id="[Zvsr.ISxz3h9_(b,Ir:">
+                <value name="Position">
+                  <block type="machine_eye" id="(AooTouSw#{iS*l,/:lh">
+                    <field name="Eye">2</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <value name="ADD2">
+              <block type="eye_object" id="M[@9p?F,b]l_~xr0k_3O">
+                <value name="Position">
+                  <block type="machine_eye" id="O2e[/)S@oAq]K,K@xCR_">
+                    <field name="Eye">3</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <value name="ADD3">
+              <block type="eye_object" id="sTx~Nl2yQkK9G=f1EASy">
+                <value name="Position">
+                  <block type="machine_eye" id="emOY1TmT]/JjLZuvUmyw">
+                    <field name="Eye">4</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="variables_set" id="=GL)EapI~8KuOvzBZ3v/">
+            <field name="VAR" id="jH]}zIUAlnvG%P-5XHRb" variabletype="">servo</field>
+            <value name="VALUE">
+              <block type="servo_object" id="9[/tE{xvsNbKty2teSO|">
+                <value name="VAR">
+                  <block type="machine_servo_channel" id="k@0+?s8xi=]v=.v;)2e5">
+                    <field name="ServoChannel">2</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set" id=")dU4umMD$%8r$wN]fm!i">
+                <field name="VAR" id="li{Y;oT^CLs5_nM8k9QD" variabletype="">motor</field>
+                <value name="VALUE">
+                  <block type="motor_object" id="/yB;g^4?;qF;[D)V(]4J">
+                    <value name="Pin">
+                      <block type="machine_motor_channel" id="Up.S%Svu#9r`wLGka6kj">
+                        <field name="MotorChannel">2</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="controls_for" id="(_/].@d7h;FLW8W$mm8U">
+                    <field name="VAR" id="QeQuq-NO!TQo=Yu3B+x6" variabletype="">j</field>
+                    <value name="FROM">
+                      <shadow type="math_number" id="~KZ|!M2F(x]qk-O:FDxE">
+                        <field name="NUM">1</field>
+                      </shadow>
+                    </value>
+                    <value name="TO">
+                      <shadow type="math_number" id="GuH5QqW6cXQoX!93;;BZ">
+                        <field name="NUM">4</field>
+                      </shadow>
+                    </value>
+                    <value name="BY">
+                      <shadow type="math_number" id="YFsZiEz{L,Zm[kbNOews">
+                        <field name="NUM">1</field>
+                      </shadow>
+                    </value>
+                    <statement name="DO">
+                      <block type="variables_set" id="CWcX#T-FYHiYD$`zfRLq">
+                        <field name="VAR" id="ZdXQ}%C{qV2::E?nYNU~" variabletype="">eye</field>
+                        <value name="VALUE">
+                          <block type="lists_getIndex" id="fd3`#^]t=@alA4lAujcM">
+                            <mutation statement="false" at="true"></mutation>
+                            <field name="MODE">GET</field>
+                            <field name="WHERE">FROM_START</field>
+                            <value name="VALUE">
+                              <block type="variables_get" id="Nc0WkVW,!mz8)!Pkqa|}">
+                                <field name="VAR" id="rK%wbuY3H2{SRvtU{sOm" variabletype="">eyes</field>
+                              </block>
+                            </value>
+                            <value name="AT">
+                              <block type="variables_get" id=")^he(6VOD4wnA`/Wq|p1">
+                                <field name="VAR" id="QeQuq-NO!TQo=Yu3B+x6" variabletype="">j</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="controls_for" id="yW0$tmlq`-iGDxGplQXP">
+                            <field name="VAR" id="/5SYVJn_j/;gZz{S|E{]" variabletype="">i</field>
+                            <value name="FROM">
+                              <shadow type="math_number" id=";6DP$gVHajoCAF`_GFk%">
+                                <field name="NUM">0</field>
+                              </shadow>
+                            </value>
+                            <value name="TO">
+                              <shadow type="math_number" id="e%r-P1];3C|fCL9hWly+">
+                                <field name="NUM">255</field>
+                              </shadow>
+                            </value>
+                            <value name="BY">
+                              <shadow type="math_number" id="~40%c1jXuh[BeiCO%Jxg">
+                                <field name="NUM">25</field>
+                              </shadow>
+                            </value>
+                            <statement name="DO">
+                              <block type="machine_sleep" id=")8}Pg.0:bn,3ZN2fb:ZP">
+                                <field name="Milliseconds">200</field>
+                                <next>
+                                  <block type="eye_colour_rgb" id="}g`=@xK$K9M^(^*.;A}u">
+                                    <field name="VAR" id="ZdXQ}%C{qV2::E?nYNU~" variabletype="">eye</field>
+                                    <value name="R">
+                                      <shadow type="math_number" id="CS|W/UMzj.r}uq.(wqC6">
+                                        <field name="NUM">255</field>
+                                      </shadow>
+                                      <block type="variables_get" id="xNBDW6uA.7?mr%A=J5{c">
+                                        <field name="VAR" id="/5SYVJn_j/;gZz{S|E{]" variabletype="">i</field>
+                                      </block>
+                                    </value>
+                                    <value name="G">
+                                      <shadow type="math_number" id="95pLz=MK5NgK`f:qWd`3">
+                                        <field name="NUM">127</field>
+                                      </shadow>
+                                      <block type="variables_get" id="jd(pZrvyXz}v]wO~]Xz0">
+                                        <field name="VAR" id="/5SYVJn_j/;gZz{S|E{]" variabletype="">i</field>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <shadow type="math_number" id="tk2l]eLfhxh4UQK7Sqpi">
+                                        <field name="NUM">0</field>
+                                      </shadow>
+                                      <block type="variables_get" id="RWh!RO;Io?8A7K6@d%`K">
+                                        <field name="VAR" id="/5SYVJn_j/;gZz{S|E{]" variabletype="">i</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </next>
+                              </block>
+                            </statement>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="servo_set_angle" id="zgXZe0Uv$XDB_6B1`%7_">
+                        <field name="VAR" id="jH]}zIUAlnvG%P-5XHRb" variabletype="">servo</field>
+                        <value name="Angle">
+                          <shadow type="math_number" id="FOgOm{]x|?Rb-Fvu,@-V">
+                            <field name="NUM">90</field>
+                          </shadow>
+                        </value>
+                        <next>
+                          <block type="machine_sleep" id="f7@oNw3[XwOk$7AaY{c+">
+                            <field name="Milliseconds">200</field>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="text_print" id="X29kCUF1Mf}{0a4:z8gq" x="133" y="61">
+    <value name="TEXT">
+      <shadow type="text" id="*M)PN?a96:X?QFF(:LVE">
+        <field name="TEXT">Do a test for the hardware.</field>
+      </shadow>
+    </value>
+    <next>
+      <block type="procedures_callnoreturn" id="ni[[Y*Nh!%uuTnWgx*$z">
+        <mutation name="test_eyes"></mutation>
+        <next>
+          <block type="procedures_callnoreturn" id="/,3Ux-oCkw*2-H7P^?*5">
+            <mutation name="test_servo"></mutation>
+            <next>
+              <block type="procedures_callnoreturn" id="e@4EgpnWqTtj5o.2awow">
+                <mutation name="test_motor"></mutation>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+  <block type="procedures_defnoreturn" id="ii-x%vv@dt4)CKcF1`Pa" x="131" y="497">
+    <field name="NAME">test_servo</field>
+    <comment pinned="false" h="80" w="160">Describe this function...</comment>
+    <statement name="STACK">
+      <block type="text_print" id="WwZ`6sV9=RZKZTbifmQy">
+        <value name="TEXT">
+          <shadow type="text" id="^v?!V1`!r4W,N8((70GS">
+            <field name="TEXT">Test the servo on channel 2</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="variables_set" id="v.N*|pk2`wY151nXv=Q4">
+            <field name="VAR" id="jH]}zIUAlnvG%P-5XHRb" variabletype="">servo</field>
+            <value name="VALUE">
+              <block type="servo_object" id="5ZJE3n%G,%LP:m5{pX,-">
+                <value name="VAR">
+                  <block type="machine_servo_channel" id="s6iW{y{S#8.9J$4$[/Ts">
+                    <field name="ServoChannel">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="servo_set_angle" id="NK`7VDPPe!:JGiwplvT3">
+                <field name="VAR" id="jH]}zIUAlnvG%P-5XHRb" variabletype="">servo</field>
+                <value name="Angle">
+                  <shadow type="math_number" id="UF[Xh/Img|:b[A^vg3`u">
+                    <field name="NUM">90</field>
+                  </shadow>
+                </value>
+                <next>
+                  <block type="machine_sleep" id="rrNM[2jx|ZJFRgk3P{br">
+                    <field name="Milliseconds">500</field>
+                    <next>
+                      <block type="servo_set_angle" id="eF{.i9Z]Ne[c8Isgg9%o">
+                        <field name="VAR" id="jH]}zIUAlnvG%P-5XHRb" variabletype="">servo</field>
+                        <value name="Angle">
+                          <shadow type="math_number" id="}N[O=(bXb7dr{AV^`3Fx">
+                            <field name="NUM">0</field>
+                          </shadow>
+                        </value>
+                        <next>
+                          <block type="machine_sleep" id="@^AE^J}rDfVj0!UFG8vS">
+                            <field name="Milliseconds">500</field>
+                            <next>
+                              <block type="servo_set_angle" id="xm%iOY|%(pv_yS`i-VK$">
+                                <field name="VAR" id="jH]}zIUAlnvG%P-5XHRb" variabletype="">servo</field>
+                                <value name="Angle">
+                                  <shadow type="math_number" id="PplmtrYM!C|-^JYU79qY">
+                                    <field name="NUM">180</field>
+                                  </shadow>
+                                </value>
+                                <next>
+                                  <block type="machine_sleep" id="~fx%/j[-pR;d%E1);V$F">
+                                    <field name="Milliseconds">500</field>
+                                    <next>
+                                      <block type="servo_set_angle" id="aSJWGKr_7dRoV{Hw@_Sw">
+                                        <field name="VAR" id="jH]}zIUAlnvG%P-5XHRb" variabletype="">servo</field>
+                                        <value name="Angle">
+                                          <shadow type="math_number" id="Ca2KlrjEr|:_^/.~qheE">
+                                            <field name="NUM">90</field>
+                                          </shadow>
+                                        </value>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="J[A~n0S0[ODY{Ihf29|z" x="574" y="508">
+    <field name="NAME">test_motor</field>
+    <comment pinned="false" h="80" w="160">Describe this function...</comment>
+    <statement name="STACK">
+      <block type="text_print" id="(3QBpml((9F9dVc%xP^1">
+        <value name="TEXT">
+          <shadow type="text" id="pw2#d2dc2A]xO=gpx:=M">
+            <field name="TEXT">Test the motor on channel 1</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="variables_set" id=")}v^*0TY5g:/6ocLqJ$j">
+            <field name="VAR" id="li{Y;oT^CLs5_nM8k9QD" variabletype="">motor</field>
+            <value name="VALUE">
+              <block type="motor_object" id="#UrP.TGTpNyG+{U={}K]">
+                <value name="Pin">
+                  <block type="machine_motor_channel" id="8m5({`s8:A/+k7B@#0Pb">
+                    <field name="MotorChannel">2</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="motor_set_speed" id="90*!?qx/?Vq]/9)j?{7{">
+                <field name="VAR" id="li{Y;oT^CLs5_nM8k9QD" variabletype="">motor</field>
+                <value name="Value">
+                  <shadow type="math_number" id="?~9E:lfV~x+gMrL_]MA7">
+                    <field name="NUM">0</field>
+                  </shadow>
+                </value>
+                <next>
+                  <block type="machine_sleep" id="}@p4Z2-,C@qsrp}@;PWX">
+                    <field name="Milliseconds">500</field>
+                    <next>
+                      <block type="motor_set_speed" id="_mwQ`XcQ6VeW{80swDWI">
+                        <field name="VAR" id="li{Y;oT^CLs5_nM8k9QD" variabletype="">motor</field>
+                        <value name="Value">
+                          <shadow type="math_number" id=".k{EH+3%2!zpbM:ex+iJ">
+                            <field name="NUM">-100</field>
+                          </shadow>
+                        </value>
+                        <next>
+                          <block type="machine_sleep" id="T(p#F4N~C=e%[O2av-=x">
+                            <field name="Milliseconds">500</field>
+                            <next>
+                              <block type="motor_set_speed" id="x?@Fpipx,S#Cg]c{3um6">
+                                <field name="VAR" id="li{Y;oT^CLs5_nM8k9QD" variabletype="">motor</field>
+                                <value name="Value">
+                                  <shadow type="math_number" id="kX^q@`ASuffncNc(@t.^">
+                                    <field name="NUM">100</field>
+                                  </shadow>
+                                </value>
+                                <next>
+                                  <block type="machine_sleep" id="-Ho.$ov+(ahFQ196%PX;">
+                                    <field name="Milliseconds">500</field>
+                                    <next>
+                                      <block type="motor_set_speed" id="@KM$*3rRNI2EP61B4(8b">
+                                        <field name="VAR" id="li{Y;oT^CLs5_nM8k9QD" variabletype="">motor</field>
+                                        <value name="Value">
+                                          <shadow type="math_number" id="O`dPB=R8Z;N=+Ck4~}Q1">
+                                            <field name="NUM">0</field>
+                                          </shadow>
+                                        </value>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>

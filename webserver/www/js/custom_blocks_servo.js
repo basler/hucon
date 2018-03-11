@@ -6,12 +6,10 @@ Blockly.Blocks['servo_object'] = {
 
         this.appendValueInput('VAR')
             .setCheck('MachineServoChannel')
-            .appendField('create Servo on')
+            .appendField('create servo on')
         this.setOutput(true, 'Servo');
 
-        this.setTooltip(function() {
-            return 'Create a servo object which is conntected to the given channel.';
-        });
+        this.setTooltip('Create a servo object which is conntected to the given channel.');
     }
 }
 Blockly.Python['servo_object'] = function(block) {
@@ -27,7 +25,7 @@ Blockly.Blocks['servo_set_offset'] = {
         this.setColour(COLOR_SERVO);
 
         this.appendDummyInput()
-            .appendField('Set')
+            .appendField('set')
             .appendField(new Blockly.FieldVariable('servo'), 'VAR');
         this.appendValueInput('Offset')
             .setCheck('Number')
@@ -36,9 +34,7 @@ Blockly.Blocks['servo_set_offset'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip(function() {
-            return 'Set the servo offset. The Value can be between -100 and 100.';
-        });
+        this.setTooltip('Set the servo offset. The Value can be between -100 and 100.');
     }
 };
 Blockly.Python['servo_set_offset'] = function(block) {
@@ -53,7 +49,7 @@ Blockly.Blocks['servo_set_angle'] = {
         this.setColour(COLOR_SERVO);
 
         this.appendDummyInput()
-            .appendField('Set')
+            .appendField('set')
             .appendField(new Blockly.FieldVariable('servo'), 'VAR');
         this.appendValueInput('Angle')
             .setCheck('Number')
@@ -62,9 +58,7 @@ Blockly.Blocks['servo_set_angle'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip(function() {
-            return 'Set the servo angle between 0 and 180 degree.';
-        });
+        this.setTooltip('Set the servo angle between 0 and 180 degree.');
     }
 };
 Blockly.Python['servo_set_angle'] = function(block) {

@@ -200,11 +200,15 @@ function command(value) {
         ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
 
     } else if (value == 'run') {
-
         var data = {};
         data['command'] = 'run'
         data['filename'] = document.getElementById('fileText').value + '.py';
 
+        ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
+
+    } else if (value == 'update') {
+        var data = {};
+        data['command'] = 'update'
         ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
     }
 
