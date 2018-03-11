@@ -165,10 +165,16 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         self.send_header('Content-type', 'text/html')
                         self.end_headers()
                         self.wfile.write(data)
+                        self.wfile.write(b'\r\n')
+                        self.wfile.write(b'\r\n')
+                        self.wfile.flush();
 
                         # Reboot only if there is an update.
                         if bash.returncode == 1:
                             self.wfile.write('\nThe system will be updated / reboot and is available in a few seconds.\n\n\n')
+                            self.wfile.write(b'\r\n')
+                            self.wfile.write(b'\r\n')
+                            self.wfile.flush();
                             subprocess.check_output(['sh', self.server._UPDATE_FILE, '-u', '-r'])
 
                     else:
