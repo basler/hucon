@@ -16,8 +16,7 @@ PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 opkg install tar
 
 path=/root/hackerschool
-if [ \$1 ]
-then
+if [ \$1 ]; then
     path=\"\$1\"hackerschool
 fi
 
