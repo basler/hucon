@@ -11,6 +11,10 @@ tmp=__extract__$RANDOM
 
 printf "#!/bin/bash
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
+
+# Install tar to decompress the image.
+opkg install tar
+
 path=/root/hackerschool
 if [ \$1 ]
 then
