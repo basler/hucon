@@ -27,5 +27,5 @@ sh \$path/install.sh
 exit 0
 __PAYLOAD_BELOW__\n" > "$tmp"
 
-cat "$tmp" "hackerschool.tar.gz" > "hackerschool.run" && rm "$tmp" && rm "hackerschool.tar.gz"
+cat "$tmp" "hackerschool.tar.gz" > "hackerschool.run" && rm "$tmp" && rm "hackerschool.tar.gz" && rm __version__
 chmod +x "hackerschool.run"
