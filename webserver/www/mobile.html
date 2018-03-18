@@ -15,18 +15,14 @@
 
     <script type="text/javascript">
         docReady(function(){
-            var data = {};
-            data['command'] = 'get_version';
-            ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
+            ajax('POST', 'get_version', '', function(message) {
                 var data = JSON.parse(message);
                 console.log(data['version'])
                 document.getElementById('version').innerHTML = data['version'];
             });
 
-            var data = {};
-            data['command'] = 'get_file_list';
             document.getElementById('fileText').hidden = true
-            ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
+            ajax('POST', 'get_file_list', '', function(message) {
                 selection = document.getElementById('fileSelect');
                 for(i = selection.options.length - 1 ; i >= 0 ; i--) {
                     selection.remove(i);
@@ -48,6 +44,24 @@
                 document.getElementById('fileText').value = selection.options[selection.selectedIndex].value;
             });
         });
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript">
+        (function poll() {
+            $.ajax('/poll', {
+                method: 'POST',
+                timeout: 30000, // 30 seconds
+                success: function(message){
+                    document.getElementById('consoleLog').value += message + '\n';
+                    poll();
+                },
+                error: function(){
+                    setTimeout(poll, 1000);
+                },
+                data: ''
+            });
+        }());
     </script>
 
 <head>

@@ -6,6 +6,9 @@ import threading
 class HSLogMessage():
 
     def __init__(self):
+        """
+        Create the event and lock objects for the threaded access.
+        """
         self.data = ''
         self.event = threading.Event()
         self.lock = threading.Lock()

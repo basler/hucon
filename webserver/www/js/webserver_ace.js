@@ -2,9 +2,7 @@ var editor;
 
 // On document ready this function will be called and initialize the complete website.
 docReady(function(){
-    var data = {};
-    data['command'] = 'get_version';
-    ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
+    ajax('POST', 'get_version', '', function(message) {
         var data = JSON.parse(message);
         console.log(data['version'])
         document.getElementById('version').innerHTML = data['version'];

@@ -23,6 +23,9 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
     # Path to the version file.
     _VERSION_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), '__version__')
 
+    # Path to the password file.
+    _PASSWORD_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'password')
+
     # Path to the update file.
     _UPDATE_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'update.sh')
 
@@ -43,13 +46,16 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
             with open(self._VERSION_FILE, 'r') as file:
                 self._version = file.readline()
 
-        HSTerm.term("HackerSchool v. %s" % self._version)
-        HSTerm.term("Code path: '%s'" % self._CODE_ROOT)
-        HSTerm.term("WWW path: '%s'\n" % self._DOCUMENT_ROOT)
+        HSTerm.term('HackerSchool v. %s' % self._version)
+        HSTerm.term('Code path: \'%s\'' % self._CODE_ROOT)
+        HSTerm.term('WWW path: \'%s\'\n' % self._DOCUMENT_ROOT)
         self._authorization_key = key
         HTTPServer.__init__(self, ('', 8080), HSRequestHandler)
 
     def get_auth_key(self):
+        """
+        Returns the authorization key for the webpages.
+        """
         return self._authorization_key
 
     def start(self):

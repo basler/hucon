@@ -39,10 +39,7 @@ function openFileDialog(load, extension) {
     fileDialog = document.getElementById('fileDialog');
     fileDialog.style.display = 'block';
 
-    var data = {};
-    data['command'] = 'get_file_list';
-
-    ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
+    ajax('POST', 'get_file_list', '', function(message) {
         selection = document.getElementById('fileSelect');
         for(i = selection.options.length - 1 ; i >= 0 ; i--) {
             selection.remove(i);
@@ -82,7 +79,7 @@ function fileDialogOk() {
     var parameter = JSON.parse(document.getElementById('fileOkButton').value);
     var filename = document.getElementById('fileText').value;
     var command = '';
-    var data = '';
+    var data = {};
     var callback;
 
     // Check the file name restrictions
@@ -94,10 +91,13 @@ function fileDialogOk() {
 
     currentFile = filename;
 
+    data['filename'] = filename + parameter['extension'];
+
     if (parameter['load']) {
         command = 'load';
         callback = function(message) {
-            var fileData = message;
+            var data = JSON.parse(message);
+            var fileData = data['data'];
             if (parameter['extension'] == '.py') {
                 fileData = fileData.replace(/HSTerm.term_exec/g, 'print')
             }
@@ -105,25 +105,28 @@ function fileDialogOk() {
         };
     } else {
         command = 'save';
-        data = getFileData();
+        data['data'] = getFileData();
+
         if (parameter['extension'] == '.py') {
-            data = data.replace(/print/g, 'HSTerm.term_exec');
+            data['data'] = data['data'].replace(/print/g, 'HSTerm.term_exec');
         }
+
         callback = apendConsoleLog;
     }
 
     // Hide the load dialog modal.
     closeFileDialog();
 
-    var url = '__FILE_ACCESS__?command=' + command + '&filename=' + filename + parameter['extension'];
-    ajax('POST', url, data, callback);
+    var url = 'file_' + command;
+
+    ajax('POST', url, JSON.stringify(data), callback);
 
     // Store also the python code when blockly code is saved.
     if (!parameter['load'] && parameter['extension'] != '.py') {
-        var code = getPythonCode().replace(/print/g, 'HSTerm.term_exec');
+        data['data'] = getPythonCode().replace(/print/g, 'HSTerm.term_exec');
+        data['filename'] = filename + '.py';
 
-        var url = '__FILE_ACCESS__?command=' + command + '&filename=' + filename + '.py';
-        ajax('POST', url, code, callback);
+        ajax('POST', url, JSON.stringify(data), callback);
     }
 }
 
@@ -160,20 +163,13 @@ function closeConsoleLogDialog() {
 // This function will send via ajax a message to the server.
 function command(value) {
 
-    if (value == 'set_wifi') {
-        var data = {};
-        data['command'] = value;
-        data['apName'] = document.getElementById('wifiText').value;
-        data['password'] = document.getElementById('password').value;
-        ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
+    var data = {};
 
-    } else if (value == 'execute') {
-        var url = '__FILE_ACCESS__?command=execute';
-        var code = getPythonCode().replace(/print/g, 'HSTerm.term_exec')
-
+    if (value == 'execute') {
+        data['data'] = getPythonCode().replace(/print/g, 'HSTerm.term_exec')
         document.getElementById('consoleLog').value = '';
 
-        ajax('POST', url, code, apendConsoleLog);
+        ajax('POST', value, JSON.stringify(data), apendConsoleLog);
 
     } else if (value == 'save_password') {
         oldUsername = document.getElementById('current_username').value;
@@ -199,19 +195,15 @@ function command(value) {
         data['command'] = value;
         data['oldKey'] = oldKey;
         data['newKey'] = newKey;
-        ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
+        ajax('POST', value, JSON.stringify(data), apendConsoleLog);
 
     } else if (value == 'run') {
-        var data = {};
-        data['command'] = 'run'
         data['filename'] = document.getElementById('fileText').value + '.py';
 
-        ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
+        ajax('POST', value, JSON.stringify(data), apendConsoleLog);
 
     } else if (value == 'update') {
-        var data = {};
-        data['command'] = 'update'
-        ajax('POST', '__COMMAND__', JSON.stringify(data), apendConsoleLog);
+        ajax('POST', value, JSON.stringify(data), apendConsoleLog);
     }
 
 }
