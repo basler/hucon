@@ -17,6 +17,24 @@
     <script type="text/javascript" src="js/webserver_ace.js"></script>
     <script type="text/javascript" src="js/webserver_functions.js"></script>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript">
+        (function poll() {
+            $.ajax('/poll', {
+                method: 'POST',
+                timeout: 30000, // 30 seconds
+                success: function(message){
+                    document.getElementById('consoleLog').value += message + '\n';
+                    poll();
+                },
+                error: function(){
+                    setTimeout(poll, 1000);
+                },
+                data: ''
+            });
+        }());
+    </script>
+
 <head>
 </head>
 <body id="body">
@@ -40,6 +58,9 @@
 # Write down your code ...
 </pre>
             </td>
+        </tr>
+        <tr>
+            <td colspan="2"><textarea class="text" id="consoleLog"></textarea></td>
         </tr>
     </table>
 

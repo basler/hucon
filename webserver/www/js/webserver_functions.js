@@ -135,14 +135,14 @@ function closeFileDialog() {
 
 // This fnction will show up the console log and insert the message into it.
 function apendConsoleLog(message) {
-    var time = new Date().toLocaleTimeString().replace('/.*(\d{2}:\d{2}:\d{2}).*/', '$1');
-    var log = document.getElementById('consoleLog').value;
-    document.getElementById('consoleLog').value = time + '\n' + message + '\n' + log;
+    // var time = new Date().toLocaleTimeString().replace('/.*(\d{2}:\d{2}:\d{2}).*/', '$1');
+    // var log = document.getElementById('consoleLog').value;
+    // document.getElementById('consoleLog').value = time + '\n' + message + '\n' + log;
 
-    try {
-        openConsoleLogDialog()
-    }
-    catch(err) {}
+    // try {
+    //     openConsoleLogDialog()
+    // }
+    // catch(err) {}
 }
 
 // Open the load file dialog.
@@ -170,6 +170,8 @@ function command(value) {
     } else if (value == 'execute') {
         var url = '__FILE_ACCESS__?command=execute';
         var code = getPythonCode().replace(/print/g, 'HSTerm.term_exec')
+
+        document.getElementById('consoleLog').value = '';
 
         ajax('POST', url, code, apendConsoleLog);
 
@@ -228,6 +230,6 @@ function ajax(type, url, data, callback) {
             }
         }
     };
-    xhttp.open(type, url, false);
+    xhttp.open(type, url);
     xhttp.send(data);
 }

@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="de">
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <title>Hacker School :)</title>
+
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Hacker School web server -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="docReady/docready.js"></script>
+    <script type="text/javascript" src="js/webserver_functions.js"></script>
+
+    <script type="text/javascript">
+        var last_message = '';
+        (function poll() {
+            $.ajax('/poll', {
+                method: 'POST',
+                timeout: 30000, // 30 seconds
+                success: function(data){
+                    $("<p>"+data+"</p>").appendTo($(document.body));
+                    last_message = data;
+                    poll();
+                },
+                error: function(){
+                    setTimeout(poll, 1000);
+                },
+                data: last_message
+            });
+        }());
+    </script>
+
+<head>
+</head>
+<body>
+
+</body>
+</html>
