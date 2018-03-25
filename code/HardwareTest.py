@@ -29,7 +29,7 @@ def test_eyes():
 """
 def test_servo():
   global eyes, servo, motor, j, eye, i
-  HSTerm.term_exec('Test the servo on channel 2')
+  print('Test the servo on channel 2')
   servo = Servo(1)
   servo.set_angle(90)
   time.sleep(0.5)
@@ -43,7 +43,7 @@ def test_servo():
 """
 def test_motor():
   global eyes, servo, motor, j, eye, i
-  HSTerm.term_exec('Test the motor on channel 1')
+  print('Test the motor on channel 1')
   motor = Motor(2)
   motor.set_speed(0)
   time.sleep(0.5)
@@ -54,7 +54,7 @@ def test_motor():
   motor.set_speed(0)
 
 
-HSTerm.term_exec('Do a test for the hardware.')
+print('Do a test for the hardware.')
 test_eyes()
 test_servo()
 test_motor()

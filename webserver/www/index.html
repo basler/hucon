@@ -6,43 +6,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.8">
     <title>Hacker School :)</title>
 
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="semantic/semantic.min.css">
     <link rel="stylesheet" href="css/main.css">
 
-    <!-- Hacker School web server -->
-    <script type="text/javascript" src="docReady/docready.js"></script>
-    <script type="text/javascript" src="js/webserver_functions.js"></script>
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <script src="semantic/semantic.min.js"></script>
 
     <script type="text/javascript">
-        docReady(function(){
-            ajax('POST', 'get_version', '', function(message) {
-
-                var data = JSON.parse(message);
-                console.log(data['version'])
-                document.getElementById('version').innerHTML = data['version'];
+        $(document).ready(function () {
+            $.ajax('/get_version', {
+                method: 'POST',
+                success: function(message) {
+                    var data = JSON.parse(message);
+                    $('#version').html(data['version']);
+                },
+                error: function(){
+                    $('#version').html('error');
+                }
             });
-        });
+        }());
     </script>
 
 <head>
 </head>
-<body id="body">
+<body>
 
-    <div id="header"><div id="version"></div></div>
-    <div class="center_xy">
+    <div class="container">
 
-        <button onclick="location.href='blockly.html'" class="button_big orange">Blockly</button><br>
-        <button onclick="location.href='editor.html'" class="button_big orange">Editor</button><br>
+        <div id="headerArea">
+            <div class="whitesmoke" id="version"></div>
+            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="top: 8px; right: 6px; position: absolute;">
+                <i class="icon github"></i>
+                GitHub
+            </button>
+        </div>
 
-        <p>The following site is good when<br>
-        the device has no internet con-<br>
-        nection.</p>
+        <div class="center">
+            <button onclick="location.href='blockly.html'" class="fluid ui orange button">Blockly</button><br>
+            <button onclick="location.href='editor.html'" class="fluid ui orange button">Editor</button><br>
+            <p class="whitesmoke">The following site is good when<br>
+            the device has no internet con-<br>
+            nection.</p>
+            <button onclick="location.href='mobile.html'" class="fluid ui blue button">Mobile</button><br>
+            <p class="whitesmoke">You can change your password<br>
+            or update the system<br>
+            with the following site.</p>
+            <button onclick="location.href='settings.html'" class="fluid ui light_blue button">Settings</button><br>
+            </div>
+        </div>
 
-        <button onclick="location.href='mobile.html'" class="button_big blue">Mobile</button><br>
-
-        <p>You can change your password<br>
-        with the following site.</p>
-
-        <button onclick="location.href='settings.html'" class="button_big light_blue">Settings</button><br>
     </div>
 
 </body>

@@ -38,6 +38,8 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
     # Current version of the server.
     _version = 'beta\n'
 
+    is_running = False
+
     def __init__(self, key):
         """
         Create a socket to get its own ip address.
@@ -63,6 +65,7 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
         Configure the server completly and start it forever.
         """
         HSTerm.term('Starting server, use <Ctrl+C> to stop.')
+        HSTerm.term_exec('Server started ...')
         os.chdir(self._DOCUMENT_ROOT)
         try:
             self.serve_forever()

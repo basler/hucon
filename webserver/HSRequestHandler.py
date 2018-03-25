@@ -77,11 +77,13 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 # Execute the code from RAM when the content is smaller than 1k
                 HSTerm.term('Execute from RAM.')
                 try:
-                    HSTerm.term_exec('Run ...\n')
-                    exec(args['data'], globals())
-                    HSTerm.term_exec('\n... Done\n\n')
+                    self.server.is_running = True
+                    exec(args['data'].replace('print', 'HSTerm.term_exec'), globals())
+                    self.server.is_running = False
                 except Exception as e:
                     HSTerm.term_exec('Error: %s' % str(e))
+                    self.server.is_running = False
+
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -93,11 +95,15 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 HSTerm.term('Run file %s' % args['filename'])
                 run_file = self.server._CODE_ROOT + '/' + args['filename']
                 try:
-                    HSTerm.term_exec('Run ...\n')
-                    exec(open(run_file).read(), globals())
-                    HSTerm.term_exec('\n... Done\n\n')
+                    self.server.is_running = True
+                    f = open(run_file)
+                    file_data = f.read()
+                    f.close()
+                    exec(file_data.replace('print', 'HSTerm.term_exec'), globals())
+                    self.server.is_running = False
                 except Exception as e:
                     HSTerm.term_exec('Error: %s' % str(e))
+                    self.server.is_running = False
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -108,6 +114,16 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 # Return the list of all files to the browser.
                 data['files'] = os.listdir(self.server._CODE_ROOT)
                 data['files'].sort()
+                json_dump = json.dumps(data)
+
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(json_dump)
+
+            elif self.path == '/is_running':
+                # Get the current running state of the device
+                data['is_running'] = self.server.is_running
                 json_dump = json.dumps(data)
 
                 self.send_response(200)
@@ -144,6 +160,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             elif self.path == '/save_password':
                 # Save the new password key only when the oldkey is the same with the current.
+                message = ''
                 if (args['oldKey'] == self.server._authorization_key and args['newKey'] != ''):
 
                     HSTerm.term('Store the new password')
@@ -152,19 +169,17 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     with open(self.server._PASSWORD_FILE, 'w') as file:
                         file.write(self.server._authorization_key)
 
-                    HSTerm.term_exec('New password written.')
+                    message = 'New password written.'
 
                 else:
-                    HSTerm.term('auth key: %s' % self.server._authorization_key)
-                    HSTerm.term('old key: %s' % args['oldKey'])
-                    HSTerm.term('new key: %s' % args['newKey'])
-                    HSTerm.term_exec('Error: Could not store the password.')
-                    HSTerm.term_exec('The current Password is not the same!')
+                    HSTerm.term('The current used key is wrong.')
+                    message += 'Error: Could not store the password.\n'
+                    message += 'The current Password is not correct!'
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                self.wfile.write('Done ...')
+                self.wfile.write(message)
 
             elif self.path == '/poll':
                 message = HSTerm.get_message_wait()
