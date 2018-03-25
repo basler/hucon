@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+from HSLogMessage import HSLogMessage
+
+global log_message
+log_message = HSLogMessage()
 
 class HSTerm:
 
@@ -11,24 +15,17 @@ class HSTerm:
         print(message)
 
     @staticmethod
-    def clear_exec():
-        """
-        Clear the exec file to write new content into it.
-        """
-        with open('exec_file.txt', 'w') as file:
-            file.write('')
-
-    @staticmethod
     def term_exec(message):
         """
         Write a line into the exec file and append a html and normal line break.
         """
-        with open('exec_file.txt', 'a') as file:
-            file.write(str(message) + '\n')
+        # with open('exec_file.txt', 'a') as file:
+        #     file.write(str(message) + '\n')
+        log_message.post(str(message))
 
     @staticmethod
-    def exec_filename():
+    def get_message_wait():
         """
-        Return the exec filename.
+        Wait for a new message and return ist
         """
-        return 'exec_file.txt'
+        return log_message.wait()

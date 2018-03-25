@@ -6,47 +6,163 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.8">
     <title>Hacker School :) - Settings</title>
 
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="semantic/semantic.min.css">
     <link rel="stylesheet" href="css/main.css">
 
-    <!-- Hacker School web server -->
-    <script type="text/javascript" src="docReady/docready.js"></script>
-    <script type="text/javascript" src="js/webserver_functions.js"></script>
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <script src="semantic/semantic.min.js"></script>
 
     <script type="text/javascript">
-        docReady(function(){
-            var data = {};
-            data['command'] = 'get_version';
-            ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
-
-                var data = JSON.parse(message);
-                console.log(data['version'])
-                document.getElementById('version').innerHTML = data['version'];
+        $(document).ready(function () {
+            $.ajax('/get_version', {
+                method: 'POST',
+                success: function(message) {
+                    var data = JSON.parse(message);
+                    $('#version').html(data['version']);
+                },
+                error: function(){
+                    $('#version').html('error');
+                }
             });
-        });
+        }());
+
+        function savePassword() {
+            oldUsername = document.getElementById('current_username').value;
+            oldPassword = document.getElementById('current_password').value;
+            newUsername = document.getElementById('new_username').value;
+            newPassword = document.getElementById('new_password').value;
+            confirmPassword = document.getElementById('new_password_confirm').value;
+
+            console.log(oldUsername);
+            console.log(oldPassword);
+            console.log(newUsername);
+            console.log(newPassword);
+            console.log(confirmPassword);
+
+            if (oldUsername == '' || oldPassword == '' || newUsername == '' || newPassword == '' || confirmPassword == '') {
+                alert('You must fill every element.');
+                return
+            }
+
+            if (newPassword != confirmPassword) {
+                alert('The new and confirmed password are not the same.');
+                return
+            }
+
+            oldKey = btoa(oldUsername + ':' + oldPassword);
+            newKey = btoa(newUsername + ':' + newPassword);
+
+            var data = {};
+            data['oldKey'] = oldKey;
+            data['newKey'] = newKey;
+            $.ajax('/save_password', {
+                method: 'POST',
+                data: JSON.stringify(data),
+                success: function (message) {
+                    alert(message);
+                    $('#changePasswordModal').modal('hide');
+                }
+            });
+        }
+
+        function updateSystem() {
+            $('#updateModal').modal('show');
+            $('#consoleLog').html('');
+            poll();
+
+            $.ajax('/update', {
+                method: 'POST'
+            });
+        }
+
+        function poll() {
+            $.ajax('/poll', {
+                method: 'POST',
+                timeout: 30000, // 30 seconds
+                success: function(message){
+                    appendConsoleLog(message);
+                    poll();
+                },
+                error: function(){
+                    setTimeout(poll, 1000);
+                }
+            });
+        }
+
+        function appendConsoleLog(message) {
+            $('#consoleLog').append(message.replace(/\n/g, '<br>') + '<br>');
+        }
+
     </script>
 
 <head>
 </head>
 <body id="body">
 
-    <div id="header"><div id="version"></div></div>
-    <div class="center_xy">
+    <div class="container">
 
-        <button onclick="location.href='change_password.html'" class="button_big orange">Change Password</button><br>
-        <button onclick="command('update')" class="button_big orange">Update</button>
-        <p></p>
-        <button onclick="location.href='index.html'" class="button_big blue">Index</button>
+        <div id="headerArea">
+            <div class="whitesmoke" id="version"></div>
+            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="top: 8px; right: 6px; position: absolute;">
+                <i class="icon github"></i>
+                GitHub
+            </button>
+        </div>
+
+        <div class="center">
+            <button onclick="$('#changePasswordModal').modal('show')" class="fluid ui orange button">Change Password</button><br>
+            <button onclick="updateSystem()" class="fluid ui orange button">Update</button>
+            <p></p>
+            <button onclick="location.href='index.html'" class="fluid ui blue button">Index</button><br>
+        </div>
+
     </div>
 
-    <div id="consoleLogDialog" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Console Log</h2>
+    <div id="changePasswordModal" class="ui modal">
+        <div class="header">Change Password</div>
+
+        <div class="content">
+            <div class="ui form">
+
+                <h4 class="ui dividing header">Current Name / Password</h4>
+                <div class="field">
+                    <div class="two fields">
+                        <div class="field">
+                            <input type="text" id="current_username" placeholder="Name">
+                        </div>
+                        <div class="field">
+                            <input type="password" id="current_password" placeholder="Password">
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="ui dividing header">New Name / Password</h4>
+                <div class="field">
+                    <div class="two fields">
+                        <div class="field">
+                            <input type="text" id="new_username" placeholder="Name">
+                        </div>
+                        <div class="field">
+                            <input type="password" id="new_password" placeholder="Password">
+                            <input type="password" id="new_password_confirm" placeholder="Confirm Password">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="$('#changePasswordModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
+                <button onclick="savePassword()" class="ui blue right button">Save</button>
             </div>
-            <div class="modal-body">
-                <textarea class="text" id="consoleLog"></textarea>
-                <button onclick="closeConsoleLogDialog()" class="button orange">Close</button>
-            </div>
+        </div>
+    </div>
+
+    <div id="updateModal" class="ui modal">
+        <div class="header">Update</div>
+
+        <div class="content">
+            <div id="consoleLog" class="codeText" style="height: 300px;"></div>
+
+            <button onclick="$('#updateModal').modal('hide')" class="ui orange button" type="cancel">Close</button>
         </div>
     </div>
 

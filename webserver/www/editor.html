@@ -10,65 +10,232 @@
     <script type="text/javascript" src="ace/ace.js"></script>
 
     <!-- Custom CSS -->
+    <link rel="stylesheet" href="semantic/semantic.min.css">
     <link rel="stylesheet" href="css/main.css">
 
-    <!-- Hacker School web server -->
-    <script type="text/javascript" src="docReady/docready.js"></script>
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <script src="semantic/semantic.min.js"></script>
+
     <script type="text/javascript" src="js/webserver_ace.js"></script>
-    <script type="text/javascript" src="js/webserver_functions.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function poll() {
+            $.ajax('/poll', {
+                method: 'POST',
+                timeout: 30000, // 30 seconds
+                success: function(message){
+                    appendConsoleLog(message);
+                    poll();
+                },
+                error: function(){
+                    setTimeout(poll, 1000);
+                }
+            });
+        }());
+
+        function openFileModal() {
+            $.ajax('/get_file_list', {
+                method: 'POST',
+                success: function(message) {
+
+                    // clear the list
+                    $('#openFileList').html('');
+
+                    // add the files to the empty list
+                    var data = JSON.parse(message);
+                    for (i=0; i<data['files'].length; i++) {
+                        var filename = data['files'][i]
+                        if (filename.endsWith('.py')) {
+                            $('#openFileList').append('<div onclick="loadFileFromDevice(\'' + filename + '\');" class="item content ok"><div class="header">' + filename.slice(0, -3) + '</div></div>');
+                        }
+                    }
+
+                    $('#openModal').modal('show');
+                },
+                error: function(){
+                    appendConsoleLog('Could not get the file list from the device.');
+                }
+            });
+        }
+
+        function loadFileFromDevice(filename) {
+            $('#openModal').modal('hide');
+
+            $('#consoleLog').html('');
+
+            var data = {};
+            data['filename'] = filename;
+
+            // Store the filename for the save dialog
+            $('#saveFilename').val(filename.slice(0, -3));
+
+            $.ajax('/file_load', {
+                method: 'POST',
+                data: JSON.stringify(data),
+                success: function(message) {
+                    var data = JSON.parse(message);
+                    loadFile(data['data']);
+                },
+                error: function(){
+                    appendConsoleLog('Could not load the file from the device.')
+                }
+            });
+        }
+
+        function saveFileModal() {
+            $('#saveModal').modal('show');
+
+            $.ajax('/get_file_list', {
+                method: 'POST',
+                success: function(message) {
+                    $('#saveFileList').html('');
+                    var data = JSON.parse(message);
+                    for (i=0; i<data['files'].length; i++) {
+                        var filename = data['files'][i]
+                        if (filename.endsWith('.py')) {
+                            $('#saveFileList').append('<div onclick="$(\'#saveFilename\').val(\'' + filename.slice(0, -3) + '\');" class="item content ok"><div class="header">' + filename.slice(0, -3) + '</div></div>');
+                        }
+                    }
+                }
+            });
+        }
+
+        function saveFileOnDevice() {
+            $('#saveModal').modal('hide');
+
+            $('#consoleLog').html('');
+
+            var data = {};
+
+            // Store the python code
+            data['filename'] = $('#saveFilename').val() + '.py';
+            data['data'] = getPythonCode();
+            $.ajax('/file_save', {
+                method: 'POST',
+                data: JSON.stringify(data),
+                success: appendConsoleLog,
+                error: function(){
+                    appendConsoleLog('Could not save the python file on the device.')
+                }
+            });
+        }
+
+        function run() {
+            $('#consoleLog').html('');
+
+            var data = {};
+            data['data'] = getPythonCode();
+            $.ajax('/execute', {
+                method: 'POST',
+                data: JSON.stringify(data),
+                success: appendConsoleLog
+            });
+
+            $('#runButton').addClass('disabled')
+            setTimeout(isRunning, 500 );
+        }
+
+        function isRunning() {
+            $.ajax('/is_running', {
+                method: 'POST',
+                success: function(message) {
+                    var data = JSON.parse(message);
+                    if (data['is_running']) {
+                        setTimeout( isRunning, 500 );
+                    } else {
+                        $('#runButton').removeClass('disabled')
+                    }
+                },
+                error: function() {
+                    appendConsoleLog('Error during run.');
+                }
+            });
+        }
+
+    </script>
 
 <head>
 </head>
-<body id="body">
+<body>
 
-    <table>
-        <tr>
-            <td id="header" colspan="2"><div id="version"></div></td>
-        </tr>
-        <tr>
-            <td id="commands" colspan="2">
-                <button onclick="newFile()" class="button orange">New</button>
-                <button onclick="openFileDialog(true, '.py')" class="button orange">Load</button>
-                <button onclick="openFileDialog(false, '.py')" class="button orange">Save</button>
-                <button onclick="command('execute')" class="button orange">Run</button>
-                <button onclick="location.href='index.html'" class="button right blue">Index</button>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <pre id="editor">
-# Write down your code ...
-</pre>
-            </td>
-        </tr>
-    </table>
+    <div class="container">
+        <div id="headerArea" class="spaceBottom">
+            <div class="whitesmoke" id="version"></div>
+            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="top: 8px; right: 6px; position: absolute;">
+                <i class="icon github"></i>
+                GitHub
+            </button>
+        </div>
 
-    <div id="fileDialog" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="fileDialogTitle"></h2>
+        <div id="buttonArea" class="spaceBottom">
+            <div class="ui buttons">
+                <button onclick="newFile()" class="ui orange labeled icon button">
+                    <i class="file icon"></i>
+                    New
+                </button>
+                <button onclick="openFileModal()" class="ui orange labeled icon button">
+                    <i class="folder open icon"></i>
+                    Open
+                </button>
+                <button onclick="saveFileModal()" class="ui orange labeled icon button">
+                    <i class="save icon"></i>
+                    Save
+                </button>
             </div>
-            <div class="modal-body">
-                <div class="select-editable">
-                    <select id="fileSelect" onchange="this.nextElementSibling.value=this.value"></select>
-                    <input id="fileText" type="text" name="format" value=""/>
+            <div class="ui buttons">
+                <button id="runButton" onclick="run()" class="ui orange labeled icon button">
+                    <i class="play icon"></i>
+                    Run
+                </button>
+            </div>
+            <button onclick="location.href='index.html'" class="ui blue right floated labeled icon button" style="left: 0px;">
+                Index
+                <i class="home icon"></i>
+            </button>
+        </div>
+
+        <div id="mainArea" class="spaceBottom fullWidth">
+            <pre id="editor"># Write down your code ...</pre>
+        </div>
+
+        <div id="logArea">
+            <div class="ui form">
+                <div class="field">
+                    <label>Console Log</label>
+                    <div id="consoleLog" class="codeText"></div>
                 </div>
-                <br>
-                <button id="fileOkButton" onclick="fileDialogOk()" class="button orange"></button>
-                <button onclick="closeFileDialog()" class="button orange">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="openModal" class="ui modal">
+        <div class="header">
+            Open file
+        </div>
+        <div class="scrolling content">
+            <div id="openFileList" class="ui middle aligned selection list"></div>
+        </div>
+        <div class="actions">
+            <div class="ui orange cancel button">
+                Cancel
             </div>
         </div>
     </div>
 
-    <div id="consoleLogDialog" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Console Log</h2>
+    <div id="saveModal" class="ui modal">
+        <div class="header">
+            Save file
+        </div>
+        <div class="scrolling content">
+            <div id="saveFileList" class="ui middle aligned selection list"></div>
+        </div>
+        <div class="ui form content">
+            <div class="field">
+                <input type="text" id="saveFilename" placeholder="Filename">
             </div>
-            <div class="modal-body">
-                <textarea class="text" id="consoleLog"></textarea>
-                <button onclick="closeConsoleLogDialog()" class="button orange">Close</button>
-            </div>
+            <button onclick="$('#saveModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
+            <button onclick="saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
         </div>
     </div>
 </body>

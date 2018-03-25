@@ -17,7 +17,7 @@ def main():
 
     # Load the password if possible.
     try:
-        with open('password', 'r') as file:
+        with open(HSHttpServer._PASSWORD_FILE, 'r') as file:
             key = file.read()
     except Exception as e:
         pass

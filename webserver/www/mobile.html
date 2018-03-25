@@ -7,87 +7,148 @@
     <title>Hacker School :) - Mobile</title>
 
     <!-- Custom CSS -->
+    <link rel="stylesheet" href="semantic/semantic.min.css">
     <link rel="stylesheet" href="css/main.css">
 
-    <!-- Hacker School web server -->
-    <script type="text/javascript" src="docReady/docready.js"></script>
-    <script type="text/javascript" src="js/webserver_functions.js"></script>
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <script src="semantic/semantic.min.js"></script>
 
     <script type="text/javascript">
-        docReady(function(){
-            var data = {};
-            data['command'] = 'get_version';
-            ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
-                var data = JSON.parse(message);
-                console.log(data['version'])
-                document.getElementById('version').innerHTML = data['version'];
+        $(document).ready(function poll() {
+            $.ajax('/poll', {
+                method: 'POST',
+                timeout: 30000, // 30 seconds
+                success: function(message){
+                    appendConsoleLog(message);
+                    poll();
+                },
+                error: function(){
+                    setTimeout(poll, 1000);
+                }
+            });
+        }());
+
+        $(document).ready(function () {
+            $.ajax('/get_version', {
+                method: 'POST',
+                success: function(message) {
+                    var data = JSON.parse(message);
+                    $('#version').html(data['version']);
+                },
+                error: function(){
+                    $('#version').html('error');
+                }
             });
 
-            var data = {};
-            data['command'] = 'get_file_list';
-            document.getElementById('fileText').hidden = true
-            ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
-                selection = document.getElementById('fileSelect');
-                for(i = selection.options.length - 1 ; i >= 0 ; i--) {
-                    selection.remove(i);
-                }
+            $.ajax('/get_file_list', {
+                method: 'POST',
+                success: function(message) {
+                    var data = JSON.parse(message);
+                    var values = Array();
+                    var isFirst = true;
 
-                var data = JSON.parse(message);
-                var extension = '.py';
-
-                for (i=0; i<data['files'].length; i++) {
-                    var filename = data['files'][i];
-                    if (filename.endsWith(extension)) {
-                        var opt = document.createElement('option');
-                        opt.text = filename.slice(0, -extension.length);
-                        opt.value = filename.slice(0, -extension.length);
-                        selection.options.add(opt);
+                    for (i=0; i<data['files'].length; i++) {
+                        var filename = data['files'][i]
+                        if (filename.endsWith('.py')) {
+                            values.push({name: filename.slice(0, -3), value: filename, selected: isFirst});
+                            isFirst = false;
+                        }
                     }
+
+                    $('#fileDropDown').dropdown({
+                        values: values
+                    });
+                },
+                error: function(){
+                    appendConsoleLog('Could not get a file from the device.');
                 }
-
-                document.getElementById('fileText').value = selection.options[selection.selectedIndex].value;
             });
-        });
-    </script>
 
+        });
+
+        function run() {
+            $('#consoleLog').html('');
+
+            var data = {};
+            data['filename'] = document.getElementById('filename').value;
+            $.ajax('/run', {
+                method: 'POST',
+                data: JSON.stringify(data),
+                success: appendConsoleLog
+            });
+
+            $('#runButton').addClass('disabled')
+            setTimeout(isRunning, 500 );
+        }
+
+        function isRunning() {
+            $.ajax('/is_running', {
+                method: 'POST',
+                success: function(message) {
+                    var data = JSON.parse(message);
+                    if (data['is_running']) {
+                        setTimeout( isRunning, 500 );
+                    } else {
+                        $('#runButton').removeClass('disabled')
+                    }
+                },
+                error: function() {
+                    appendConsoleLog('Error during run.');
+                }
+            });
+        }
+
+        function appendConsoleLog(message) {
+            $('#consoleLog').append(message.replace(/\n/g, '<br>') + '<br>');
+            $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
+        }
+
+    </script>
 <head>
 </head>
-<body id="body">
-    <table>
-        <tr>
-            <td id="header" colspan="2"><div id="version"></div></td>
-        </tr>
-        <tr>
-            <td colspan="2" id="commands">
-                <button onclick="location.href='index.html'" class="button blue">Index</button>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                Execute Script
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div class="select-editable">
-                    <select id="fileSelect" onchange="this.nextElementSibling.value=this.value"></select>
-                    <input id="fileText" type="text" name="format" value=""/>
+<body>
+
+    <div class="container">
+
+        <div id="headerArea" class="spaceBottom">
+            <div class="whitesmoke" id="version"></div>
+            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="top: 8px; right: 6px; position: absolute;">
+                <i class="icon github"></i>
+                GitHub
+            </button>
+        </div>
+
+        <div id="buttonArea" class="spaceBottom">
+
+            <div id="fileDropDown" class="ui selection dropdown">
+                <input type="hidden" id="filename">
+                <i class="dropdown icon"></i>
+                <div class="default text"></div>
+                <div class="menu"></div>
+            </div>
+
+            <div class="ui buttons">
+                <button id="runButton" onclick="run()" class="ui orange labeled icon button">
+                    <i class="play icon"></i>
+                    Run
+                </button>
+            </div>
+            <button onclick="location.href='index.html'" class="ui blue right floated labeled icon button" style="left: 0px;">
+                Index
+                <i class="home icon"></i>
+            </button>
+        </div>
+
+        <div id="logArea" style="height: calc(100% - 180px);">
+            <div class="ui form">
+                <div class="field">
+                    <label>Console Log</label>
+                    <div id="consoleLog" class="codeText"></div>
                 </div>
-            </td>
-            <td style="width: 100px;">
-                <button onclick="command('run')" class="button orange" style="height: 43px;">Run</button>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                Console Log:
-            </td>
-        </tr>
-        <tr style="height: 100%">
-            <td colspan="2">
-                <textarea class="text" style="height: 100%" id="consoleLog"></textarea>
-            </td>
-        </tr>
-    </table>
+            </div>
+        </div>
+
+    </div>
+
 </body>
 </html>

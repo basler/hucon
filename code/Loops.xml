@@ -1,6 +1,9 @@
 <xml xmlns="http://www.w3.org/1999/xhtml">
+  <variables>
+    <variable type="" id=";@i-ypfvT7KTS3XWIIJn">i</variable>
+  </variables>
   <block type="controls_for" id="SvGt_rXl)-*teaP0:n*A" x="131" y="147">
-    <field name="VAR">i</field>
+    <field name="VAR" id=";@i-ypfvT7KTS3XWIIJn" variabletype="">i</field>
     <value name="FROM">
       <shadow type="math_number" id="y4QPh18R~6/+tuh;;9h9">
         <field name="NUM">1</field>
@@ -31,7 +34,7 @@
             </value>
             <value name="ADD1">
               <block type="variables_get" id="[I|MVF00Mt]@+TcnfYj(">
-                <field name="VAR">i</field>
+                <field name="VAR" id=";@i-ypfvT7KTS3XWIIJn" variabletype="">i</field>
               </block>
             </value>
           </block>

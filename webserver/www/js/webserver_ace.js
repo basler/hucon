@@ -1,13 +1,24 @@
 var editor;
 
 // On document ready this function will be called and initialize the complete website.
-docReady(function(){
-    var data = {};
-    data['command'] = 'get_version';
-    ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
-        var data = JSON.parse(message);
-        console.log(data['version'])
-        document.getElementById('version').innerHTML = data['version'];
+$(document).ready(function () {
+
+    var sizes = localStorage.getItem('horizontalSplit-sizes');
+    if (sizes) {
+        sizes = JSON.parse(sizes)
+    } else {
+        sizes = [70, 30]  // default sizes
+    }
+
+    $.ajax('/get_version', {
+        method: 'POST',
+        success: function(message) {
+            var data = JSON.parse(message);
+            $('#version').html(data['version']);
+        },
+        error: function(){
+            $('#version').html('error');
+        }
     });
 
     // Setup the editor
@@ -25,7 +36,6 @@ function loadFile(data) {
     if (data) {
         editor.setValue(data);
     }
-    apendConsoleLog('Python code loaded.');
 }
 
 function getPythonCode() {
@@ -34,4 +44,9 @@ function getPythonCode() {
 
 function getFileData() {
     return editor.getValue();
+}
+
+function appendConsoleLog(message) {
+    $('#consoleLog').append(message.replace(/\n/g, '<br>') + '<br>');
+    $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
 }

@@ -1,34 +1,74 @@
 var blocklyWorkspace;
 
 // On document ready this function will be called and initialize the complete website.
-docReady(function(){
-    var data = {};
-    data['command'] = 'get_version';
-    ajax('POST', '__COMMAND__', JSON.stringify(data), function(message) {
-        var data = JSON.parse(message);
-        console.log(data['version'])
-        document.getElementById('version').innerHTML = data['version'];
+$(document).ready(function () {
+
+    window.addEventListener('resize', onResize);
+
+    $.ajax('/get_version', {
+        method: 'POST',
+        success: function(message) {
+            var data = JSON.parse(message);
+            $('#version').html(data['version']);
+        },
+        error: function(){
+            $('#version').html('error');
+        }
     });
 
-    ajax('GET', 'xml/toolbox.xml', '', function(message) {
-        // Initialize blockly
-        // Do this as a last step in this function to calculate the size correctly!
-        var blocklyArea = document.getElementById('blocklyArea');
-        var blocklyDiv = document.getElementById('blocklyDiv');
-        blocklyWorkspace = Blockly.inject(blocklyDiv, {toolbox: message});
+    $.ajax('xml/toolbox.xml', {
+        method: 'GET',
+        dataType: 'text',
+        success: function (message) {
+            console.log(message);
+            // Initialize blockly
+            // Do this as a last step in this function to calculate the size correctly!
+            var blocklyDiv = document.getElementById('blocklyDiv');
+            blocklyWorkspace = Blockly.inject(blocklyDiv, {toolbox: message});
 
-        // Add the listener on resize to call the onResize function
-        window.addEventListener('resize', onResize, false);
-        onResize();
-        Blockly.svgResize(blocklyWorkspace);
+            // Add the listener on resize to call the onResize function
+            onResize();
+            Blockly.svgResize(blocklyWorkspace);
 
-        // Add the listener on every change to update the code
-        blocklyWorkspace.addChangeListener(udpateCode);
+            // Add the listener on every change to update the code
+            blocklyWorkspace.addChangeListener(udpateCode);
+        }
     });
 });
 
+function onResize(){
+    var blocklyArea = document.getElementById('mainArea');
+    var blocklyDiv = document.getElementById('blocklyDiv');
+
+    // Position blocklyDiv over blocklyArea.
+    blocklyDiv.style.left = '0px';
+    blocklyDiv.style.top = '0px';
+    blocklyDiv.style.width = (blocklyArea.offsetWidth - 2) + 'px';
+    blocklyDiv.style.height = (blocklyArea.offsetHeight - 2) + 'px';
+};
+
+function toggleCodeView() {
+
+    if ($('#codeButton').hasClass('active')) {
+        // collapse
+        $('#codeButton').removeClass('active');
+        $('#mainArea').removeClass('shortWidth');
+        $('#mainArea').addClass('fullWidth');
+        $('#codeArea').hide();
+    } else {
+        // show
+        $('#codeButton').addClass('active');
+        $('#mainArea').addClass('shortWidth');
+        $('#mainArea').removeClass('fullWidth');
+        $('#codeArea').show();
+    }
+
+    window.dispatchEvent(new Event('resize'));
+}
+
 function newFile() {
     Blockly.mainWorkspace.clear();
+    $('#consoleLog').html('');
 }
 
 function loadFile(data) {
@@ -37,7 +77,7 @@ function loadFile(data) {
         xmlDom = Blockly.Xml.textToDom(data);
         Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
     }
-    apendConsoleLog('Blockly workspace loaded from local disk.\n');
+    appendConsoleLog('Blockly workspace loaded from local device.\n');
 }
 
 function getPythonCode() {
@@ -51,32 +91,15 @@ function getFileData() {
     return xmlText;
 }
 
-// On every change of the window, this function will be called to update the
-// blockly size area.
-function onResize(e) {
-    var blocklyArea = document.getElementById('blocklyArea');
-    var blocklyDiv = document.getElementById('blocklyDiv');
-
-    // Compute the absolute coordinates and dimensions of blocklyArea.
-    var element = blocklyArea;
-    var x = 0;
-    var y = 0;
-    do {
-        x += element.offsetLeft;
-        y += element.offsetTop;
-        element = element.offsetParent;
-    } while (element);
-
-    // Position blocklyDiv over blocklyArea.
-    blocklyDiv.style.left = x + 'px';
-    blocklyDiv.style.top = y + 'px';
-    blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
-    blocklyDiv.style.height = (blocklyArea.offsetHeight - 20) + 'px';
-}
-
 // This function will be called whenever an element on the workspace is changed
 // to update the code and show it on the page.
 function udpateCode(event) {
     var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
-    document.getElementById('pythonCode').value = code;
+    code = code.replace(/\n/g, '<br>');
+    $('#pythonCode').html(code);
+}
+
+function appendConsoleLog(message) {
+    $('#consoleLog').append(message.replace(/\n/g, '<br>') + '<br>');
+    $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
 }
