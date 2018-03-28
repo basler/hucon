@@ -12,7 +12,7 @@ Blockly.Blocks['mpu_object'] = {
     }
 }
 Blockly.Python['mpu_object'] = function(block) {
-    Blockly.Python.definitions_['import_motor'] = 'from hackerschool import Mpu6050';
+    Blockly.Python.definitions_['import_mpu'] = 'from hackerschool import Mpu6050';
 
     var code = 'Mpu6050()';
     return [code, Blockly.Python.ORDER_ATOMIC];
