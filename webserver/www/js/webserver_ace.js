@@ -47,6 +47,6 @@ function getFileData() {
 }
 
 function appendConsoleLog(message) {
-    $('#consoleLog').append(message.replace(/\n/g, '<br>') + '<br>');
+    $('#consoleLog').append(message.replace(/\n/g, '<br>'));
     $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
 }

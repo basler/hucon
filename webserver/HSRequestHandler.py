@@ -84,6 +84,10 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     HSTerm.term_exec('Error: %s' % str(e))
                     self.server.is_running = False
 
+                time.sleep(0.1)
+                # Wait until the queu is empty
+                while HSTerm.empty() is False:
+                    time.sleep(0.1)
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -184,10 +188,13 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             elif self.path == '/poll':
                 message = HSTerm.get_message_wait()
 
-                self.send_response(200)
-                self.send_header('Content-type', 'text/plain')
-                self.end_headers()
-                self.wfile.write(message)
+                try:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/plain')
+                    self.end_headers()
+                    self.wfile.write(message)
+                except Exception as e:
+                    HSTerm.requeue(message)
 
             else:
                 # The given command is not known.

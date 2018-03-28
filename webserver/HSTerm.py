@@ -15,12 +15,26 @@ class HSTerm:
         print(message)
 
     @staticmethod
+    def clear():
+        log_message.clear()
+
+    @staticmethod
+    def join():
+        log_message.join()
+
+    @staticmethod
+    def requeue(message):
+        log_message.requeue(message)
+
+    @staticmethod
+    def empty():
+        log_message.empty()
+
+    @staticmethod
     def term_exec(message):
         """
         Write a line into the exec file and append a html and normal line break.
         """
-        # with open('exec_file.txt', 'a') as file:
-        #     file.write(str(message) + '\n')
         log_message.post(str(message))
 
     @staticmethod

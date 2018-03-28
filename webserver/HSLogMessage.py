@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import time
-import threading
+import Queue
 
 class HSLogMessage():
 
@@ -9,25 +9,35 @@ class HSLogMessage():
         """
         Create the event and lock objects for the threaded access.
         """
-        self.data = ''
-        self.event = threading.Event()
-        self.lock = threading.Lock()
-        self.event.clear()
+        self.queue = Queue.Queue()
+
+    def clear(self):
+        self.queue.clear()
+
+    def join(self):
+        self.queue.join()
+
+    def empty(self):
+        return self.queue.empty()
+
+    def requeue(self, message):
+        return self.queue.put(message)
 
     def wait(self):
         """
         Wait until a new message is set and return the data of it.
         """
-        self.event.wait()
-        return self.data
+        while self.queue.empty() is True:
+            time.sleep(0.1)
+
+        data = ''
+        while self.queue.empty() is False:
+            data += self.queue.get()
+        return data
 
     def post(self, data):
         """
         Save the data and set/clear the event to post them.
         Sleep for 100 milliseconds to give the browser a chance to receive them.
         """
-        with self.lock:
-            self.data = data
-            self.event.set()
-            self.event.clear()
-            time.sleep(0.1)
+        self.queue.put(data + '\n')
