@@ -5,6 +5,8 @@ import os
 import json
 import subprocess
 import time
+import tempfile
+import sys
 
 from HSTerm import HSTerm
 
@@ -75,10 +77,26 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             elif self.path == '/execute':
                 # Execute the code from RAM when the content is smaller than 1k
-                HSTerm.term('Execute from RAM.')
                 try:
                     self.server.is_running = True
-                    exec(args['data'].replace('print', 'HSTerm.term_exec'), globals())
+
+                    # save the data into a file
+                    filename = os.path.join(tempfile.gettempdir(), 'execute.py')
+
+                    with open(filename, 'w') as f:
+                        f.write(args['data'])
+                    f.close()
+
+                    proc = subprocess.Popen(['python', '-u', filename], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+                    while True:
+                        output = proc.stdout.readline()
+                        if output == '' and proc.poll() is not None:
+                            break
+                        if output:
+                            HSTerm.term_exec(output.strip())
+                    proc.poll()
+
                     self.server.is_running = False
                 except Exception as e:
                     HSTerm.term_exec('Error: %s' % str(e))
