@@ -38,7 +38,11 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
     # Current version of the server.
     _version = 'beta\n'
 
-    is_running = False
+    # Store the current running state
+    _is_running = False
+
+    # Store the current process id
+    _current_pid = None
 
     def __init__(self, key):
         """
