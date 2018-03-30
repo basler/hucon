@@ -99,8 +99,8 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                             if output == '' and proc.poll() is not None:
                                 break
                             if output:
-                                # Replace the file error
-
+                                # Replace the file error like 'File "/tmp/execute.py", line x, in'
+                                output = output.replace('File "/tmp/execute.py", l', 'L')
                                 HSTerm.term_exec(output.strip())
                         proc.poll()
 
@@ -141,8 +141,8 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                             if output == '' and proc.poll() is not None:
                                 break
                             if output:
-                                # Replace the file error
-
+                                # Replace the file error like 'File "/tmp/execute.py", line x, in'
+                                output = output.replace('File "/tmp/execute.py", l', 'L')
                                 HSTerm.term_exec(output.strip())
                         proc.poll()
 
