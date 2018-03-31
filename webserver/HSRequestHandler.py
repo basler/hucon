@@ -9,8 +9,6 @@ import tempfile
 import sys
 import signal
 
-from HSTerm import HSTerm
-
 class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_AUTHHEAD(self):
@@ -49,12 +47,12 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             if self.path == '/file_save':
                 # Store all incomming data into the file.
-                HSTerm.term('Save file %s' % args['filename'])
+                print('Save file %s' % args['filename'])
 
                 savename = self.server._CODE_ROOT + '/' + args['filename']
                 with open(savename, 'w') as file:
                     file.write(args['data'])
-                HSTerm.term_exec('File %s saved. %d bytes written.' % (savename, content_length))
+                self.server._log.put('File %s saved. %d bytes written.' % (savename, content_length))
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -63,7 +61,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             elif self.path == '/file_load':
                 # Return the file to the browser.
-                HSTerm.term('Load file %s' % args['filename'])
+                print('Load file %s' % args['filename'])
 
                 filename = self.server._CODE_ROOT + '/' + args['filename']
                 f = open(filename, 'r')
@@ -101,15 +99,15 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                             if output:
                                 # Replace the file error like 'File "/tmp/execute.py", line x, in'
                                 output = output.replace('File "/tmp/execute.py", l', 'L')
-                                HSTerm.term_exec(output.strip())
+                                self.server._log.put(output.strip())
                         proc.poll()
 
                     except Exception as e:
-                        HSTerm.term_exec('Error: %s' % str(e))
+                        self.server._log.put('Error: %s' % str(e))
 
                     time.sleep(0.1)
                     # Wait until the queue is empty
-                    while HSTerm.empty() is False:
+                    while self.server._log.empty() is False:
                         time.sleep(0.1)
 
                     self.server._is_running = False
@@ -128,7 +126,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 message = 'Done ...'
 
                 if self.server._is_running is False:
-                    HSTerm.term('Run file %s' % args['filename'])
+                    print('Run file %s' % args['filename'])
                     run_file = self.server._CODE_ROOT + '/' + args['filename']
                     try:
                         self.server._is_running = True
@@ -143,15 +141,15 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                             if output:
                                 # Replace the file error like 'File "/tmp/execute.py", line x, in'
                                 output = output.replace('File "/tmp/execute.py", l', 'L')
-                                HSTerm.term_exec(output.strip())
+                                self.server._log.put(output.strip())
                         proc.poll()
 
                     except Exception as e:
-                        HSTerm.term_exec('Error: %s' % str(e))
+                        self.server._log.put('Error: %s' % str(e))
 
                     time.sleep(0.1)
                     # Wait until the queue is empty
-                    while HSTerm.empty() is False:
+                    while self.server._log.empty() is False:
                         time.sleep(0.1)
 
                     self.server._is_running = False
@@ -214,7 +212,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.wfile.write('')
 
                 # Update the system first.
-                HSTerm.term_exec('The system will be updated and needs a few seconds.\n')
+                self.server._log.put('The system will be updated and needs a few seconds.\n')
                 proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
                 while True:
@@ -222,7 +220,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     if output == '' and proc.poll() is not None:
                         break
                     if output:
-                        HSTerm.term_exec(output.strip())
+                        self.server._log.put(output.strip())
                 proc.poll()
 
                 # Do a restart.
@@ -233,7 +231,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     if output == '' and proc.poll() is not None:
                         break
                     if output:
-                        HSTerm.term_exec(output.strip())
+                        self.server._log.put(output.strip())
                 proc.poll()
 
             elif self.path == '/check_update':
@@ -245,7 +243,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     if output == '' and proc.poll() is not None:
                         break
                     if output:
-                        HSTerm.term_exec(output.strip())
+                        self.server._log.put(output.strip())
                 proc.poll()
 
                 if proc.returncode == 1:
@@ -263,7 +261,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 message = ''
                 if (args['oldKey'] == self.server._authorization_key and args['newKey'] != ''):
 
-                    HSTerm.term('Store the new password')
+                    print('Store the new password')
                     # Store the password.
                     self.server._authorization_key = args['newKey']
                     with open(self.server._PASSWORD_FILE, 'w') as file:
@@ -272,7 +270,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     message = 'New password written.'
 
                 else:
-                    HSTerm.term('The current used key is wrong.')
+                    print('The current used key is wrong.')
                     message += 'Error: Could not store the password.\n'
                     message += 'The current Password is not correct!'
 
@@ -282,7 +280,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.wfile.write(message)
 
             elif self.path == '/poll':
-                message = HSTerm.get_message_wait()
+                message = self.server._log.get_message_wait()
 
                 try:
                     self.send_response(200)
@@ -290,7 +288,8 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(message)
                 except Exception as e:
-                    HSTerm.requeue(message)
+                    # The message could not transfered to teh browser. So requeue it!
+                    self.server._log.requeue(message)
 
             else:
                 # The given command is not known.

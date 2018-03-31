@@ -5,39 +5,41 @@ import Queue
 
 class HSLogMessage():
 
+    # Queue to store the messages.
+    _queue = None
+
     def __init__(self):
         """
-        Create the event and lock objects for the threaded access.
+        Create the queue to store the log messages.
         """
-        self.queue = Queue.Queue()
-
-    def clear(self):
-        self.queue.clear()
-
-    def join(self):
-        self.queue.join()
+        self._queue = Queue.Queue()
 
     def empty(self):
-        return self.queue.empty()
-
-    def requeue(self, message):
-        return self.queue.put(message)
-
-    def wait(self):
         """
-        Wait until a new message is set and return the data of it.
+        Returns true when the log is empty, otherwise false.
         """
-        while self.queue.empty() is True:
+        return self._queue.empty()
+
+    def get_message_wait(self):
+        """
+        Wait until a new message is set and return the message of it.
+        """
+        while self._queue.empty() is True:
             time.sleep(0.1)
 
-        data = ''
-        while self.queue.empty() is False:
-            data += self.queue.get()
-        return data
+        message = ''
+        while self._queue.empty() is False:
+            message += self._queue.get()
+        return message
 
-    def post(self, data):
+    def requeue(self, message):
         """
-        Save the data and set/clear the event to post them.
-        Sleep for 100 milliseconds to give the browser a chance to receive them.
+        Put the message into the queue and do not add a new line.
         """
-        self.queue.put(data + '\n')
+        self._queue.put(message)
+
+    def put(self, message):
+        """
+        Put the message into the queue.
+        """
+        self._queue.put(message + '\n')
