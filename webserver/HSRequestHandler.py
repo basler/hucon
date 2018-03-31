@@ -5,8 +5,9 @@ import os
 import json
 import subprocess
 import time
-
-from HSTerm import HSTerm
+import tempfile
+import sys
+import signal
 
 class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
@@ -46,12 +47,12 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             if self.path == '/file_save':
                 # Store all incomming data into the file.
-                HSTerm.term('Save file %s' % args['filename'])
+                print('Save file %s' % args['filename'])
 
                 savename = self.server._CODE_ROOT + '/' + args['filename']
                 with open(savename, 'w') as file:
                     file.write(args['data'])
-                HSTerm.term_exec('File %s saved. %d bytes written.' % (savename, content_length))
+                self.server._log.put('File %s saved. %d bytes written.' % (savename, content_length))
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -60,7 +61,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             elif self.path == '/file_load':
                 # Return the file to the browser.
-                HSTerm.term('Load file %s' % args['filename'])
+                print('Load file %s' % args['filename'])
 
                 filename = self.server._CODE_ROOT + '/' + args['filename']
                 f = open(filename, 'r')
@@ -75,40 +76,91 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             elif self.path == '/execute':
                 # Execute the code from RAM when the content is smaller than 1k
-                HSTerm.term('Execute from RAM.')
-                try:
-                    self.server.is_running = True
-                    exec(args['data'].replace('print', 'HSTerm.term_exec'), globals())
-                    self.server.is_running = False
-                except Exception as e:
-                    HSTerm.term_exec('Error: %s' % str(e))
-                    self.server.is_running = False
+                message = 'Done ...'
 
+                if self.server._is_running is False:
+                    try:
+                        self.server._is_running = True
+
+                        # save the data into a file
+                        filename = os.path.join(tempfile.gettempdir(), 'execute.py')
+
+                        with open(filename, 'w') as f:
+                            f.write(args['data'])
+                        f.close()
+
+                        proc = subprocess.Popen(['python', '-u', filename], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                        self.server._current_pid = proc.pid
+
+                        while True:
+                            output = proc.stdout.readline()
+                            if output == '' and proc.poll() is not None:
+                                break
+                            if output:
+                                # Replace the file error like 'File "/tmp/execute.py", line x, in'
+                                output = output.replace('File "/tmp/execute.py", l', 'L')
+                                self.server._log.put(output.strip())
+                        proc.poll()
+
+                    except Exception as e:
+                        self.server._log.put('Error: %s' % str(e))
+
+                    time.sleep(0.1)
+                    # Wait until the queue is empty
+                    while self.server._log.empty() is False:
+                        time.sleep(0.1)
+
+                    self.server._is_running = False
+                    self.server._current_pid = None
+
+                else:
+                    message = 'There is a programm running.'
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                self.wfile.write('Done ...')
+                self.wfile.write(message)
 
             elif self.path == '/run':
                 # Run the file which is saved on the device
-                HSTerm.term('Run file %s' % args['filename'])
-                run_file = self.server._CODE_ROOT + '/' + args['filename']
-                try:
-                    self.server.is_running = True
-                    f = open(run_file)
-                    file_data = f.read()
-                    f.close()
-                    exec(file_data.replace('print', 'HSTerm.term_exec'), globals())
-                    self.server.is_running = False
-                except Exception as e:
-                    HSTerm.term_exec('Error: %s' % str(e))
-                    self.server.is_running = False
+                message = 'Done ...'
+
+                if self.server._is_running is False:
+                    print('Run file %s' % args['filename'])
+                    run_file = self.server._CODE_ROOT + '/' + args['filename']
+                    try:
+                        self.server._is_running = True
+
+                        proc = subprocess.Popen(['python', '-u', run_file], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                        self.server._current_pid = proc.pid
+
+                        while True:
+                            output = proc.stdout.readline()
+                            if output == '' and proc.poll() is not None:
+                                break
+                            if output:
+                                # Replace the file error like 'File "/tmp/execute.py", line x, in'
+                                output = output.replace('File "/tmp/execute.py", l', 'L')
+                                self.server._log.put(output.strip())
+                        proc.poll()
+
+                    except Exception as e:
+                        self.server._log.put('Error: %s' % str(e))
+
+                    time.sleep(0.1)
+                    # Wait until the queue is empty
+                    while self.server._log.empty() is False:
+                        time.sleep(0.1)
+
+                    self.server._is_running = False
+                    self.server._current_pid = None
+                else:
+                    message = 'There is a programm running.'
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                self.wfile.write('Done ...')
+                self.wfile.write(message)
 
             elif self.path == '/get_file_list':
                 # Return the list of all files to the browser.
@@ -123,13 +175,24 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             elif self.path == '/is_running':
                 # Get the current running state of the device
-                data['is_running'] = self.server.is_running
+                data['is_running'] = self.server._is_running
                 json_dump = json.dumps(data)
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 self.wfile.write(json_dump)
+
+            elif self.path == '/kill':
+                # Kill the current running process
+                if self.server._current_pid != None:
+                    os.kill(self.server._current_pid, signal.SIGKILL)
+                    time.sleep(0.1)
+
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write('Done ...')
 
             elif self.path == '/get_version':
                 # Get the version of this project.
@@ -143,27 +206,62 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             elif self.path == '/update':
                 # Update all files from the project.
-                bash = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-c'], stdout=subprocess.PIPE)
-                data = bash.communicate()[0]
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write('')
 
-                HSTerm.term_exec(data)
+                # Update the system first.
+                self.server._log.put('The system will be updated and needs a few seconds.\n')
+                proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+                while True:
+                    output = proc.stdout.readline()
+                    if output == '' and proc.poll() is not None:
+                        break
+                    if output:
+                        self.server._log.put(output.strip())
+                proc.poll()
+
+                # Do a restart.
+                proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+                while True:
+                    output = proc.stdout.readline()
+                    if output == '' and proc.poll() is not None:
+                        break
+                    if output:
+                        self.server._log.put(output.strip())
+                proc.poll()
+
+            elif self.path == '/check_update':
+                # Check if ther is an update available
+                proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+                while True:
+                    output = proc.stdout.readline()
+                    if output == '' and proc.poll() is not None:
+                        break
+                    if output:
+                        self.server._log.put(output.strip())
+                proc.poll()
+
+                if proc.returncode == 1:
+                    data['is_update_available'] = True
+                else:
+                    data['is_update_available'] = False
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                self.wfile.write('Done ...')
-
-                # Reboot only if there is an update.
-                if bash.returncode == 1:
-                    HSTerm.term_exec('\nThe system will be updated / reboot and is available in a few seconds.\n\n\n')
-                    subprocess.check_output(['sh', self.server._UPDATE_FILE, '-u', '-r'])
+                self.wfile.write(json.dumps(data))
 
             elif self.path == '/save_password':
                 # Save the new password key only when the oldkey is the same with the current.
                 message = ''
                 if (args['oldKey'] == self.server._authorization_key and args['newKey'] != ''):
 
-                    HSTerm.term('Store the new password')
+                    print('Store the new password')
                     # Store the password.
                     self.server._authorization_key = args['newKey']
                     with open(self.server._PASSWORD_FILE, 'w') as file:
@@ -172,7 +270,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     message = 'New password written.'
 
                 else:
-                    HSTerm.term('The current used key is wrong.')
+                    print('The current used key is wrong.')
                     message += 'Error: Could not store the password.\n'
                     message += 'The current Password is not correct!'
 
@@ -182,12 +280,16 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.wfile.write(message)
 
             elif self.path == '/poll':
-                message = HSTerm.get_message_wait()
+                message = self.server._log.get_message_wait()
 
-                self.send_response(200)
-                self.send_header('Content-type', 'text/plain')
-                self.end_headers()
-                self.wfile.write(message)
+                try:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/plain')
+                    self.end_headers()
+                    self.wfile.write(message)
+                except Exception as e:
+                    # The message could not transfered to teh browser. So requeue it!
+                    self.server._log.requeue(message)
 
             else:
                 # The given command is not known.

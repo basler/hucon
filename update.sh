@@ -25,12 +25,16 @@ fi
 
 # Print the latest version.
 if [ $do_check ]; then
-    echo "The latest version is: $latestVersion"
-    if [ "$latestVersion" != "$currentVersion" ]; then
-        echo "There is an update available."
-        exit 1
+    if [ "$latestVersion" != "" ]; then
+        echo "The latest version is: $latestVersion"
+        if [ "$latestVersion" != "$currentVersion" ]; then
+            echo "There is an update available."
+            exit 1
+        else
+            echo "You are using the up to date version."
+        fi
     else
-        echo "You are using the up to date version."
+        echo "Could not read the version from github."
     fi
 fi
 
@@ -59,6 +63,6 @@ fi
 
 # Reboot the system if needed.
 if [ $do_reboot ]; then
-    echo "Reboot the system ..."
+    echo "Reboot the system, wait untile the server is started ..."
     reboot
 fi

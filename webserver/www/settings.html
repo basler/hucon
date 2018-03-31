@@ -27,6 +27,20 @@
             });
         }());
 
+        $(document).ready(function poll() {
+            $.ajax('/poll', {
+                method: 'POST',
+                timeout: 30000, // 30 seconds
+                success: function(message){
+                    appendConsoleLog(message);
+                    poll();
+                },
+                error: function(){
+                    setTimeout(poll, 1000);
+                }
+            });
+        }());
+
         function savePassword() {
             oldUsername = document.getElementById('current_username').value;
             oldPassword = document.getElementById('current_password').value;
@@ -66,32 +80,33 @@
             });
         }
 
-        function updateSystem() {
+        function checkUpdate() {
             $('#updateModal').modal('show');
             $('#consoleLog').html('');
-            poll();
+            $('#updateButton').addClass('disabled');
 
+            appendConsoleLog('Check for updates ...\n');
+
+            $.ajax('/check_update', {
+                method: 'POST',
+                success: function (message) {
+                    var data = JSON.parse(message);
+                    if (data['is_update_available']) {
+                        $('#updateButton').removeClass('disabled');
+                    }
+                }
+            });
+        }
+
+        function updateSystem() {
             $.ajax('/update', {
                 method: 'POST'
             });
         }
 
-        function poll() {
-            $.ajax('/poll', {
-                method: 'POST',
-                timeout: 30000, // 30 seconds
-                success: function(message){
-                    appendConsoleLog(message);
-                    poll();
-                },
-                error: function(){
-                    setTimeout(poll, 1000);
-                }
-            });
-        }
-
         function appendConsoleLog(message) {
-            $('#consoleLog').append(message.replace(/\n/g, '<br>') + '<br>');
+            $('#consoleLog').append(message.replace(/\n/g, '<br>'));
+            $("#consoleLog").scrollTop($("#consoleLog")[0].scrollHeight);
         }
 
     </script>
@@ -112,7 +127,7 @@
 
         <div class="center">
             <button onclick="$('#changePasswordModal').modal('show')" class="fluid ui orange button">Change Password</button><br>
-            <button onclick="updateSystem()" class="fluid ui orange button">Update</button>
+            <button onclick="checkUpdate()" class="fluid ui orange button">Update</button>
             <p></p>
             <button onclick="location.href='index.html'" class="fluid ui blue button">Index</button><br>
         </div>
@@ -160,9 +175,10 @@
         <div class="header">Update</div>
 
         <div class="content">
-            <div id="consoleLog" class="codeText" style="height: 300px;"></div>
+            <div id="consoleLog" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
 
-            <button onclick="$('#updateModal').modal('hide')" class="ui orange button" type="cancel">Close</button>
+            <button onclick="$('#updateModal').modal('hide')" class="ui orange button">Close</button>
+            <button onclick="updateSystem()" id="updateButton" class="ui blue button disabled">Update</button>
         </div>
     </div>
 

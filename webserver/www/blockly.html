@@ -142,6 +142,7 @@
 
         function run() {
             $('#consoleLog').html('');
+            appendConsoleLog('Loading program ...\n');
 
             var data = {};
             data['data'] = getPythonCode();
@@ -152,7 +153,18 @@
             });
 
             $('#runButton').addClass('disabled')
+            $('#stopButton').removeClass('disabled')
             setTimeout(isRunning, 500 );
+        }
+
+        function stop() {
+            var data = {};
+            $.ajax('/kill', {
+                method: 'POST',
+                success: function () {
+                    appendConsoleLog('Application stopped.\n');
+                }
+            });
         }
 
         function isRunning() {
@@ -164,6 +176,7 @@
                         setTimeout( isRunning, 500 );
                     } else {
                         $('#runButton').removeClass('disabled')
+                        $('#stopButton').addClass('disabled')
                     }
                 },
                 error: function() {
@@ -207,6 +220,10 @@
                 <button id="runButton" onclick="run()" class="ui orange labeled icon button">
                     <i class="play icon"></i>
                     Run
+                </button>
+                <button id="stopButton" onclick="stop()" class="ui orange labeled icon button disabled">
+                    <i class="stop icon"></i>
+                    Stop
                 </button>
             </div>
             <div class="ui buttons">

@@ -4,7 +4,7 @@ from BaseHTTPServer import HTTPServer
 from SocketServer import ThreadingMixIn
 import os
 
-from HSTerm import HSTerm
+from HSLogMessage import HSLogMessage
 from HSRequestHandler import HSRequestHandler
 
 ThreadingMixIn.daemon_threads = True
@@ -38,7 +38,14 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
     # Current version of the server.
     _version = 'beta\n'
 
-    is_running = False
+    # Store the current running state
+    _is_running = False
+
+    # Store the current process id
+    _current_pid = None
+
+    # Queue for all log messages
+    _log = HSLogMessage()
 
     def __init__(self, key):
         """
@@ -48,9 +55,9 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
             with open(self._VERSION_FILE, 'r') as file:
                 self._version = file.readline()
 
-        HSTerm.term('HackerSchool v. %s' % self._version)
-        HSTerm.term('Code path: \'%s\'' % self._CODE_ROOT)
-        HSTerm.term('WWW path: \'%s\'\n' % self._DOCUMENT_ROOT)
+        print('HackerSchool v. %s' % self._version)
+        print('Code path: \'%s\'' % self._CODE_ROOT)
+        print('WWW path: \'%s\'\n' % self._DOCUMENT_ROOT)
         self._authorization_key = key
         HTTPServer.__init__(self, ('', 8080), HSRequestHandler)
 
@@ -64,8 +71,8 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
         """
         Configure the server completly and start it forever.
         """
-        HSTerm.term('Starting server, use <Ctrl+C> to stop.')
-        HSTerm.term_exec('Server started ...')
+        print('Starting server, use <Ctrl+C> to stop.')
+        self._log.put('Server started ...')
         os.chdir(self._DOCUMENT_ROOT)
         try:
             self.serve_forever()

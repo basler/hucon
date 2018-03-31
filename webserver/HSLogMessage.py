@@ -1,33 +1,45 @@
 #!/usr/bin/python
 
 import time
-import threading
+import Queue
 
 class HSLogMessage():
 
+    # Queue to store the messages.
+    _queue = None
+
     def __init__(self):
         """
-        Create the event and lock objects for the threaded access.
+        Create the queue to store the log messages.
         """
-        self.data = ''
-        self.event = threading.Event()
-        self.lock = threading.Lock()
-        self.event.clear()
+        self._queue = Queue.Queue()
 
-    def wait(self):
+    def empty(self):
         """
-        Wait until a new message is set and return the data of it.
+        Returns true when the log is empty, otherwise false.
         """
-        self.event.wait()
-        return self.data
+        return self._queue.empty()
 
-    def post(self, data):
+    def get_message_wait(self):
         """
-        Save the data and set/clear the event to post them.
-        Sleep for 100 milliseconds to give the browser a chance to receive them.
+        Wait until a new message is set and return the message of it.
         """
-        with self.lock:
-            self.data = data
-            self.event.set()
-            self.event.clear()
+        while self._queue.empty() is True:
             time.sleep(0.1)
+
+        message = ''
+        while self._queue.empty() is False:
+            message += self._queue.get()
+        return message
+
+    def requeue(self, message):
+        """
+        Put the message into the queue and do not add a new line.
+        """
+        self._queue.put(message)
+
+    def put(self, message):
+        """
+        Put the message into the queue.
+        """
+        self._queue.put(message + '\n')
