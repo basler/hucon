@@ -208,6 +208,36 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             elif self.path == '/update':
                 # Update all files from the project.
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write('')
+
+                # Update the system first.
+                HSTerm.term_exec('The system will be updated and needs a few seconds.\n')
+                proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+                while True:
+                    output = proc.stdout.readline()
+                    if output == '' and proc.poll() is not None:
+                        break
+                    if output:
+                        HSTerm.term_exec(output.strip())
+                proc.poll()
+
+                # Do a restart.
+                proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+                while True:
+                    output = proc.stdout.readline()
+                    if output == '' and proc.poll() is not None:
+                        break
+                    if output:
+                        HSTerm.term_exec(output.strip())
+                proc.poll()
+
+            elif self.path == '/check_update':
+                # Check if ther is an update available
                 proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
                 while True:
@@ -218,23 +248,15 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         HSTerm.term_exec(output.strip())
                 proc.poll()
 
+                if proc.returncode == 1:
+                    data['is_update_available'] = True
+                else:
+                    data['is_update_available'] = False
+
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                self.wfile.write('')
-
-                # Reboot only if there is an update.
-                if proc.returncode == 1:
-                    HSTerm.term_exec('\nThe system will be updated / reboot and is available in a few seconds.\n\n\n')
-                    proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-u', '-r'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-                    while True:
-                        output = proc.stdout.readline()
-                        if output == '' and proc.poll() is not None:
-                            break
-                        if output:
-                            HSTerm.term_exec(output.strip())
-                    proc.poll()
+                self.wfile.write(json.dumps(data))
 
             elif self.path == '/save_password':
                 # Save the new password key only when the oldkey is the same with the current.
