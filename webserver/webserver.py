@@ -2,7 +2,6 @@
 
 
 from HSHttpServer import HSHttpServer
-from HSTerm import HSTerm
 
 
 # Default key is hacker:school base64 coded.
@@ -26,7 +25,7 @@ def main():
     server = HSHttpServer(key)
     server.start()
 
-    HSTerm.term('Stop Server')
+    print('Stop Server')
 
 
 if __name__ == '__main__':
