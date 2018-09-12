@@ -14,7 +14,7 @@ i = None
 """
 def test_eyes():
   global eyes, servo, motor, j, eye, i
-  eyes = [Eye(1), Eye(2), Eye(3), Eye(4)]
+  eyes = [Eye(1, Eye.RGB), Eye(2, Eye.RGB), Eye(3, Eye.RGB), Eye(4, Eye.RGB)]
   servo = Servo(2)
   motor = Motor(2)
   for j in range(1, 5):

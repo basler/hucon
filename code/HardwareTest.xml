@@ -17,7 +17,8 @@
           <block type="lists_create_with" id="mD%bIl.5NjR,u$0sI,Ju">
             <mutation items="4"></mutation>
             <value name="ADD0">
-              <block type="eye_object" id="+[%VMti:V0y4Ra#9e_@q">
+              <block type="eye_object_code" id="5bKR(SRI5kDUnja+@ebl">
+                <field name="ColorCoding">Eye.RGB</field>
                 <value name="Position">
                   <block type="machine_eye" id="m~~qvJG9l!C/^r:e[0`j">
                     <field name="Eye">1</field>
@@ -26,7 +27,8 @@
               </block>
             </value>
             <value name="ADD1">
-              <block type="eye_object" id="[Zvsr.ISxz3h9_(b,Ir:">
+              <block type="eye_object_code" id="-(UJ@H1wkc0HCXR5ephO">
+                <field name="ColorCoding">Eye.RGB</field>
                 <value name="Position">
                   <block type="machine_eye" id="(AooTouSw#{iS*l,/:lh">
                     <field name="Eye">2</field>
@@ -35,7 +37,8 @@
               </block>
             </value>
             <value name="ADD2">
-              <block type="eye_object" id="M[@9p?F,b]l_~xr0k_3O">
+              <block type="eye_object_code" id="7ulnc(^9+RLs%beJ!;+g">
+                <field name="ColorCoding">Eye.RGB</field>
                 <value name="Position">
                   <block type="machine_eye" id="O2e[/)S@oAq]K,K@xCR_">
                     <field name="Eye">3</field>
@@ -44,7 +47,8 @@
               </block>
             </value>
             <value name="ADD3">
-              <block type="eye_object" id="sTx~Nl2yQkK9G=f1EASy">
+              <block type="eye_object_code" id="mUxdXQ_#~)}(HrVG/xjW">
+                <field name="ColorCoding">Eye.RGB</field>
                 <value name="Position">
                   <block type="machine_eye" id="emOY1TmT]/JjLZuvUmyw">
                     <field name="Eye">4</field>

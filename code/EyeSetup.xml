@@ -1,0 +1,146 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <variables>
+    <variable type="" id="=o^ncQm-{-G539V}.43k">eye_tl</variable>
+    <variable type="" id="(^q;Z:JjFi,zw6k3G~.I">eye_tr</variable>
+    <variable type="" id="PJfjR5,?=[I@?a|t~5:S">eye_bl</variable>
+    <variable type="" id="4F-i!x[+DC[SN]neYXTK">eye_br</variable>
+  </variables>
+  <block type="variables_set" id="4mwA=Ke%7qO7aMd.@:cY" x="117" y="143">
+    <field name="VAR" id="=o^ncQm-{-G539V}.43k" variabletype="">eye_tl</field>
+    <value name="VALUE">
+      <block type="eye_object_code" id=";s;t4zlEH*Z$kNg(#B.+">
+        <field name="ColorCoding">Eye.RGB</field>
+        <value name="Position">
+          <block type="machine_eye" id="7Q/Mli#|mGWr3M4=oC[Z">
+            <field name="Eye">1</field>
+          </block>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="variables_set" id="IxBh+bonxzS,Szoe1l{3">
+        <field name="VAR" id="(^q;Z:JjFi,zw6k3G~.I" variabletype="">eye_tr</field>
+        <value name="VALUE">
+          <block type="eye_object_code" id="z}dJ:i=C:g$EiPE}?HRQ">
+            <field name="ColorCoding">Eye.RGB</field>
+            <value name="Position">
+              <block type="machine_eye" id="Ou`Fxm$21{`|cBMgQK+p">
+                <field name="Eye">2</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="variables_set" id="xlycC/:be5)/}HK.({Hl">
+            <field name="VAR" id="PJfjR5,?=[I@?a|t~5:S" variabletype="">eye_bl</field>
+            <value name="VALUE">
+              <block type="eye_object_code" id="#CJ,O,)9-)iFm*n=QrI/">
+                <field name="ColorCoding">Eye.RGB</field>
+                <value name="Position">
+                  <block type="machine_eye" id="eJPvc`Tm$if|Z#,=NLJs">
+                    <field name="Eye">3</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set" id="}.Dxquj$2Hq{O=3j_;Nb">
+                <field name="VAR" id="4F-i!x[+DC[SN]neYXTK" variabletype="">eye_br</field>
+                <value name="VALUE">
+                  <block type="eye_object_code" id="5ZQ^z/9BzPp(%9nS6+Bh">
+                    <field name="ColorCoding">Eye.RGB</field>
+                    <value name="Position">
+                      <block type="machine_eye" id="NyEfsam1A~VnYT],JwVC">
+                        <field name="Eye">4</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="eye_colour_rgb" id=".3vQK*Hssl1?Qr-Sj!(?">
+                    <field name="VAR" id="=o^ncQm-{-G539V}.43k" variabletype="">eye_tl</field>
+                    <value name="R">
+                      <shadow type="math_number" id="vrPU;gGL|8(HL^[%Z!Lx">
+                        <field name="NUM">255</field>
+                      </shadow>
+                    </value>
+                    <value name="G">
+                      <shadow type="math_number" id="OOK9Aj^1O?zp+dxChKT+">
+                        <field name="NUM">0</field>
+                      </shadow>
+                    </value>
+                    <value name="B">
+                      <shadow type="math_number" id="B4,Pu|e4-n,4Ih3qZEQW">
+                        <field name="NUM">0</field>
+                      </shadow>
+                    </value>
+                    <next>
+                      <block type="eye_colour_rgb" id="0+k4$JU:,ics|dBt16ae">
+                        <field name="VAR" id="(^q;Z:JjFi,zw6k3G~.I" variabletype="">eye_tr</field>
+                        <value name="R">
+                          <shadow type="math_number" id="a.b-Lmwg6]LM,PFV09$~">
+                            <field name="NUM">0</field>
+                          </shadow>
+                        </value>
+                        <value name="G">
+                          <shadow type="math_number" id="FH!-j?}?2dAiTg]xRoz@">
+                            <field name="NUM">255</field>
+                          </shadow>
+                        </value>
+                        <value name="B">
+                          <shadow type="math_number" id="+pQ|D]bRH6l})O?Wp3P]">
+                            <field name="NUM">0</field>
+                          </shadow>
+                        </value>
+                        <next>
+                          <block type="eye_colour_rgb" id="Ie6g#;O,e$Ao}r|.+7UM">
+                            <field name="VAR" id="PJfjR5,?=[I@?a|t~5:S" variabletype="">eye_bl</field>
+                            <value name="R">
+                              <shadow type="math_number" id="FzsBStkO?(E4xmjtBJh{">
+                                <field name="NUM">0</field>
+                              </shadow>
+                            </value>
+                            <value name="G">
+                              <shadow type="math_number" id="?Wca1H@xY#Gjr;9i5C[`">
+                                <field name="NUM">0</field>
+                              </shadow>
+                            </value>
+                            <value name="B">
+                              <shadow type="math_number" id="xUWzzKU8bo}-!!*3e`Fv">
+                                <field name="NUM">255</field>
+                              </shadow>
+                            </value>
+                            <next>
+                              <block type="eye_colour_rgb" id="T28^3;C:vhYvd2ekMvqY">
+                                <field name="VAR" id="4F-i!x[+DC[SN]neYXTK" variabletype="">eye_br</field>
+                                <value name="R">
+                                  <shadow type="math_number" id="1[1k-o`ov5TabLx3{WNF">
+                                    <field name="NUM">255</field>
+                                  </shadow>
+                                </value>
+                                <value name="G">
+                                  <shadow type="math_number" id="WM-_=!?2,@t*,#!t56fR">
+                                    <field name="NUM">255</field>
+                                  </shadow>
+                                </value>
+                                <value name="B">
+                                  <shadow type="math_number" id="`mA8WcP6C.:S?=!A:[1`">
+                                    <field name="NUM">255</field>
+                                  </shadow>
+                                </value>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

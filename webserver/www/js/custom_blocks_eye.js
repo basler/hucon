@@ -1,4 +1,33 @@
 var COLOR_EYE = 0;
+var MACHINE_EYES_CODE = [
+    ['create RGB eye for', 'Eye.RGB'],
+    ['create RBG eye for', 'Eye.RBG'],
+    ['create GBR eye for', 'Eye.GBR'],
+    ['create GRB eye for', 'Eye.GRB'],
+    ['create BGR eye for', 'Eye.BGR'],
+    ['create BRG eye for', 'Eye.BRG']
+];
+
+Blockly.Blocks['eye_object_code'] = {
+    init: function() {
+        this.setColour(COLOR_EYE);
+
+        this.appendValueInput('Position')
+            .appendField(new Blockly.FieldDropdown(MACHINE_EYES_CODE) , 'ColorCoding')
+            .setCheck('MachineEye');
+        this.setOutput(true, 'Eye');
+
+        this.setTooltip('Create an eye object which is on the given position.');
+    }
+}
+Blockly.Python['eye_object_code'] = function(block) {
+    Blockly.Python.definitions_['import_eye'] = 'from hackerschool import Eye';
+
+    var argument0 = Blockly.Python.valueToCode(block, 'Position', Blockly.Python.ORDER_ATOMIC) || 'NULL';
+    var colorCoding = block.getFieldValue('ColorCoding');
+    var code = 'Eye(' + argument0 + ', ' + colorCoding + ')';
+    return [code, Blockly.Python.ORDER_ATOMIC];
+};
 
 Blockly.Blocks['eye_object'] = {
     init: function() {

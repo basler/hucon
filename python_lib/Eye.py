@@ -19,41 +19,47 @@ class Eye(object):
     _DEBUG = False
     _DEBUG_INFO = 'DEBUG "Eye.py":'
 
-    def __init__(self, position, lock=True, address=0x4A):
+    RGB = [2, 1, 0]
+    RBG = [2, 0, 1]
+    GBR = [1, 0, 2]
+    GRB = [1, 2, 0]
+    BGR = [0, 1, 2]
+    BRG = [0, 2, 1]
+
+    def __init__(self, position, color_coding=RGB, lock=True, address=0x4A):
         ''' Init an eye on specific position, this offset '''
         if position<1 or position>4:
             raise ValueError("Eye position \"{0}\" is not in (1, 4).".format(position))
         if self._DEBUG:
             print self._DEBUG_INFO, "Debug on"
-        self.position = position
+        self.color_coding = color_coding
         self.lock = lock
 
         self.pwm = PCA9685.PWM(address=address)
         self.pwm.setup()
         self.frequency = self._FREQUENCY
-        self._set_channel(position)
+        self._set_channel(position, color_coding)
         self.red = 0
         self.green = 0
         self.blue = 0
         self.set_color(self.red, self.green, self.blue)
 
-    def _set_channel(self, position):
+    def _set_channel(self, position, color_coding):
+
+        offset = 0
+
         if position == 1:
-            self.channel_red   = 2
-            self.channel_green = 1
-            self.channel_blue  = 0
+            offset = 0
         elif position == 2:
-            self.channel_red   = 15
-            self.channel_green = 14
-            self.channel_blue  = 13
+            offset = 13
         elif position == 3:
-            self.channel_red   = 7
-            self.channel_green = 6
-            self.channel_blue  = 5
+            offset = 5
         else:
-            self.channel_red   = 12
-            self.channel_green = 11
-            self.channel_blue  = 10
+            offset = 10
+
+        self.channel_red   = offset + color_coding[0]
+        self.channel_green = offset + color_coding[1]
+        self.channel_blue  = offset + color_coding[2]
 
     def _color_to_analog(self, color):
         ''' Calculate 12-bit analog value from giving color '''

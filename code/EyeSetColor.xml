@@ -2,7 +2,7 @@
   <variables>
     <variable type="" id="ZdXQ}%C{qV2::E?nYNU~">eye</variable>
   </variables>
-  <block type="text_print" id="X29kCUF1Mf}{0a4:z8gq" x="313" y="209">
+  <block type="text_print" id="X29kCUF1Mf}{0a4:z8gq" x="196" y="192">
     <value name="TEXT">
       <shadow type="text" id="*M)PN?a96:X?QFF(:LVE">
         <field name="TEXT">Set the color for the top left eye.</field>
@@ -12,7 +12,8 @@
       <block type="variables_set" id="5%U-tX4~QbIFYu|fye^v">
         <field name="VAR" id="ZdXQ}%C{qV2::E?nYNU~" variabletype="">eye</field>
         <value name="VALUE">
-          <block type="eye_object" id="+[%VMti:V0y4Ra#9e_@q">
+          <block type="eye_object_code" id="aB((U^t{,v_7C+NafN[v">
+            <field name="ColorCoding">Eye.RGB</field>
             <value name="Position">
               <block type="machine_eye" id="m~~qvJG9l!C/^r:e[0`j">
                 <field name="Eye">1</field>
