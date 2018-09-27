@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="cache-control" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=0.8">
-    <title>Hacker School :)</title>
+    <title>HuCon Robot :)</title>
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="semantic/semantic.min.css">
@@ -20,6 +20,13 @@
                 success: function(message) {
                     var data = JSON.parse(message);
                     $('#version').html(data['version']);
+
+                    $.ajax('https://github.com/juwis/hackerschool/releases/latest', {
+                        method: 'GET',
+                        success: function(message) {
+                            console.log(message)
+                        }
+                    });
                 },
                 error: function(){
                     $('#version').html('error');

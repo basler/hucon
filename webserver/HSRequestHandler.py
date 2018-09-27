@@ -22,6 +22,15 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.wfile.write('not authenticated')
         self.wfile.close()
 
+    def replace_hucon_requests(self, message):
+
+        search_string = 'print(\'Hello HuCon!\')'
+        replace_string = 'print(\'Hello HuCon!\\n\\nHello human!\\nI am a human controlled robot.\\n\\n\')'
+        if search_string in message:
+            message = message.replace(search_string, replace_string)
+        return message
+
+
     def do_GET(self):
         """
         Present frontpage with user authentication.
@@ -86,7 +95,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         filename = os.path.join(tempfile.gettempdir(), 'execute.py')
 
                         with open(filename, 'w') as f:
-                            f.write(args['data'])
+                            f.write(self.replace_hucon_requests(args['data']))
                         f.close()
 
                         proc = subprocess.Popen(['python', '-u', filename], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
