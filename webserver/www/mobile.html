@@ -116,6 +116,12 @@
             $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
         }
 
+        function shutdownSystem() {
+            $.ajax('/shutdown', {
+                method: 'POST'
+            });
+        }
+
     </script>
 <head>
 </head>
@@ -123,11 +129,15 @@
 
     <div class="container">
 
-        <div id="headerArea" class="spaceBottom">
-            <div class="whitesmoke" id="version"></div>
-            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="top: 8px; right: 6px; position: absolute;">
+        <div id="headerArea">
+            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
                 <i class="icon github"></i>
+                <div class="floating ui blue label" id="version"></div>
                 GitHub
+            </button>
+
+            <button onclick="shutdownSystem()" class="circular ui icon button"style="top: 8px; right: 8px; position: absolute;">
+                <i class="icon power off"></i>
             </button>
         </div>
 

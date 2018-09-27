@@ -33,6 +33,34 @@
                 }
             });
         }());
+
+        $(document).ready(function poll() {
+            $.ajax('/poll', {
+                method: 'POST',
+                timeout: 30000, // 30 seconds
+                success: function(message){
+                    appendConsoleLog(message);
+                    poll();
+                },
+                error: function(){
+                    setTimeout(poll, 1000);
+                }
+            });
+        }());
+
+        function shutdownSystem() {
+            $('#shutdownModal').modal('show');
+            $('#consoleLog').html('');
+
+            $.ajax('/shutdown', {
+                method: 'POST'
+            });
+        }
+
+        function appendConsoleLog(message) {
+            $('#consoleLog').append(message.replace(/\n/g, '<br>'));
+            $("#consoleLog").scrollTop($("#consoleLog")[0].scrollHeight);
+        }
     </script>
 
 <head>
@@ -42,10 +70,14 @@
     <div class="container">
 
         <div id="headerArea">
-            <div class="whitesmoke" id="version"></div>
-            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="top: 8px; right: 6px; position: absolute;">
+            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
                 <i class="icon github"></i>
+                <div class="floating ui blue label" id="version"></div>
                 GitHub
+            </button>
+
+            <button onclick="shutdownSystem()" class="circular ui icon button"style="top: 8px; right: 8px; position: absolute;">
+                <i class="icon power off"></i>
             </button>
         </div>
 
@@ -63,6 +95,14 @@
             </div>
         </div>
 
+    </div>
+
+    <div id="shutdownModal" class="ui modal">
+        <div class="header">Shutdown</div>
+        <div class="content">
+            <div id="consoleLog" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
+            <button onclick="$('#shutdownModal').modal('hide')" class="ui orange button">Close</button>
+        </div>
     </div>
 
 </body>

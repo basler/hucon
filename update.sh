@@ -10,6 +10,8 @@ while :; do
         ;;
         -r|--reboot) do_reboot=1
         ;;
+        -s|--shutdown) do_shutdown=1
+        ;;
         *) break
     esac
     shift
@@ -65,4 +67,11 @@ fi
 if [ $do_reboot ]; then
     echo "Reboot the system, wait untile the server is started ..."
     reboot
+fi
+
+# Shutdown the system.
+if [ $do_shutdown ]; then
+    echo "Shutdown the system ..."
+    sleep 2
+    echo "o" >/proc/sysrq-trigger
 fi

@@ -243,6 +243,25 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         self.server._log.put(output.strip())
                 proc.poll()
 
+            elif self.path == '/shutdown':
+                # Shutdown the robot.
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write('')
+
+                # Update the system first.
+                self.server._log.put('The system will be shutdown.\n')
+                proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-s'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+                while True:
+                    output = proc.stdout.readline()
+                    if output == '' and proc.poll() is not None:
+                        break
+                    if output:
+                        self.server._log.put(output.strip())
+                proc.poll()
+
             elif self.path == '/check_update':
                 # Check if ther is an update available
                 proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
