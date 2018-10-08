@@ -41,8 +41,14 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
     # Store the current running state
     _is_running = False
 
-    # Store the current process id
-    _current_pid = None
+    # Store the current process to comunicate with a runing process
+    _current_proc = None
+
+    # Pattern to detect data event items
+    _data_event_pattern = r'\{\s*"PostCommands"\s*:\s*(.*)\s*\}'
+
+    # Possible post data events stored as json format
+    _possible_post_data = '{ "PostCommands" : ["cmd1", "cmd2"] }'
 
     # Queue for all log messages
     _log = HSLogMessage()

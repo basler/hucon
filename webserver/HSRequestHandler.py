@@ -8,6 +8,7 @@ import time
 import tempfile
 import sys
 import signal
+import re
 
 class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
@@ -30,6 +31,30 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             message = message.replace(search_string, replace_string)
         return message
 
+    def run_file(self, filename):
+        self.server._current_proc = subprocess.Popen(['python', '-u', filename],
+                                                     bufsize=1 ,
+                                                     stdin=subprocess.PIPE,
+                                                     stdout=subprocess.PIPE,
+                                                     stderr=subprocess.STDOUT)
+
+        while True:
+            output = self.server._current_proc.stdout.readline()
+            if output == '' and self.server._current_proc.poll() is not None:
+                break
+            if output:
+                # Replace the file error like 'File "/tmp/execute.py", line x, in'
+                output = output.replace('File "' + filename + '", l', 'L')
+
+                # search for possible post data events
+                possible_post_data = re.search(self.server._data_event_pattern, output)
+                if possible_post_data is not None:
+                    print('found data events')
+                    print(possible_post_data.group())
+                    self.server._possible_post_data = possible_post_data.group()
+
+                self.server._log.put(output.strip())
+        self.server._current_proc.poll()
 
     def do_GET(self):
         """
@@ -98,18 +123,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                             f.write(self.replace_hucon_requests(args['data']))
                         f.close()
 
-                        proc = subprocess.Popen(['python', '-u', filename], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                        self.server._current_pid = proc.pid
-
-                        while True:
-                            output = proc.stdout.readline()
-                            if output == '' and proc.poll() is not None:
-                                break
-                            if output:
-                                # Replace the file error like 'File "/tmp/execute.py", line x, in'
-                                output = output.replace('File "/tmp/execute.py", l', 'L')
-                                self.server._log.put(output.strip())
-                        proc.poll()
+                        self.run_file(filename)
 
                     except Exception as e:
                         self.server._log.put('Error: %s' % str(e))
@@ -120,7 +134,7 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         time.sleep(0.1)
 
                     self.server._is_running = False
-                    self.server._current_pid = None
+                    self.server._current_proc = None
 
                 else:
                     message = 'There is a programm running.'
@@ -136,22 +150,11 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
                 if self.server._is_running is False:
                     print('Run file %s' % args['filename'])
-                    run_file = self.server._CODE_ROOT + '/' + args['filename']
+                    filename = self.server._CODE_ROOT + '/' + args['filename']
                     try:
                         self.server._is_running = True
 
-                        proc = subprocess.Popen(['python', '-u', run_file], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                        self.server._current_pid = proc.pid
-
-                        while True:
-                            output = proc.stdout.readline()
-                            if output == '' and proc.poll() is not None:
-                                break
-                            if output:
-                                # Replace the file error like 'File "/tmp/execute.py", line x, in'
-                                output = output.replace('File "/tmp/execute.py", l', 'L')
-                                self.server._log.put(output.strip())
-                        proc.poll()
+                        self.run_file(filename)
 
                     except Exception as e:
                         self.server._log.put('Error: %s' % str(e))
@@ -162,9 +165,24 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                         time.sleep(0.1)
 
                     self.server._is_running = False
-                    self.server._current_pid = None
+                    self.server._current_proc = None
                 else:
                     message = 'There is a programm running.'
+
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(message)
+
+            elif self.path == '/event':
+                message = 'OK'
+
+                if self.server._current_proc:
+                    self.server._current_proc.stdin.write(args['Event'] + '\n')
+                    self.server._current_proc.stdin.flush()
+                    print('Event fired: %s' % args['Event'])
+                else:
+                    message = 'no programm is running\n'
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -182,6 +200,13 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json_dump)
 
+            elif self.path == '/get_possible_post_data':
+                # Return the json of available post data events.
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(self.server._possible_post_data)
+
             elif self.path == '/is_running':
                 # Get the current running state of the device
                 data['is_running'] = self.server._is_running
@@ -194,8 +219,21 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
             elif self.path == '/kill':
                 # Kill the current running process
-                if self.server._current_pid != None:
-                    os.kill(self.server._current_pid, signal.SIGKILL)
+                if self.server._current_proc:
+                    try:
+                        self.server._current_proc.send_signal(signal.CTRL_C_EVENT)
+                    except:
+                        pass
+                if self.server._current_proc:
+                    try:
+                        self.server._current_proc.send_signal(signal.CTRL_BREAK_EVENT)
+                    except:
+                        pass
+                if self.server._current_proc:
+                    try:
+                        self.server._current_proc.send_signal(signal.SIGTERM)
+                    except:
+                        pass
                     time.sleep(0.1)
 
                 self.send_response(200)

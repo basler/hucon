@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="cache-control" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=0.8">
-    <title>HuCon Robot :)</title>
+    <title>HuCon Robot :) - Remote Control</title>
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="semantic/semantic.min.css">
@@ -15,21 +15,28 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+            // get the version
             $.ajax('/get_version', {
                 method: 'POST',
                 success: function(message) {
                     var data = JSON.parse(message);
                     $('#version').html(data['version']);
-
-                    $.ajax('https://github.com/juwis/hackerschool/releases/latest', {
-                        method: 'GET',
-                        success: function(message) {
-                            console.log(message)
-                        }
-                    });
                 },
                 error: function(){
                     $('#version').html('error');
+                }
+            });
+
+            // append all availabel buttons
+            $.ajax('/get_possible_post_data', {
+                method: 'POST',
+                success: function(message) {
+                    var data = JSON.parse(message);
+                    for (var index in data['PostCommands']) {
+                        var btn = $('<button onclick="setEvent(\'' + data['PostCommands'][index] + '\')" class="fluid ui orange button">' + data['PostCommands'][index] + '</button><br>')
+                        $('#buttonArea').append(btn);
+
+                    }
                 }
             });
         }());
@@ -48,6 +55,19 @@
             });
         }());
 
+        function setEvent(eventString) {
+            var data = {};
+            data['Event'] = eventString;
+
+            $.ajax('/event', {
+                method: 'POST',
+                data: JSON.stringify(data),
+                success: function(message){
+                    console.log('event fired');
+                }
+            });
+        }
+
         function shutdownSystem() {
             $('#shutdownModal').modal('show');
             $('#consoleLog').html('');
@@ -59,13 +79,14 @@
 
         function appendConsoleLog(message) {
             $('#consoleLog').append(message.replace(/\n/g, '<br>'));
-            $("#consoleLog").scrollTop($("#consoleLog")[0].scrollHeight);
+            $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
         }
+
     </script>
 
 <head>
 </head>
-<body>
+<body id="body">
 
     <div class="container">
 
@@ -81,19 +102,7 @@
             </button>
         </div>
 
-        <div class="center">
-            <button onclick="location.href='blockly.html'" class="fluid ui orange button">Blockly</button><br>
-            <button onclick="location.href='editor.html'" class="fluid ui orange button">Editor</button><br>
-            <button onclick="location.href='remote_control.html'" class="fluid ui orange button">Remote Control</button><br>
-            <p class="whitesmoke">The following site is good when<br>
-            the device has no internet con-<br>
-            nection.</p>
-            <button onclick="location.href='mobile.html'" class="fluid ui blue button">Mobile</button><br>
-            <p class="whitesmoke">You can change your password<br>
-            or update the system<br>
-            with the following site.</p>
-            <button onclick="location.href='settings.html'" class="fluid ui light_blue button">Settings</button><br>
-            </div>
+        <div id="buttonArea" class="center">
         </div>
 
     </div>
