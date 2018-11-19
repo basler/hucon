@@ -151,6 +151,9 @@ class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     f.write(cls._replace_hucon_requests(args['data']))
                 f.close()
 
+                # Wait fgor a while until the file is realy closed before it can be executed.
+                time.sleep(0.2)
+
                 cls._run_file(filename)
 
             except Exception as e:
