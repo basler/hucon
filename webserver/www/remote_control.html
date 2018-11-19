@@ -22,9 +22,7 @@
                     var data = JSON.parse(message);
                     $('#version').html(data['version']);
                 },
-                error: function(){
-                    $('#version').html('error');
-                }
+                error: appendErrorLog
             });
 
             // append all availabel buttons
@@ -37,7 +35,8 @@
                         $('#buttonArea').append(btn);
 
                     }
-                }
+                },
+                error: appendErrorLog
             });
         }());
 
@@ -64,7 +63,8 @@
                 data: JSON.stringify(data),
                 success: function(message){
                     console.log('event fired');
-                }
+                },
+                error: appendErrorLog
             });
         }
 
@@ -73,7 +73,8 @@
             $('#consoleLog').html('');
 
             $.ajax('/shutdown', {
-                method: 'POST'
+                method: 'POST',
+                error: appendErrorLog
             });
         }
 
@@ -82,6 +83,9 @@
             $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
         }
 
+        function appendErrorLog(request, status, error) {
+            appendConsoleLog(error + ' : ' + request.responseText + '\n');
+        }
     </script>
 
 <head>
@@ -93,7 +97,7 @@
         <div id="headerArea">
             <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
                 <i class="icon github"></i>
-                <div class="floating ui blue label" id="version"></div>
+                <div class="floating ui blue label" id="version">error</div>
                 GitHub
             </button>
 

@@ -20,17 +20,8 @@
                 success: function(message) {
                     var data = JSON.parse(message);
                     $('#version').html(data['version']);
-
-                    $.ajax('https://github.com/juwis/hackerschool/releases/latest', {
-                        method: 'GET',
-                        success: function(message) {
-                            console.log(message)
-                        }
-                    });
                 },
-                error: function(){
-                    $('#version').html('error');
-                }
+                error: appendErrorLog
             });
         }());
 
@@ -53,13 +44,18 @@
             $('#consoleLog').html('');
 
             $.ajax('/shutdown', {
-                method: 'POST'
+                method: 'POST',
+                error: appendErrorLog
             });
         }
 
         function appendConsoleLog(message) {
             $('#consoleLog').append(message.replace(/\n/g, '<br>'));
             $("#consoleLog").scrollTop($("#consoleLog")[0].scrollHeight);
+        }
+
+        function appendErrorLog(request, status, error) {
+            appendConsoleLog(error + ' : ' + request.responseText + '\n');
         }
     </script>
 
@@ -72,7 +68,7 @@
         <div id="headerArea">
             <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
                 <i class="icon github"></i>
-                <div class="floating ui blue label" id="version"></div>
+                <div class="floating ui blue label" id="version">error</div>
                 GitHub
             </button>
 

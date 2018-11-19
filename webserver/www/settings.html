@@ -21,9 +21,7 @@
                     var data = JSON.parse(message);
                     $('#version').html(data['version']);
                 },
-                error: function(){
-                    $('#version').html('error');
-                }
+                error: appendErrorLog
             });
         }());
 
@@ -76,7 +74,8 @@
                 success: function (message) {
                     alert(message);
                     $('#changePasswordModal').modal('hide');
-                }
+                },
+                error: appendErrorLog
             });
         }
 
@@ -94,13 +93,15 @@
                     if (data['is_update_available']) {
                         $('#updateButton').removeClass('disabled');
                     }
-                }
+                },
+                error: appendErrorLog
             });
         }
 
         function updateSystem() {
             $.ajax('/update', {
-                method: 'POST'
+                method: 'POST',
+                error: appendErrorLog
             });
         }
 
@@ -109,7 +110,8 @@
             $('#consoleLog2').html('');
 
             $.ajax('/shutdown', {
-                method: 'POST'
+                method: 'POST',
+                error: appendErrorLog
             });
         }
 
@@ -120,6 +122,9 @@
             $('#consoleLog2').scrollTop($('#consoleLog2')[0].scrollHeight);
         }
 
+        function appendErrorLog(request, status, error) {
+            appendConsoleLog(error + ' : ' + request.responseText + '\n');
+        }
     </script>
 
 <head>
@@ -131,7 +136,7 @@
         <div id="headerArea">
             <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
                 <i class="icon github"></i>
-                <div class="floating ui blue label" id="version"></div>
+                <div class="floating ui blue label" id="version">error</div>
                 GitHub
             </button>
 

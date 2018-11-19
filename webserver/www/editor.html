@@ -22,7 +22,7 @@
         $(document).ready(function poll() {
             $.ajax('/poll', {
                 method: 'POST',
-                timeout: 30000, // 30 seconds
+                timeout: 1000*60*10, // 10 Minutes
                 success: function(message){
                     appendConsoleLog(message);
                     poll();
@@ -44,17 +44,15 @@
                     // add the files to the empty list
                     var data = JSON.parse(message);
                     for (i=0; i<data['files'].length; i++) {
-                        var filename = data['files'][i]
-                        if (filename.endsWith('.py')) {
+                        var filename = data['files'][i];
+                        if (filename.substr(-3) === '.py') {
                             $('#openFileList').append('<div onclick="loadFileFromDevice(\'' + filename + '\');" class="item content ok"><div class="header">' + filename.slice(0, -3) + '</div></div>');
                         }
                     }
 
                     $('#openModal').modal('show');
                 },
-                error: function(){
-                    appendConsoleLog('Could not get the file list from the device.');
-                }
+                error: appendErrorLog
             });
         }
 
@@ -76,9 +74,7 @@
                     var data = JSON.parse(message);
                     loadFile(data['data']);
                 },
-                error: function(){
-                    appendConsoleLog('Could not load the file from the device.')
-                }
+                error: appendErrorLog
             });
         }
 
@@ -91,12 +87,13 @@
                     $('#saveFileList').html('');
                     var data = JSON.parse(message);
                     for (i=0; i<data['files'].length; i++) {
-                        var filename = data['files'][i]
-                        if (filename.endsWith('.py')) {
+                        var filename = data['files'][i];
+                        if (filename.substr(-3) === '.py') {
                             $('#saveFileList').append('<div onclick="$(\'#saveFilename\').val(\'' + filename.slice(0, -3) + '\');" class="item content ok"><div class="header">' + filename.slice(0, -3) + '</div></div>');
                         }
                     }
-                }
+                },
+                error: appendErrorLog
             });
         }
 
@@ -114,9 +111,7 @@
                 method: 'POST',
                 data: JSON.stringify(data),
                 success: appendConsoleLog,
-                error: function(){
-                    appendConsoleLog('Could not save the python file on the device.')
-                }
+                error: appendErrorLog
             });
         }
 
@@ -129,21 +124,21 @@
             $.ajax('/execute', {
                 method: 'POST',
                 data: JSON.stringify(data),
-                success: appendConsoleLog
+                success: appendConsoleLog,
+                error: appendErrorLog
             });
 
-            $('#runButton').addClass('disabled')
-            $('#stopButton').removeClass('disabled')
-            setTimeout(isRunning, 500 );
+            $('#runButton').addClass('disabled');
+            $('#stopButton').removeClass('disabled');
+            setTimeout(isRunning, 1000 );
         }
 
         function stop() {
             var data = {};
             $.ajax('/kill', {
                 method: 'POST',
-                success: function () {
-                    appendConsoleLog('Application stopped.\n');
-                }
+                success: appendConsoleLog,
+                error: appendErrorLog
             });
         }
 
@@ -153,21 +148,20 @@
                 success: function(message) {
                     var data = JSON.parse(message);
                     if (data['is_running']) {
-                        setTimeout( isRunning, 500 );
+                        setTimeout( isRunning, 1000 );
                     } else {
                         $('#runButton').removeClass('disabled')
                         $('#stopButton').addClass('disabled')
                     }
                 },
-                error: function() {
-                    appendConsoleLog('Error during run.');
-                }
+                error: appendErrorLog
             });
         }
 
         function shutdownSystem() {
             $.ajax('/shutdown', {
-                method: 'POST'
+                method: 'POST',
+                error: appendErrorLog
             });
         }
     </script>
@@ -180,7 +174,7 @@
         <div id="headerArea">
             <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
                 <i class="icon github"></i>
-                <div class="floating ui blue label" id="version"></div>
+                <div class="floating ui blue label" id="version">error</div>
                 GitHub
             </button>
 

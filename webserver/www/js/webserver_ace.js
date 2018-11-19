@@ -16,9 +16,7 @@ $(document).ready(function () {
             var data = JSON.parse(message);
             $('#version').html(data['version']);
         },
-        error: function(){
-            $('#version').html('error');
-        }
+        error: appendErrorLog
     });
 
     // Setup the editor
@@ -49,4 +47,8 @@ function getFileData() {
 function appendConsoleLog(message) {
     $('#consoleLog').append(message.replace(/\n/g, '<br>'));
     $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
+}
+
+function appendErrorLog(request, status, error) {
+    appendConsoleLog(error + ' : ' + request.responseText + '\n');
 }
