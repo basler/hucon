@@ -33,6 +33,33 @@
             });
         }());
 
+        $(window).bind('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                switch (String.fromCharCode(event.which).toLowerCase()) {
+                case 'n':
+                    event.preventDefault();
+                    newFile()
+                    break;
+                case 'o':
+                    event.preventDefault();
+                    openFileModal()
+                    break;
+                case 's':
+                    event.preventDefault();
+                    saveFileModal()
+                    break;
+                case 'r':
+                    event.preventDefault();
+                    run()
+                    break;
+                case 'h':
+                    event.preventDefault();
+                    stop()
+                    break;
+                }
+            }
+        });
+
         function openFileModal() {
             $.ajax('/get_file_list', {
                 method: 'POST',
