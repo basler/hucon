@@ -6,11 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.5">
     <title>HuCon Robot :) - Blockly</title>
 
-    <!-- Blockly Sourcen -->
+    <!-- Blockly sources -->
     <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
     <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
     <script type="text/javascript" src="blockly/python_compressed.js"></script>
     <script type="text/javascript" src="blockly/en.js"></script>
+
+    <!-- Prettify sources -->
+    <script type="text/javascript" src="prettify/prettify.js"></script>
+    <link rel="stylesheet" href="prettify/prettify.css">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="semantic/semantic.min.css">
@@ -24,33 +28,200 @@
     <script type="text/javascript" src="js/custom_blocks_servo.js"></script>
     <script type="text/javascript" src="js/custom_blocks_motor.js"></script>
     <script type="text/javascript" src="js/custom_blocks_mpu.js"></script>
-    <script type="text/javascript" src="js/webserver_blockly.js"></script>
+
+    <script type="text/javascript" src="js/webserver.js"></script>
 
     <script type="text/javascript">
-        $(document).ready(function poll() {
-            $.ajax('/poll', {
-                method: 'POST',
-                timeout: 30000, // 30 seconds
-                success: function(message){
-                    appendConsoleLog(message);
-                    poll();
-                },
-                error: function(){
-                    setTimeout(poll, 1000);
-                }
-            });
-        }());
+        var blocklyWorkspace;
 
+        // On document ready this function will be called and initialize the complete website.
+        $(document).ready(function () {
+
+            window.addEventListener('resize', onResize);
+
+            $.ajax('/get_version', {
+                method: 'POST',
+                dataType: 'json',
+                success: function(data) {
+                    $('#version').html(data['version']);
+                },
+                error: appendErrorLog
+            });
+
+            showCode(localStorage.getItem('CodeShow'));
+            showConsole(localStorage.getItem('ConsoleShow'));
+
+            // poll for new messages
+            poll();
+
+            $.ajax('xml/toolbox.xml', {
+                method: 'GET',
+                dataType: 'text',
+                success: function (message) {
+                    // Initialize blockly
+                    // Do this as a last step in this function to calculate the size correctly!
+                    blocklyWorkspace = Blockly.inject('blocklyDiv', {
+                        grid: {
+                            spacing: 25,
+                            length: 3,
+                            colour: '#ccc',
+                            snap: true
+                        },
+                        media: 'blockly/media/',
+                        toolbox: message,
+                        zoom: {
+                            controls: true,
+                            wheel: true
+                        }
+                    });
+
+                    // Add the listener on resize to call the onResize function
+                    onResize();
+                    Blockly.svgResize(blocklyWorkspace);
+
+                    // Add the listener on every change to update the code
+                    blocklyWorkspace.addChangeListener(udpateCode);
+                },
+                error: appendErrorLog
+            });
+        });
+
+        // Handle some key bindings
+        $(window).bind('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                switch (String.fromCharCode(event.which).toLowerCase()) {
+                case 'n':
+                    event.preventDefault();
+                    newFile()
+                    break;
+                case 'o':
+                    event.preventDefault();
+                    openFileModal()
+                    break;
+                case 's':
+                    event.preventDefault();
+                    saveFileModal()
+                    break;
+                case 'r':
+                    event.preventDefault();
+                    run()
+                    break;
+                case 'h':
+                    event.preventDefault();
+                    stop()
+                    break;
+                }
+            }
+        });
+
+        // Append the message, which can be a an array, to the console output.
+        function appendConsoleLogMessage(message, colour='black') {
+            if (message.includes('Error:')) {
+                colour = 'red';
+            }
+
+            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
+            $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
+        }
+
+        // Resize the area, so blockly will fit allways.
+        function onResize(){
+            var mainArea = document.getElementById('mainArea');
+            var blocklyArea = document.getElementById('blocklyArea');
+            var blocklyDiv = document.getElementById('blocklyDiv');
+
+            // Position blocklyDiv over blocklyArea.
+            blocklyDiv.style.left = '0px';
+            blocklyDiv.style.top = '0px';
+            blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+            blocklyDiv.style.height = mainArea.offsetHeight + 'px';
+        };
+
+        // Show the code or hide it.
+        function showCode(show) {
+            if (show === 'no') {
+                $('#codeButton').removeClass('active');
+                $('#blocklyArea').removeClass('twelve wide column');
+                $('#blocklyArea').addClass('sixteen wide column');
+                $('#codeArea').hide();
+            } else {
+                $('#codeButton').addClass('active');
+                $('#blocklyArea').removeClass('sixteen wide column');
+                $('#blocklyArea').addClass('twelve wide column');
+                $('#codeArea').show();
+            }
+
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        // Show the console or hide it.
+        function showConsole(show) {
+            if (show === 'no') {
+                $('#consoleButton').removeClass('active');
+                $('#mainArea').removeClass('shortHeight');
+                $('#mainArea').addClass('fullHeight');
+                $('#logArea').hide();
+            } else {
+                $('#consoleButton').addClass('active');
+                $('#mainArea').addClass('shortHeight');
+                $('#mainArea').removeClass('fullHeight');
+                $('#logArea').show();
+            }
+
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        // Show/Hide the code view.
+        function toggleCodeView() {
+
+            if ($('#codeButton').hasClass('active')) {
+                // collapse
+                showCode('no');
+                localStorage.setItem('CodeShow', 'no');
+            } else {
+                // show
+                showCode('yes');
+                localStorage.setItem('CodeShow', 'yes');
+            }
+        }
+
+        // Clear the workspace and remove the filename
+        function newFile() {
+            Blockly.mainWorkspace.clear();
+            $('#consoleLog').html('');
+            $('#saveFilename').val('');
+        }
+
+        // Load the workspace with the file data.
+        function loadFile(data) {
+            if (data) {
+                Blockly.mainWorkspace.clear();
+                xmlDom = Blockly.Xml.textToDom(data);
+                Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
+            }
+            appendConsoleLog('Blockly workspace loaded from local device.', 'green');
+        }
+
+        // This function will be called whenever an element on the workspace is changed
+        // to update the code and show it on the page.
+        function udpateCode(event) {
+            var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
+            code = code.replace(/\n/g, '<br>');
+            code = PR.prettyPrintOne(code, 'py');
+            $('#pythonCode').html(code);
+        }
+
+        // Load the filelist and show the open file modal.
         function openFileModal() {
             $.ajax('/get_file_list', {
                 method: 'POST',
-                success: function(message) {
+                dataType: 'json',
+                success: function(data) {
 
                     // clear the list
                     $('#openFileList').html('');
 
                     // add the files to the empty list
-                    var data = JSON.parse(message);
                     for (i=0; i<data['files'].length; i++) {
                         var filename = data['files'][i]
                         if (filename.substr(-4) === '.xml') {
@@ -64,6 +235,7 @@
             });
         }
 
+        // Hide the open file modal and load the contetn from the file.
         function loadFileFromDevice(filename) {
             $('#openModal').modal('hide');
 
@@ -78,22 +250,23 @@
             $.ajax('/file_load', {
                 method: 'POST',
                 data: JSON.stringify(data),
-                success: function(message) {
-                    var data = JSON.parse(message);
+                dataType: 'json',
+                success: function(data) {
                     loadFile(data['data']);
                 },
                 error: appendErrorLog
             });
         }
 
+        // Show the save file modal and load teh fil;e list fromn the device.
         function saveFileModal() {
             $('#saveModal').modal('show');
 
             $.ajax('/get_file_list', {
                 method: 'POST',
-                success: function(message) {
+                dataType: 'json',
+                success: function(data) {
                     $('#saveFileList').html('');
-                    var data = JSON.parse(message);
                     for (i=0; i<data['files'].length; i++) {
                         var filename = data['files'][i]
                         if (filename.substr(-4) === '.xml') {
@@ -105,16 +278,18 @@
             });
         }
 
+        // Save the file on the device and hide the file save modal.
         function saveFileOnDevice() {
             $('#saveModal').modal('hide');
 
             $('#consoleLog').html('');
 
             var data = {};
+            var xmlDom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
 
             // Store the blockly code
             data['filename'] = $('#saveFilename').val() + '.xml';
-            data['data'] = getFileData();
+            data['data'] = Blockly.Xml.domToPrettyText(xmlDom);
             $.ajax('/file_save', {
                 method: 'POST',
                 data: JSON.stringify(data),
@@ -124,7 +299,7 @@
 
             // Store the python code
             data['filename'] = $('#saveFilename').val() + '.py';
-            data['data'] = getPythonCode();
+            data['data'] = Blockly.Python.workspaceToCode(blocklyWorkspace);
             $.ajax('/file_save', {
                 method: 'POST',
                 data: JSON.stringify(data),
@@ -133,12 +308,13 @@
             });
         }
 
+        // Run teh code on the device and set the button states.
         function run() {
             $('#consoleLog').html('');
-            appendConsoleLog('Loading program ...\n');
+            appendConsoleLog('Loading program ...', 'green');
 
             var data = {};
-            data['data'] = getPythonCode();
+            data['data'] = Blockly.Python.workspaceToCode(blocklyWorkspace);
             $.ajax('/execute', {
                 method: 'POST',
                 data: JSON.stringify(data),
@@ -148,46 +324,62 @@
 
             $('#runButton').addClass('disabled')
             $('#stopButton').removeClass('disabled')
-            setTimeout(isRunning, 500 );
+            setTimeout(isRunning, 1000 );
         }
 
+        // Stop the user application.
         function stop() {
-            var data = {};
             $.ajax('/kill', {
                 method: 'POST',
-                success: appendConsoleLog,
+                success: function(message) {
+                    appendConsoleLog(message, 'red');
+                },
                 error: appendErrorLog
             });
         }
 
+        // Check if the device is still runing and set the button states.
         function isRunning() {
             $.ajax('/is_running', {
                 method: 'POST',
-                success: function(message) {
-                    var data = JSON.parse(message);
+                dataType: 'json',
+                success: function(data) {
                     if (data['is_running']) {
-                        setTimeout( isRunning, 500 );
+                        setTimeout( isRunning, 1000 );
                     } else {
-                        $('#runButton').removeClass('disabled')
-                        $('#stopButton').addClass('disabled')
+                        $('#runButton').removeClass('disabled');
+                        $('#stopButton').addClass('disabled');
+                        appendConsoleLog('Done ...', 'green');
                     }
                 },
                 error: appendErrorLog
             });
         }
 
-        function shutdownSystem() {
-            $.ajax('/shutdown', {
-                method: 'POST',
-                error: appendErrorLog
-            });
+        // Show/Hide the console view.
+        function toggleConsoleView() {
+            if ($('#consoleButton').hasClass('active')) {
+                // collapse
+                showConsole('no');
+                localStorage.setItem('ConsoleShow', 'no');
+            } else {
+                // show
+                showConsole('yes');
+                localStorage.setItem('ConsoleShow', 'yes');
+            }
+        }
+
+        // Show button Modal.
+        function buttonModal() {
+            $('#buttonModal').modal('show');
+            $('#buttonEmbed').embed();
         }
 
     </script>
 
 <head>
 </head>
-<body>
+<body onload="PR.prettyPrint()">
 
     <div class="container">
 
@@ -197,66 +389,46 @@
                 <div class="floating ui blue label" id="version">error</div>
                 GitHub
             </button>
-
-            <button onclick="shutdownSystem()" class="circular ui icon button"style="top: 8px; right: 8px; position: absolute;">
-                <i class="icon power off"></i>
-            </button>
         </div>
 
-        <div id="buttonArea" class="spaceBottom">
-            <div class="ui buttons">
-                <button onclick="newFile()" class="ui orange labeled icon button">
-                    <i class="file icon"></i>
-                    New
-                </button>
-                <button onclick="openFileModal()" class="ui orange labeled icon button">
-                    <i class="folder open icon"></i>
-                    Open
-                </button>
-                <button onclick="saveFileModal()" class="ui orange labeled icon button">
-                    <i class="save icon"></i>
-                    Save
-                </button>
+        <div class="ui top attached menu">
+            <div class="ui simple dropdown item">
+                <i class="folder outline icon"></i>
+                File
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a onclick="newFile()" class="item"><i class="file icon"></i>New</a>
+                    <a onclick="openFileModal()" class="item"><i class="folder open icon"></i> Open</a>
+                    <a onclick="saveFileModal()" class="item"><i class="save icon"></i> Save</a>
+                </div>
             </div>
-            <div class="ui buttons">
-                <button id="runButton" onclick="run()" class="ui orange labeled icon button">
-                    <i class="play icon"></i>
-                    Run
-                </button>
-                <button id="stopButton" onclick="stop()" class="ui orange labeled icon button disabled">
-                    <i class="stop icon"></i>
-                    Stop
-                </button>
+            <a id="runButton" onclick="run()" class="item"><i class="play icon"></i>Run</a>
+            <a id="stopButton" onclick="stop()" class="item disabled"><i class="stop icon"></i>Stop</a>
+            <a id="consoleButton" onclick="toggleConsoleView()" class="item"><i class="terminal icon"></i>Console</a>
+            <a id="codeButton" onclick="toggleCodeView()" class="item"><i class="code icon"></i>Code</a>
+            <a onclick="buttonModal()" class="item"><i class="grid layout icon"></i> Buttons</a>
+            <div class="right menu">
+                <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
             </div>
-            <div class="ui buttons">
-                <button id="codeButton" onclick="toggleCodeView()" class="ui orange labeled icon button active">
-                    <i class="code icon"></i>
-                    Code
-                </button>
-            </div>
-            <button onclick="location.href='index.html'" class="ui blue right floated labeled icon button" style="left: 0px;">
-                Index
-                <i class="home icon"></i>
-            </button>
         </div>
 
-        <div id="mainArea" class="spaceBottom spaceRight shortWidth">
-            <div id="blocklyDiv"></div>
-        </div>
+        <div id="mainArea" class="ui attached segment">
+            <div class="ui celled grid" style="height: 100%; margin: 0px;">
+                <div id="blocklyArea" class="twelve wide column" style="padding: 0px;z-index: 1;">
+                    <div id="blocklyDiv"></div>
+                </div>
+                <div id="codeArea" class="four wide column" style="overflow:scroll;height:100%;">
 
-        <div id="codeArea" class="spaceBottom">
-            <div class="ui form">
-                <div class="field">
                     <label>Python Code</label>
-                    <div id="pythonCode" class="codeText"># Let's start ...</div>
+                    <pre id="pythonCode" class="prettyprint lang-python" style="border: none;padding: 0px;">#Lets start ...</pre>
                 </div>
             </div>
         </div>
 
-        <div id="logArea">
+        <div id="logArea" class="ui bottom attached">
             <div class="ui form">
                 <div class="field">
-                    <label>Console Log</label>
+                    <h3>Console Log</h3>
                     <div id="consoleLog" class="codeText"></div>
                 </div>
             </div>
@@ -292,5 +464,14 @@
             <button onclick="saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
         </div>
     </div>
+
+    <div id="buttonModal" class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            Click a button
+        </div>
+        <div id="buttonEmbed" class="ui embed" data-url="remote_control.html"></div>
+    </div>
+
 </body>
 </html>

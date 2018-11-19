@@ -13,61 +13,53 @@
     <script src="jquery/jquery-3.3.1.min.js"></script>
     <script src="semantic/semantic.min.js"></script>
 
+    <script type="text/javascript" src="js/webserver.js"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $.ajax('/get_version', {
                 method: 'POST',
-                success: function(message) {
-                    var data = JSON.parse(message);
+                dataType: 'json',
+                success: function(data) {
                     $('#version').html(data['version']);
                 },
                 error: appendErrorLog
             });
+
+            // poll for new messages
+            poll();
         }());
 
-        $(document).ready(function poll() {
-            $.ajax('/poll', {
-                method: 'POST',
-                timeout: 30000, // 30 seconds
-                success: function(message){
-                    appendConsoleLog(message);
-                    poll();
-                },
-                error: function(){
-                    setTimeout(poll, 1000);
-                }
-            });
-        }());
-
-        function savePassword() {
+        function savePassword(remove) {
             oldUsername = document.getElementById('current_username').value;
             oldPassword = document.getElementById('current_password').value;
             newUsername = document.getElementById('new_username').value;
             newPassword = document.getElementById('new_password').value;
             confirmPassword = document.getElementById('new_password_confirm').value;
 
-            console.log(oldUsername);
-            console.log(oldPassword);
-            console.log(newUsername);
-            console.log(newPassword);
-            console.log(confirmPassword);
-
-            if (oldUsername == '' || oldPassword == '' || newUsername == '' || newPassword == '' || confirmPassword == '') {
-                alert('You must fill every element.');
-                return
-            }
-
-            if (newPassword != confirmPassword) {
-                alert('The new and confirmed password are not the same.');
-                return
-            }
-
-            oldKey = btoa(oldUsername + ':' + oldPassword);
-            newKey = btoa(newUsername + ':' + newPassword);
-
             var data = {};
-            data['oldKey'] = oldKey;
-            data['newKey'] = newKey;
+            data['oldKey'] = '';
+            data['newKey'] = '';
+            data['remove'] = remove;
+
+            if (oldUsername != '' || oldPassword != '') {
+                data['oldKey'] = btoa(oldUsername + ':' + oldPassword);
+            }
+
+            if (!remove) {
+                if (newUsername == '' || newPassword == '' || confirmPassword == '') {
+                    alert('You must fill the new password.');
+                    return
+                }
+
+                if (newPassword != confirmPassword) {
+                    alert('The new and confirmed password are not the same.');
+                    return
+                }
+
+                data['newKey'] = btoa(newUsername + ':' + newPassword);
+            }
+
             $.ajax('/save_password', {
                 method: 'POST',
                 data: JSON.stringify(data),
@@ -81,15 +73,15 @@
 
         function checkUpdate() {
             $('#updateModal').modal('show');
-            $('#consoleLog1').html('');
+            $('#consoleLog').html('');
             $('#updateButton').addClass('disabled');
 
-            appendConsoleLog('Check for updates ...\n');
+            appendConsoleLog('Check for updates ...', 'green');
 
             $.ajax('/check_update', {
                 method: 'POST',
-                success: function (message) {
-                    var data = JSON.parse(message);
+                dataType: 'json',
+                success: function (data) {
                     if (data['is_update_available']) {
                         $('#updateButton').removeClass('disabled');
                     }
@@ -105,26 +97,16 @@
             });
         }
 
-        function shutdownSystem() {
-            $('#shutdownModal').modal('show');
-            $('#consoleLog2').html('');
+        // Append the message, which can be a an array, to the console output.
+        function appendConsoleLogMessage(message, colour='black') {
+            if (message.includes('Error:')) {
+                colour = 'red';
+            }
 
-            $.ajax('/shutdown', {
-                method: 'POST',
-                error: appendErrorLog
-            });
+            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
+            $("#consoleLog").scrollTop($("#consoleLog")[0].scrollHeight);
         }
 
-        function appendConsoleLog(message) {
-            $('#consoleLog1').append(message.replace(/\n/g, '<br>'));
-            $('#consoleLog1').scrollTop($('#consoleLog1')[0].scrollHeight);
-            $('#consoleLog2').append(message.replace(/\n/g, '<br>'));
-            $('#consoleLog2').scrollTop($('#consoleLog2')[0].scrollHeight);
-        }
-
-        function appendErrorLog(request, status, error) {
-            appendConsoleLog(error + ' : ' + request.responseText + '\n');
-        }
     </script>
 
 <head>
@@ -139,23 +121,32 @@
                 <div class="floating ui blue label" id="version">error</div>
                 GitHub
             </button>
-
-            <button onclick="shutdownSystem()" class="circular ui icon button"style="top: 8px; right: 8px; position: absolute;">
-                <i class="icon power off"></i>
-            </button>
         </div>
 
         <div class="center">
-            <button onclick="$('#changePasswordModal').modal('show')" class="fluid ui orange button">Change Password</button><br>
-            <button onclick="checkUpdate()" class="fluid ui orange button">Update</button>
+            <button onclick="$('#changePasswordModal').modal('show')" class="fluid ui orange button">
+                <i class="icon key"></i>
+                Change Password
+            </button>
             <p></p>
-            <button onclick="location.href='index.html'" class="fluid ui blue button">Index</button><br>
+            <button onclick="checkUpdate()" class="fluid ui orange button">
+                <i class="icon cloud download"></i>
+                Update
+            </button>
+            <p></p>
+            <button onclick="location.href='index.html'" class="fluid ui blue button">
+                <i class="icon home"></i>
+                Home
+            </button>
         </div>
 
     </div>
 
     <div id="changePasswordModal" class="ui modal">
-        <div class="header">Change Password</div>
+        <div class="header">
+            <i class="icon key"></i>
+            Change Password
+        </div>
 
         <div class="content">
             <div class="ui form">
@@ -186,27 +177,23 @@
                 </div>
 
                 <button onclick="$('#changePasswordModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
-                <button onclick="savePassword()" class="ui blue right button">Save</button>
+                <button onclick="savePassword(true)" class="ui red button">Remove password</button>
+                <button onclick="savePassword(false)" class="ui blue right button">Save</button>
             </div>
         </div>
     </div>
 
     <div id="updateModal" class="ui modal">
-        <div class="header">Update</div>
+        <div class="header">
+            <i class="icon cloud download"></i>
+            Update
+        </div>
 
         <div class="content">
-            <div id="consoleLog1" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
+            <div id="consoleLog" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
 
             <button onclick="$('#updateModal').modal('hide')" class="ui orange button">Close</button>
             <button onclick="updateSystem()" id="updateButton" class="ui blue button disabled">Update</button>
-        </div>
-    </div>
-
-    <div id="shutdownModal" class="ui modal">
-        <div class="header">Shutdown</div>
-        <div class="content">
-            <div id="consoleLog2" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
-            <button onclick="$('#shutdownModal').modal('hide')" class="ui orange button">Close</button>
         </div>
     </div>
 

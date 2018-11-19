@@ -14,6 +14,8 @@
     <script src="semantic/semantic.min.js"></script>
 
     <script type="text/javascript">
+        var buttonNeedUpdate = true
+
         $(document).ready(function () {
             // get the version
             $.ajax('/get_version', {
@@ -21,71 +23,63 @@
                 success: function(message) {
                     var data = JSON.parse(message);
                     $('#version').html(data['version']);
-                },
-                error: appendErrorLog
-            });
-
-            // append all availabel buttons
-            $.ajax('/get_possible_post_data', {
-                method: 'POST',
-                success: function(message) {
-                    var data = JSON.parse(message);
-                    for (var index in data['PostCommands']) {
-                        var btn = $('<button onclick="setEvent(\'' + data['PostCommands'][index] + '\')" class="fluid ui orange button">' + data['PostCommands'][index] + '</button><br>')
-                        $('#buttonArea').append(btn);
-
-                    }
-                },
-                error: appendErrorLog
-            });
-        }());
-
-        $(document).ready(function poll() {
-            $.ajax('/poll', {
-                method: 'POST',
-                timeout: 30000, // 30 seconds
-                success: function(message){
-                    appendConsoleLog(message);
-                    poll();
-                },
-                error: function(){
-                    setTimeout(poll, 1000);
                 }
             });
+
+            window.setInterval(isRunning, 1000);
         }());
 
-        function setEvent(eventString) {
+        function updateButtons() {
+            if (buttonNeedUpdate) {
+                // append all availabel buttons
+                $.ajax('/get_possible_post_data', {
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#buttonArea').empty();
+                        for (var index in data['PostCommands']) {
+                            var btn = $('<button onclick="setEvent(' + index + ')" class="ui orange button">' + data['PostCommands'][index] + '</button>')
+                            $('#buttonArea').append(btn);
+                        }
+                        buttonNeedUpdate = false;
+                    }
+                });
+            }
+        }
+
+        function isRunning() {
+            $.ajax('/is_running', {
+                method: 'POST',
+                dataType: 'json',
+                success: function(data) {
+                    if (data['is_running']) {
+                        $('#spinner').hide();
+                        updateButtons();
+                    } else {
+                        $('#spinner').show();
+                        buttonNeedUpdate = true;
+                    }
+                },
+                error: function(message) {
+                    $('#spinner').show();
+                    buttonNeedUpdate = true;
+                }
+            });
+        }
+
+        function setEvent(eventNumber) {
             var data = {};
-            data['Event'] = eventString;
+            data['EventNumber'] = eventNumber;
 
             $.ajax('/event', {
                 method: 'POST',
                 data: JSON.stringify(data),
                 success: function(message){
                     console.log('event fired');
-                },
-                error: appendErrorLog
+                }
             });
         }
 
-        function shutdownSystem() {
-            $('#shutdownModal').modal('show');
-            $('#consoleLog').html('');
-
-            $.ajax('/shutdown', {
-                method: 'POST',
-                error: appendErrorLog
-            });
-        }
-
-        function appendConsoleLog(message) {
-            $('#consoleLog').append(message.replace(/\n/g, '<br>'));
-            $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
-        }
-
-        function appendErrorLog(request, status, error) {
-            appendConsoleLog(error + ' : ' + request.responseText + '\n');
-        }
     </script>
 
 <head>
@@ -93,29 +87,11 @@
 <body id="body">
 
     <div class="container">
-
-        <div id="headerArea">
-            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
-                <i class="icon github"></i>
-                <div class="floating ui blue label" id="version">error</div>
-                GitHub
-            </button>
-
-            <button onclick="shutdownSystem()" class="circular ui icon button"style="top: 8px; right: 8px; position: absolute;">
-                <i class="icon power off"></i>
-            </button>
-        </div>
-
-        <div id="buttonArea" class="center">
-        </div>
-
-    </div>
-
-    <div id="shutdownModal" class="ui modal">
-        <div class="header">Shutdown</div>
-        <div class="content">
-            <div id="consoleLog" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
-            <button onclick="$('#shutdownModal').modal('hide')" class="ui orange button">Close</button>
+        <div class="ui segment" style="background: none">
+            <div id="buttonArea" class="spaced"></div>
+            <div id="spinner" class="ui active dimmer">
+                <div class="ui loader"></div>
+            </div>
         </div>
     </div>
 

@@ -13,32 +13,24 @@
     <script src="jquery/jquery-3.3.1.min.js"></script>
     <script src="semantic/semantic.min.js"></script>
 
+    <script type="text/javascript" src="js/webserver.js"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $.ajax('/get_version', {
                 method: 'POST',
-                success: function(message) {
-                    var data = JSON.parse(message);
+                dataType: 'json',
+                success: function(data) {
                     $('#version').html(data['version']);
                 },
                 error: appendErrorLog
             });
+
+            // poll for new messages
+            poll();
         }());
 
-        $(document).ready(function poll() {
-            $.ajax('/poll', {
-                method: 'POST',
-                timeout: 30000, // 30 seconds
-                success: function(message){
-                    appendConsoleLog(message);
-                    poll();
-                },
-                error: function(){
-                    setTimeout(poll, 1000);
-                }
-            });
-        }());
-
+        // Show the shutdown modal and send the shutdown command.
         function shutdownSystem() {
             $('#shutdownModal').modal('show');
             $('#consoleLog').html('');
@@ -49,14 +41,16 @@
             });
         }
 
-        function appendConsoleLog(message) {
-            $('#consoleLog').append(message.replace(/\n/g, '<br>'));
+        // Append the message, which can be a an array, to the console output.
+        function appendConsoleLogMessage(message, colour='black') {
+            if (message.includes('Error:')) {
+                colour = 'red';
+            }
+
+            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
             $("#consoleLog").scrollTop($("#consoleLog")[0].scrollHeight);
         }
 
-        function appendErrorLog(request, status, error) {
-            appendConsoleLog(error + ' : ' + request.responseText + '\n');
-        }
     </script>
 
 <head>
@@ -78,18 +72,29 @@
         </div>
 
         <div class="center">
-            <button onclick="location.href='blockly.html'" class="fluid ui orange button">Blockly</button><br>
-            <button onclick="location.href='editor.html'" class="fluid ui orange button">Editor</button><br>
-            <button onclick="location.href='remote_control.html'" class="fluid ui orange button">Remote Control</button><br>
+            <button onclick="location.href='blockly.html'" class="fluid ui orange button">
+                <i class="icon puzzle piece"></i>
+                Blockly
+            </button>
+            <p></p>
+            <button onclick="location.href='editor.html'" class="fluid ui orange button">
+                <i class="icon edit"></i>
+                Editor
+            </button>
             <p class="whitesmoke">The following site is good when<br>
             the device has no internet con-<br>
             nection.</p>
-            <button onclick="location.href='mobile.html'" class="fluid ui blue button">Mobile</button><br>
+            <button onclick="location.href='mobile.html'" class="fluid ui blue button">
+                <i class="icon tablet alternate"></i>
+                Mobile
+            </button>
             <p class="whitesmoke">You can change your password<br>
             or update the system<br>
             with the following site.</p>
-            <button onclick="location.href='settings.html'" class="fluid ui light_blue button">Settings</button><br>
-            </div>
+            <button onclick="location.href='settings.html'" class="fluid ui light_blue button">
+                <i class="icon cogs"></i>
+                Settings
+            </button>
         </div>
 
     </div>

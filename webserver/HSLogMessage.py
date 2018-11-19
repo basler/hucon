@@ -8,38 +8,45 @@ class HSLogMessage():
     # Queue to store the messages.
     _queue = None
 
-    def __init__(self):
+    def __init__(cls):
         """
         Create the queue to store the log messages.
         """
-        self._queue = Queue.Queue()
+        cls._queue = Queue.Queue()
 
-    def empty(self):
+    def empty(cls):
         """
         Returns true when the log is empty, otherwise false.
         """
-        return self._queue.empty()
+        return cls._queue.empty()
 
-    def get_message_wait(self):
+    def get_message_wait(cls):
         """
         Wait until a new message is set and return the message of it.
         """
-        while self._queue.empty() is True:
+        while cls._queue.empty() is True:
             time.sleep(0.1)
 
-        message = ''
-        while self._queue.empty() is False:
-            message += self._queue.get()
+        return cls.get_message()
+
+    def get_message(cls):
+        """
+        Return the message if there is any one. Otherwise the string ins empty
+        """
+        message = []
+        while cls._queue.empty() is False:
+            message += [cls._queue.get()]
+
         return message
 
-    def requeue(self, message):
+    def requeue(cls, message):
         """
         Put the message into the queue and do not add a new line.
         """
-        self._queue.put(message)
+        cls._queue.put(message)
 
-    def put(self, message):
+    def put(cls, message):
         """
         Put the message into the queue.
         """
-        self._queue.put(message + '\n')
+        cls._queue.put(message)
