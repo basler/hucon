@@ -16,15 +16,14 @@
     <script type="text/javascript" src="js/webserver.js"></script>
 
     <script type="text/javascript">
+
+        // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
-            $.ajax('/get_version', {
-                method: 'POST',
-                dataType: 'json',
-                success: function(data) {
-                    $('#version').html(data['version']);
-                },
-                error: appendErrorLog
-            });
+
+            // Load the extra template content
+            $('#menuArea').load('template/menu.html', configureMenu);
+            $('#logArea').load('template/console.html');
+            $('#buttonModal').load('template/button.html');
 
             $.ajax('/get_file_list', {
                 method: 'POST',
@@ -52,16 +51,15 @@
             poll();
         });
 
-        // Append the message, which can be a an array, to the console output.
-        function appendConsoleLogMessage(message, colour='black') {
-            if (message.includes('Error:')) {
-                colour = 'red';
-            }
 
-            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
-            $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
+        // Hide the code button from the menu.
+        function configureMenu() {
+            $('#fileButton').hide();
+            $('#codeButton').hide();
+            $('#consoleButton').hide();
         }
 
+        // Overwrite the run function to run the application from the device.
         function run() {
             $('#consoleLog').html('');
             appendConsoleLog('Loading program ...', 'green');
@@ -80,78 +78,17 @@
             setTimeout(isRunning, 1000 );
         }
 
-        function stop() {
-            var data = {};
-            $.ajax('/kill', {
-                method: 'POST',
-                success: function(message) {
-                    appendConsoleLog(message, 'red');
-                },
-                error: appendErrorLog
-            });
-        }
-
-        function isRunning() {
-            $.ajax('/is_running', {
-                method: 'POST',
-                dataType: 'json',
-                success: function(data) {
-                    if (data['is_running']) {
-                        setTimeout( isRunning, 1000 );
-                    } else {
-                        $('#runButton').removeClass('disabled')
-                        $('#stopButton').addClass('disabled')
-                        appendConsoleLog('Done ...', 'green');
-                    }
-                },
-                error: appendErrorLog
-            });
-        }
-
-        // Show button Modal.
-        function buttonModal() {
-            $('#buttonModal').modal('show');
-            $('#buttonEmbed').embed();
-        }
-
     </script>
 <head>
 </head>
 <body>
 
     <div class="container">
-        <div class="ui top attached menu">
-            <div id="fileDropDown" class="ui selection dropdown">
-                <input type="hidden" id="filename">
-                <i class="dropdown icon"></i>
-                <div class="default text">Select file ...</div>
-                <div class="menu"></div>
-            </div>
-            <a id="runButton" onclick="run()" class="item"><i class="play icon"></i>Run</a>
-            <a id="stopButton" onclick="stop()" class="item disabled"><i class="stop icon"></i>Stop</a>
-            <a onclick="buttonModal()" class="item"><i class="grid layout icon"></i> Buttons</a>
-            <div class="right menu">
-                <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
-            </div>
-        </div>
-
-        <div id="logArea" class="ui bottom attached" style="height: calc(100% - 40px);;">
-            <div class="ui form">
-                <div class="field">
-                    <h3>Console Log</h3>
-                    <div id="consoleLog" class="codeText"></div>
-                </div>
-            </div>
-        </div>
+        <div id="menuArea" class="ui top attached menu"></div>
+        <div id="logArea" class="ui bottom attached" style="height: calc(100% - 40px);;"></div>
     </div>
 
-    <div id="buttonModal" class="ui modal">
-        <i class="close icon"></i>
-        <div class="header">
-            Click a button
-        </div>
-        <div id="buttonEmbed" class="ui embed" data-url="remote_control.html"></div>
-    </div>
+    <div id="buttonModal" class="ui modal"></div>
 
 </body>
 </html>

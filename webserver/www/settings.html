@@ -16,20 +16,18 @@
     <script type="text/javascript" src="js/webserver.js"></script>
 
     <script type="text/javascript">
+
+        // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
-            $.ajax('/get_version', {
-                method: 'POST',
-                dataType: 'json',
-                success: function(data) {
-                    $('#version').html(data['version']);
-                },
-                error: appendErrorLog
-            });
+
+            // Load the extra template content
+            $('#headerArea').load('template/header.html', updateVersion);
 
             // poll for new messages
             poll();
         }());
 
+        // Save the password on the device.
         function savePassword(remove) {
             oldUsername = document.getElementById('current_username').value;
             oldPassword = document.getElementById('current_password').value;
@@ -71,6 +69,7 @@
             });
         }
 
+        // Check for updates.
         function checkUpdate() {
             $('#updateModal').modal('show');
             $('#consoleLog').html('');
@@ -90,6 +89,7 @@
             });
         }
 
+        // Call the update script.
         function updateSystem() {
             $.ajax('/update', {
                 method: 'POST',
@@ -97,31 +97,29 @@
             });
         }
 
+        // Overwrite the default appenConsoleLogMessage function.
         // Append the message, which can be a an array, to the console output.
-        function appendConsoleLogMessage(message, colour='black') {
+        function appendConsoleLogMessage(message, colour) {
+            if (colour === undefined) {
+                colour = 'black';
+            }
+
             if (message.includes('Error:')) {
                 colour = 'red';
             }
 
             $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
-            $("#consoleLog").scrollTop($("#consoleLog")[0].scrollHeight);
+            $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
         }
 
     </script>
 
-<head>
 </head>
-<body id="body">
+<body>
 
     <div class="container">
 
-        <div id="headerArea">
-            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
-                <i class="icon github"></i>
-                <div class="floating ui blue label" id="version">error</div>
-                GitHub
-            </button>
-        </div>
+        <div id="headerArea"></div>
 
         <div class="center">
             <button onclick="$('#changePasswordModal').modal('show')" class="fluid ui orange button">

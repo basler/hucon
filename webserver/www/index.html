@@ -16,15 +16,12 @@
     <script type="text/javascript" src="js/webserver.js"></script>
 
     <script type="text/javascript">
+
+        // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
-            $.ajax('/get_version', {
-                method: 'POST',
-                dataType: 'json',
-                success: function(data) {
-                    $('#version').html(data['version']);
-                },
-                error: appendErrorLog
-            });
+
+            // Update the version information on the ui
+            updateVersion();
 
             // poll for new messages
             poll();
@@ -42,7 +39,12 @@
         }
 
         // Append the message, which can be a an array, to the console output.
-        function appendConsoleLogMessage(message, colour='black') {
+        function appendConsoleLogMessage(message, colour) {
+            if (colour === 'undefined') {
+                console.log('undef');
+                colour = 'black';
+            }
+
             if (message.includes('Error:')) {
                 colour = 'red';
             }
@@ -53,7 +55,6 @@
 
     </script>
 
-<head>
 </head>
 <body>
 
@@ -62,11 +63,11 @@
         <div id="headerArea">
             <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
                 <i class="icon github"></i>
-                <div class="floating ui blue label" id="version">error</div>
+                <div class="floating ui blue label" id="version"></div>
                 GitHub
             </button>
 
-            <button onclick="shutdownSystem()" class="circular ui icon button"style="top: 8px; right: 8px; position: absolute;">
+            <button onclick="shutdownSystem()" class="circular ui icon button" style="top: 8px; right: 8px; position: absolute;">
                 <i class="icon power off"></i>
             </button>
         </div>

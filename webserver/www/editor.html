@@ -21,95 +21,53 @@
     <script type="text/javascript">
         var editor;
 
+        // Ask the user to go before he goes.
+        $(window).bind("beforeunload", function(){
+            return "Do you really want to go?\nAll your unsaved data will be lost.";
+        });
+
         // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
 
-            $.ajax('/get_version', {
-                method: 'POST',
-                dataType: 'json',
-                success: function(data) {
-                    $('#version').html(data['version']);
-                },
-                error: appendErrorLog
-            });
+            // Load the extra template content
+            $('#headerArea').load('template/header.html', updateVersion);
+            $('#menuArea').load('template/menu.html', configureMenu);
+            $('#logArea').load('template/console.html', showConsole);
+            $('#openModal').load('template/open.html');
+            $('#saveModal').load('template/save.html');
+            $('#buttonModal').load('template/button.html');
 
-            showConsole(localStorage.getItem('ConsoleShow'));
+            // Update the version information on the ui
+            updateVersion();
 
             // Setup the editor
-            editor = ace.edit("editor");
-            editor.setTheme("ace/theme/xcode");
-            editor.session.setMode("ace/mode/python");
+            editor = ace.edit('editor');
+            editor.setTheme('ace/theme/xcode');
+            editor.session.setMode('ace/mode/python');
             editor.$blockScrolling = Infinity
             editor.setShowPrintMargin(false);
             editor.session.setUseWrapMode(true);
 
             // poll for new messages
             poll();
+
+            newFile();
         });
 
-        // Handle some key bindings
-        $(window).bind('keydown', function(event) {
-            if (event.ctrlKey || event.metaKey) {
-                switch (String.fromCharCode(event.which).toLowerCase()) {
-                case 'n':
-                    event.preventDefault();
-                    newFile()
-                    break;
-                case 'o':
-                    event.preventDefault();
-                    openFileModal()
-                    break;
-                case 's':
-                    event.preventDefault();
-                    saveFileModal()
-                    break;
-                case 'r':
-                    event.preventDefault();
-                    run()
-                    break;
-                case 'h':
-                    event.preventDefault();
-                    stop()
-                    break;
-                }
-            }
-        });
-
-        // Append the message, which can be a an array, to the console output.
-        function appendConsoleLogMessage(message, colour='black') {
-            if (message.includes('Error:')) {
-                colour = 'red';
-            }
-
-            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
-            $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
-        }
-
-        // Show the console or hide it.
-        function showConsole(show) {
-            if (show === 'no') {
-                $('#consoleButton').removeClass('active');
-                $('#mainArea').removeClass('shortHeight');
-                $('#mainArea').addClass('fullHeight');
-                $('#logArea').hide();
-            } else {
-                $('#consoleButton').addClass('active');
-                $('#mainArea').addClass('shortHeight');
-                $('#mainArea').removeClass('fullHeight');
-                $('#logArea').show();
-            }
-
-            window.dispatchEvent(new Event('resize'));
+        // Hide the code button from the menu.
+        function configureMenu() {
+            $('#fileDropDown').hide();
+            $('#codeButton').hide();
         }
 
         // Clear the editor and remove the filename.
         function newFile() {
-            editor.setValue('# Write down your code ...\n');
+            editor.setValue('# Write down your code ...\n', 1);
             $('#consoleLog').html('');
             $('#saveFilename').val('');
         }
 
-        // Load the filelist and show the open file modal.
+        // Load the file list and show the open file modal.
         function openFileModal() {
             $.ajax('/get_file_list', {
                 method: 'POST',
@@ -133,10 +91,9 @@
             });
         }
 
-        // Hide the open file modal and load the contetn from the file.
+        // Hide the open file modal and load the content from the file.
         function loadFileFromDevice(filename) {
             $('#openModal').modal('hide');
-
             $('#consoleLog').html('');
 
             var data = {};
@@ -151,14 +108,14 @@
                 dataType: 'json',
                 success: function(data) {
                     if (data['data']) {
-                        editor.setValue(data['data']);
+                        editor.setValue(data['data'], -1);
                     }
                 },
                 error: appendErrorLog
             });
         }
 
-        // Show the save file modal and load teh fil;e list fromn the device.
+        // Show the save file modal and load the file list from the device.
         function saveFileModal() {
             $('#saveModal').modal('show');
 
@@ -197,71 +154,9 @@
             });
         }
 
-        // Run teh code on the device and set the button states.
-        function run() {
-            $('#consoleLog').html('');
-            appendConsoleLog('Loading program ...', 'green');
-
-            var data = {};
-            data['data'] = editor.getValue();
-            $.ajax('/execute', {
-                method: 'POST',
-                data: JSON.stringify(data),
-                success: appendConsoleLog,
-                error: appendErrorLog
-            });
-
-            $('#runButton').addClass('disabled');
-            $('#stopButton').removeClass('disabled');
-            setTimeout(isRunning, 1000 );
-        }
-
-        // Stop the user application.
-        function stop() {
-            $.ajax('/kill', {
-                method: 'POST',
-                success: function(message) {
-                    appendConsoleLog(message, 'red');
-                },
-                error: appendErrorLog
-            });
-        }
-
-        // Check if the device is still runing and set the button states.
-        function isRunning() {
-            $.ajax('/is_running', {
-                method: 'POST',
-                dataType: 'json',
-                success: function(data) {
-                    if (data['is_running']) {
-                        setTimeout( isRunning, 1000 );
-                    } else {
-                        $('#runButton').removeClass('disabled');
-                        $('#stopButton').addClass('disabled');
-                        appendConsoleLog('Done ...', 'green');
-                    }
-                },
-                error: appendErrorLog
-            });
-        }
-
-        // Show/Hide the console view.
-        function toggleConsoleView() {
-            if ($('#consoleButton').hasClass('active')) {
-                // collapse
-                showConsole('no');
-                localStorage.setItem('ConsoleShow', 'no');
-            } else {
-                // show
-                showConsole('yes');
-                localStorage.setItem('ConsoleShow', 'yes');
-            }
-        }
-
-        // Show button Modal.
-        function buttonModal() {
-            $('#buttonModal').modal('show');
-            $('#buttonEmbed').embed();
+        // Return the python code.
+        function getPythonCode() {
+            return editor.getValue();
         }
 
     </script>
@@ -271,87 +166,17 @@
 <body>
 
     <div class="container">
-        <div id="headerArea">
-            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
-                <i class="icon github"></i>
-                <div class="floating ui blue label" id="version">error</div>
-                GitHub
-            </button>
-        </div>
-
-        <div class="ui top attached menu">
-            <div class="ui simple dropdown item">
-                <i class="folder outline icon"></i>
-                File
-                <i class="dropdown icon"></i>
-                <div class="menu">
-                    <a onclick="newFile()" class="item"><i class="file icon"></i>New</a>
-                    <a onclick="openFileModal()" class="item"><i class="folder open icon"></i> Open</a>
-                    <a onclick="saveFileModal()" class="item"><i class="save icon"></i> Save</a>
-                </div>
-            </div>
-            <a id="runButton" onclick="run()" class="item"><i class="play icon"></i>Run</a>
-            <a id="stopButton" onclick="stop()" class="item disabled"><i class="stop icon"></i>Stop</a>
-            <a id="consoleButton" onclick="toggleConsoleView()" class="item"><i class="terminal icon"></i>Console</a>
-            <a onclick="buttonModal()" class="item"><i class="grid layout icon"></i> Buttons</a>
-            <div class="right menu">
-                <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
-            </div>
-        </div>
-
+        <div id="headerArea"></div>
+        <div id="menuArea" class="ui top attached menu"></div>
         <div id="mainArea" class="ui attached segment">
-            <pre id="editor"># Write down your code ...</pre>
+            <pre id="editor"></pre>
         </div>
-
-        <div id="logArea" class="ui bottom attached">
-            <div class="ui form">
-                <div class="field">
-                    <h3>Console Log</h3>
-                    <div id="consoleLog" class="codeText"></div>
-                </div>
-            </div>
-        </div>
+        <div id="logArea" class="ui bottom attached"></div>
     </div>
 
-    <div id="openModal" class="ui modal">
-        <i class="close icon"></i>
-        <div class="header">
-            Open file
-        </div>
-        <div class="scrolling content">
-            <div id="openFileList" class="ui middle aligned selection list"></div>
-        </div>
-        <div class="actions">
-            <div class="ui orange cancel button">
-                Cancel
-            </div>
-        </div>
-    </div>
-
-    <div id="saveModal" class="ui modal">
-        <i class="close icon"></i>
-        <div class="header">
-            Save file
-        </div>
-        <div class="scrolling content">
-            <div id="saveFileList" class="ui middle aligned selection list"></div>
-        </div>
-        <div class="ui form content">
-            <div class="field">
-                <input type="text" id="saveFilename" placeholder="Filename">
-            </div>
-            <button onclick="$('#saveModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
-            <button onclick="saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
-        </div>
-    </div>
-
-    <div id="buttonModal" class="ui modal">
-        <i class="close icon"></i>
-        <div class="header">
-            Click a button
-        </div>
-        <div id="buttonEmbed" class="ui embed" data-url="remote_control.html"></div>
-    </div>
+    <div id="openModal" class="ui modal"></div>
+    <div id="saveModal" class="ui modal"></div>
+    <div id="buttonModal" class="ui modal"></div>
 
 </body>
 </html>

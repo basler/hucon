@@ -34,22 +34,26 @@
     <script type="text/javascript">
         var blocklyWorkspace;
 
+        // Ask the user to go before he goes.
+        $(window).bind("beforeunload", function(){
+            return "Do you really want to go?\nAll your unsaved data will be lost.";
+        });
+
         // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
 
+            // Load the extra template content
+            $('#headerArea').load('template/header.html', updateVersion);
+            $('#menuArea').load('template/menu.html', configureMenu);
+            $('#logArea').load('template/console.html', showConsole);
+            $('#openModal').load('template/open.html');
+            $('#saveModal').load('template/save.html');
+            $('#buttonModal').load('template/button.html');
+
             window.addEventListener('resize', onResize);
 
-            $.ajax('/get_version', {
-                method: 'POST',
-                dataType: 'json',
-                success: function(data) {
-                    $('#version').html(data['version']);
-                },
-                error: appendErrorLog
-            });
-
-            showCode(localStorage.getItem('CodeShow'));
-            showConsole(localStorage.getItem('ConsoleShow'));
+            // Update the version information on the ui
+            updateVersion();
 
             // poll for new messages
             poll();
@@ -86,103 +90,10 @@
             });
         });
 
-        // Handle some key bindings
-        $(window).bind('keydown', function(event) {
-            if (event.ctrlKey || event.metaKey) {
-                switch (String.fromCharCode(event.which).toLowerCase()) {
-                case 'n':
-                    event.preventDefault();
-                    newFile()
-                    break;
-                case 'o':
-                    event.preventDefault();
-                    openFileModal()
-                    break;
-                case 's':
-                    event.preventDefault();
-                    saveFileModal()
-                    break;
-                case 'r':
-                    event.preventDefault();
-                    run()
-                    break;
-                case 'h':
-                    event.preventDefault();
-                    stop()
-                    break;
-                }
-            }
-        });
-
-        // Append the message, which can be a an array, to the console output.
-        function appendConsoleLogMessage(message, colour='black') {
-            if (message.includes('Error:')) {
-                colour = 'red';
-            }
-
-            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
-            $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
-        }
-
-        // Resize the area, so blockly will fit allways.
-        function onResize(){
-            var mainArea = document.getElementById('mainArea');
-            var blocklyArea = document.getElementById('blocklyArea');
-            var blocklyDiv = document.getElementById('blocklyDiv');
-
-            // Position blocklyDiv over blocklyArea.
-            blocklyDiv.style.left = '0px';
-            blocklyDiv.style.top = '0px';
-            blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
-            blocklyDiv.style.height = mainArea.offsetHeight + 'px';
-        };
-
-        // Show the code or hide it.
-        function showCode(show) {
-            if (show === 'no') {
-                $('#codeButton').removeClass('active');
-                $('#blocklyArea').removeClass('twelve wide column');
-                $('#blocklyArea').addClass('sixteen wide column');
-                $('#codeArea').hide();
-            } else {
-                $('#codeButton').addClass('active');
-                $('#blocklyArea').removeClass('sixteen wide column');
-                $('#blocklyArea').addClass('twelve wide column');
-                $('#codeArea').show();
-            }
-
-            window.dispatchEvent(new Event('resize'));
-        }
-
-        // Show the console or hide it.
-        function showConsole(show) {
-            if (show === 'no') {
-                $('#consoleButton').removeClass('active');
-                $('#mainArea').removeClass('shortHeight');
-                $('#mainArea').addClass('fullHeight');
-                $('#logArea').hide();
-            } else {
-                $('#consoleButton').addClass('active');
-                $('#mainArea').addClass('shortHeight');
-                $('#mainArea').removeClass('fullHeight');
-                $('#logArea').show();
-            }
-
-            window.dispatchEvent(new Event('resize'));
-        }
-
-        // Show/Hide the code view.
-        function toggleCodeView() {
-
-            if ($('#codeButton').hasClass('active')) {
-                // collapse
-                showCode('no');
-                localStorage.setItem('CodeShow', 'no');
-            } else {
-                // show
-                showCode('yes');
-                localStorage.setItem('CodeShow', 'yes');
-            }
+        // Hide the code button from the menu.
+        function configureMenu() {
+            $('#fileDropDown').hide();
+            showCode();
         }
 
         // Clear the workspace and remove the filename
@@ -192,26 +103,7 @@
             $('#saveFilename').val('');
         }
 
-        // Load the workspace with the file data.
-        function loadFile(data) {
-            if (data) {
-                Blockly.mainWorkspace.clear();
-                xmlDom = Blockly.Xml.textToDom(data);
-                Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
-            }
-            appendConsoleLog('Blockly workspace loaded from local device.', 'green');
-        }
-
-        // This function will be called whenever an element on the workspace is changed
-        // to update the code and show it on the page.
-        function udpateCode(event) {
-            var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
-            code = code.replace(/\n/g, '<br>');
-            code = PR.prettyPrintOne(code, 'py');
-            $('#pythonCode').html(code);
-        }
-
-        // Load the filelist and show the open file modal.
+        // Load the file list and show the open file modal.
         function openFileModal() {
             $.ajax('/get_file_list', {
                 method: 'POST',
@@ -235,10 +127,9 @@
             });
         }
 
-        // Hide the open file modal and load the contetn from the file.
+        // Hide the open file modal and load the content from the file.
         function loadFileFromDevice(filename) {
             $('#openModal').modal('hide');
-
             $('#consoleLog').html('');
 
             var data = {};
@@ -258,7 +149,7 @@
             });
         }
 
-        // Show the save file modal and load teh fil;e list fromn the device.
+        // Show the save file modal and load the file list from the device.
         function saveFileModal() {
             $('#saveModal').modal('show');
 
@@ -299,7 +190,7 @@
 
             // Store the python code
             data['filename'] = $('#saveFilename').val() + '.py';
-            data['data'] = Blockly.Python.workspaceToCode(blocklyWorkspace);
+            data['data'] = getPythonCode();
             $.ajax('/file_save', {
                 method: 'POST',
                 data: JSON.stringify(data),
@@ -308,72 +199,43 @@
             });
         }
 
-        // Run teh code on the device and set the button states.
-        function run() {
-            $('#consoleLog').html('');
-            appendConsoleLog('Loading program ...', 'green');
-
-            var data = {};
-            data['data'] = Blockly.Python.workspaceToCode(blocklyWorkspace);
-            $.ajax('/execute', {
-                method: 'POST',
-                data: JSON.stringify(data),
-                success: appendConsoleLog,
-                error: appendErrorLog
-            });
-
-            $('#runButton').addClass('disabled')
-            $('#stopButton').removeClass('disabled')
-            setTimeout(isRunning, 1000 );
+        // Return the python code.
+        function getPythonCode() {
+            return Blockly.Python.workspaceToCode(blocklyWorkspace);
         }
 
-        // Stop the user application.
-        function stop() {
-            $.ajax('/kill', {
-                method: 'POST',
-                success: function(message) {
-                    appendConsoleLog(message, 'red');
-                },
-                error: appendErrorLog
-            });
-        }
-
-        // Check if the device is still runing and set the button states.
-        function isRunning() {
-            $.ajax('/is_running', {
-                method: 'POST',
-                dataType: 'json',
-                success: function(data) {
-                    if (data['is_running']) {
-                        setTimeout( isRunning, 1000 );
-                    } else {
-                        $('#runButton').removeClass('disabled');
-                        $('#stopButton').addClass('disabled');
-                        appendConsoleLog('Done ...', 'green');
-                    }
-                },
-                error: appendErrorLog
-            });
-        }
-
-        // Show/Hide the console view.
-        function toggleConsoleView() {
-            if ($('#consoleButton').hasClass('active')) {
-                // collapse
-                showConsole('no');
-                localStorage.setItem('ConsoleShow', 'no');
-            } else {
-                // show
-                showConsole('yes');
-                localStorage.setItem('ConsoleShow', 'yes');
+        // Load the workspace with the file data.
+        function loadFile(data) {
+            if (data) {
+                Blockly.mainWorkspace.clear();
+                xmlDom = Blockly.Xml.textToDom(data);
+                Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
             }
+            appendConsoleLog('Blockly workspace loaded from local device.', 'green');
         }
 
-        // Show button Modal.
-        function buttonModal() {
-            $('#buttonModal').modal('show');
-            $('#buttonEmbed').embed();
+        // This function will be called whenever an element on the workspace is changed
+        // to update the code and show it on the page.
+        function udpateCode(event) {
+            var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
+            code = code.replace(/\n/g, '<br>');
+            code = PR.prettyPrintOne(code, 'py');
+            $('#pythonCode').html(code);
         }
+
+
+        // Resize the area, so blockly will fit all ways.
+        function onResize(){
+            var mainArea = document.getElementById('mainArea');
+            var blocklyArea = document.getElementById('blocklyArea');
+            var blocklyDiv = document.getElementById('blocklyDiv');
+
+            // Position blocklyDiv over blocklyArea.
+            blocklyDiv.style.left = '0px';
+            blocklyDiv.style.top = '0px';
+            blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+            blocklyDiv.style.height = mainArea.offsetHeight + 'px';
+        };
 
     </script>
 
@@ -382,96 +244,25 @@
 <body onload="PR.prettyPrint()">
 
     <div class="container">
-
-        <div id="headerArea">
-            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
-                <i class="icon github"></i>
-                <div class="floating ui blue label" id="version">error</div>
-                GitHub
-            </button>
-        </div>
-
-        <div class="ui top attached menu">
-            <div class="ui simple dropdown item">
-                <i class="folder outline icon"></i>
-                File
-                <i class="dropdown icon"></i>
-                <div class="menu">
-                    <a onclick="newFile()" class="item"><i class="file icon"></i>New</a>
-                    <a onclick="openFileModal()" class="item"><i class="folder open icon"></i> Open</a>
-                    <a onclick="saveFileModal()" class="item"><i class="save icon"></i> Save</a>
-                </div>
-            </div>
-            <a id="runButton" onclick="run()" class="item"><i class="play icon"></i>Run</a>
-            <a id="stopButton" onclick="stop()" class="item disabled"><i class="stop icon"></i>Stop</a>
-            <a id="consoleButton" onclick="toggleConsoleView()" class="item"><i class="terminal icon"></i>Console</a>
-            <a id="codeButton" onclick="toggleCodeView()" class="item"><i class="code icon"></i>Code</a>
-            <a onclick="buttonModal()" class="item"><i class="grid layout icon"></i> Buttons</a>
-            <div class="right menu">
-                <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
-            </div>
-        </div>
-
+        <div id="headerArea"></div>
+        <div id="menuArea" class="ui top attached menu"></div>
         <div id="mainArea" class="ui attached segment">
             <div class="ui celled grid" style="height: 100%; margin: 0px;">
                 <div id="blocklyArea" class="twelve wide column" style="padding: 0px;z-index: 1;">
                     <div id="blocklyDiv"></div>
                 </div>
                 <div id="codeArea" class="four wide column" style="overflow:scroll;height:100%;">
-
                     <label>Python Code</label>
                     <pre id="pythonCode" class="prettyprint lang-python" style="border: none;padding: 0px;">#Lets start ...</pre>
                 </div>
             </div>
         </div>
-
-        <div id="logArea" class="ui bottom attached">
-            <div class="ui form">
-                <div class="field">
-                    <h3>Console Log</h3>
-                    <div id="consoleLog" class="codeText"></div>
-                </div>
-            </div>
-        </div>
+        <div id="logArea" class="ui bottom attached"></div>
     </div>
 
-    <div id="openModal" class="ui modal">
-        <div class="header">
-            Open file
-        </div>
-        <div class="scrolling content">
-            <div id="openFileList" class="ui middle aligned selection list"></div>
-        </div>
-        <div class="actions">
-            <div class="ui orange cancel button">
-                Cancel
-            </div>
-        </div>
-    </div>
-
-    <div id="saveModal" class="ui modal">
-        <div class="header">
-            Save file
-        </div>
-        <div class="scrolling content">
-            <div id="saveFileList" class="ui middle aligned selection list"></div>
-        </div>
-        <div class="ui form content">
-            <div class="field">
-                <input type="text" id="saveFilename" placeholder="Filename">
-            </div>
-            <button onclick="$('#saveModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
-            <button onclick="saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
-        </div>
-    </div>
-
-    <div id="buttonModal" class="ui modal">
-        <i class="close icon"></i>
-        <div class="header">
-            Click a button
-        </div>
-        <div id="buttonEmbed" class="ui embed" data-url="remote_control.html"></div>
-    </div>
+    <div id="openModal" class="ui modal"></div>
+    <div id="saveModal" class="ui modal"></div>
+    <div id="buttonModal" class="ui modal"></div>
 
 </body>
 </html>

@@ -1,0 +1,24 @@
+<div id="fileButton" class="ui simple dropdown item">
+    <i class="folder outline icon"></i>
+    File
+    <i class="dropdown icon"></i>
+    <div class="menu">
+        <a onclick="newFile()" class="item"><i class="file icon"></i>New</a>
+        <a onclick="openFileModal()" class="item"><i class="folder open icon"></i> Open</a>
+        <a onclick="saveFileModal()" class="item"><i class="save icon"></i> Save</a>
+    </div>
+</div>
+<div id="fileDropDown" class="ui selection dropdown">
+    <input type="hidden" id="filename">
+    <i class="dropdown icon"></i>
+    <div class="default text">Select file ...</div>
+    <div class="menu"></div>
+</div>
+<a id="runButton" onclick="run()" class="item"><i class="play icon"></i>Run</a>
+<a id="stopButton" onclick="stop()" class="item disabled"><i class="stop icon"></i>Stop</a>
+<a id="consoleButton" onclick="toggleConsoleView()" class="item"><i class="terminal icon"></i>Console</a>
+<a id="codeButton" onclick="toggleCodeView()" class="item"><i class="code icon"></i>Code</a>
+<a onclick="buttonModal()" class="item"><i class="grid layout icon"></i> Buttons</a>
+<div class="right menu">
+    <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
+</div>

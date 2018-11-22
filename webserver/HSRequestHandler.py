@@ -7,9 +7,6 @@ import subprocess
 import time
 import tempfile
 import signal
-from threading import Thread
-import re
-
 
 class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 

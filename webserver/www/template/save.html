@@ -1,0 +1,13 @@
+<div class="header">
+    Save file
+</div>
+<div class="scrolling content">
+    <div id="saveFileList" class="ui middle aligned selection list"></div>
+</div>
+<div class="ui form content">
+    <div class="field">
+        <input type="text" id="saveFilename" placeholder="Filename">
+    </div>
+    <button onclick="$('#saveModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
+    <button onclick="saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
+</div>

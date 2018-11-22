@@ -16,19 +16,12 @@
     <script type="text/javascript">
         var buttonNeedUpdate = true
 
+        // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
-            // get the version
-            $.ajax('/get_version', {
-                method: 'POST',
-                success: function(message) {
-                    var data = JSON.parse(message);
-                    $('#version').html(data['version']);
-                }
-            });
-
             window.setInterval(isRunning, 1000);
         }());
 
+        // Call for the buttons list and show them.
         function updateButtons() {
             if (buttonNeedUpdate) {
                 // append all availabel buttons
@@ -47,6 +40,7 @@
             }
         }
 
+        // Check if the application is running.
         function isRunning() {
             $.ajax('/is_running', {
                 method: 'POST',
@@ -67,6 +61,7 @@
             });
         }
 
+        // Call an event on the device.
         function setEvent(eventNumber) {
             var data = {};
             data['EventNumber'] = eventNumber;
