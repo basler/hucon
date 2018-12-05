@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+
+    <script type="text/javascript">
+
+        // On document ready this function will be called and initialize the complete website.
+        $(document).ready(function () {
+            // poll for new messages
+            HuConApp.poll();
+        }());
+
+        // Show the shutdown modal and send the shutdown command.
+        function shutdownSystem() {
+            $('#shutdownModal').modal('show');
+            $('#consoleLog').html('');
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'shutdown';
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Append the message, which can be a an array, to the console output.
+        function appendConsoleLogMessage(message, colour) {
+            if (colour === 'undefined') {
+                console.log('undef');
+                colour = 'black';
+            }
+
+            if (message.includes('Error:')) {
+                colour = 'red';
+            }
+
+            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
+            $("#consoleLog").scrollTop($("#consoleLog")[0].scrollHeight);
+        }
+
+    </script>
+
+{% endblock %}
+
+{% block content %}
+            <pre id="editor"></pre>
+{% endblock %}
+
+
+{% block header %}
+            <button onclick="shutdownSystem()" class="circular ui icon button" style="top: 8px; right: 8px; position: absolute;">
+                <i class="icon power off"></i>
+            </button>
+{% endblock %}
+
+{% block menu %}{% endblock %}
+{% block log %}{% endblock %}
+{% block main %}
+        <div class="center">
+            <button onclick="location.href='blockly.html'" class="fluid ui orange button">
+                <i class="icon puzzle piece"></i>
+                Blockly
+            </button>
+            <p></p>
+            <button onclick="location.href='editor.html'" class="fluid ui orange button">
+                <i class="icon edit"></i>
+                Editor
+            </button>
+            <p class="whitesmoke">The following site is good when<br>
+            the device has no Internet con-<br>
+            nection.</p>
+            <button onclick="location.href='mobile.html'" class="fluid ui blue button">
+                <i class="icon tablet alternate"></i>
+                Mobile
+            </button>
+            <p class="whitesmoke">You can change your password<br>
+            or update the system<br>
+            with the following site.</p>
+            <button onclick="location.href='settings.html'" class="fluid ui light_blue button">
+                <i class="icon cogs"></i>
+                Settings
+            </button>
+        </div>
+{% endblock %}
+
+{% block modal %}
+    <div id="shutdownModal" class="ui modal">
+        <div class="header">Shutdown</div>
+        <div class="content">
+            <div id="consoleLog" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
+            <button onclick="$('#shutdownModal').modal('hide')" class="ui orange button">Close</button>
+        </div>
+    </div>
+{% endblock %}

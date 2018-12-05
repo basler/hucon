@@ -6,8 +6,8 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 opkg update
 
 # install needed packages
-opkg install curl python python-light pyOnionI2C pyPwmExp libonioni2c
-opkg upgrade libonioni2c pyOnionI2C
+opkg install curl python-light python-pip pyOnionI2C
+pip install flask
 
 # add the hackerschool to the site packages
 if [ -f /usr/lib/python2.7/site-packages/hackerschool ]; then

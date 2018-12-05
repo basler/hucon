@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% block title %} - Python Editor{% endblock %}
+{% block head %}
+    {{ super() }}
+
+    <!-- Ace code editor -->
+    <script type="text/javascript" src="{{ url_for('.static', filename='ace/ace.js') }}"></script>
+
+    <script type="text/javascript">
+        var editor;
+        var folder = '';
+
+        // Ask the user to go before he goes.
+        $(window).bind("beforeunload", function(){
+            return "Do you really want to go?\nAll your unsaved data will be lost.";
+        });
+
+        // On document ready this function will be called and initialize the complete website.
+        $(document).ready(function () {
+
+            // Setup the editor
+            editor = ace.edit('editor');
+            editor.setTheme('ace/theme/xcode');
+            editor.session.setMode('ace/mode/python');
+            editor.$blockScrolling = Infinity
+            editor.setShowPrintMargin(false);
+            editor.session.setUseWrapMode(true);
+
+            // poll for new messages
+            HuConApp.poll();
+
+            configureMenu();
+            HuConApp.showConsole();
+
+            newFile();
+        });
+
+        // Hide the code button from the menu.
+        function configureMenu() {
+            $('#fileDropDown').hide();
+            $('#runButton').click(HuConApp.execute);
+            $('#stopButton').click(HuConApp.stop);
+            $('#consoleButton').click(HuConApp.toggleConsoleView);
+            $('#codeButton').hide();
+            $('#buttonModalButton').click(HuConApp.buttonModal);
+        }
+
+        // Clear the editor and remove the filename.
+        function newFile() {
+            editor.setValue('# Write down your code ...\n', 1);
+            $('#consoleLog').html('');
+            $('#saveFilename').val('');
+        }
+
+        // Load the file list and show the open file modal.
+        function openFileModal() {
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'get_file_list';
+            rpcRequest['params'] = folder;
+
+            $('#breadcrumb').append('<div class="divider">/</div>')
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse) {
+
+                    // clear the list
+                    $('#openFileList').html('');
+
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    // add the files to the empty list
+                    for (i=0; i<rpcResponse['result'].length; i++) {
+                        var filename = rpcResponse['result'][i];
+
+                        // Append a folder
+                        if (filename.indexOf('.') === -1) {
+                            $('#openFileList').append('<div onclick="goIntoSubFolder(\'' + filename + '\')" class="item content ok"><div class="header">' + filename + '</div></div>');
+                        }
+
+                        // Append a file
+                        if (filename.substr(-3) === '.py') {
+                            $('#openFileList').append('<div onclick="loadFileFromDevice(\'' + filename + '\');" class="item content ok"><div class="header">' + filename + '</div></div>');
+                        }
+                    }
+
+                    $('#openModal').modal('show');
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        function goIntoSubFolder(subfolder) {
+
+            // set the folder
+            folder = folder + '/' + subfolder;
+
+            $('#breadcrumb').html('');
+            $('#openFileList').html('');
+
+            $('#breadcrumb').append('<div class="divider">/</div>')
+            folder.split('/').forEach(function (element) {
+                $('#breadcrumb').append('<a class="section">' + element + '</a>')
+                $('#breadcrumb').append('<div class="divider">/</div>')
+            });
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'get_file_list';
+            rpcRequest['params'] = folder;
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse) {
+
+                    // clear the list
+                    $('#openFileList').html('');
+
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    // add the files to the empty list
+                    for (i=0; i<rpcResponse['result'].length; i++) {
+                        var filename = rpcResponse['result'][i];
+
+                        // Append a folder
+                        if (filename.indexOf('.') === -1) {
+                            $('#openFileList').append('<div onclick="goIntoSubFolder(\'' + filename + '\')" class="item content ok"><div class="header">' + filename + '</div></div>');
+                        }
+
+                        // Append a file
+                        if (filename.substr(-3) === '.py') {
+                            $('#openFileList').append('<div onclick="loadFileFromDevice(\'' + filename + '\');" class="item content ok"><div class="header">' + filename + '</div></div>');
+                        }
+                    }
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Hide the open file modal and load the content from the file.
+        function loadFileFromDevice(filename) {
+            $('#openModal').modal('hide');
+            $('#consoleLog').html('');
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'load_file';
+            rpcRequest['params'] = folder + '/' + filename;
+
+            // Store the filename for the save dialog
+            $('#saveFilename').val(filename);
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    if (rpcResponse['result']) {
+                        editor.setValue(rpcResponse['result'], -1);
+                    }
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Show the save file modal and load the file list from the device.
+        function saveFileModal() {
+            $('#saveModal').modal('show');
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'get_file_list';
+            rpcRequest['params'] = folder;
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    $('#saveFileList').html('');
+                    for (i=0; i<rpcResponse['result'].length; i++) {
+                        var filename = rpcResponse['result'][i];
+                        if (filename.substr(-3) === '.py') {
+                            $('#saveFileList').append('<div onclick="$(\'#saveFilename\').val(\'' + filename + '\');" class="item content ok"><div class="header">' + filename + '</div></div>');
+                        }
+                    }
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Save the file on the device and hide the file save modal.
+        function saveFileOnDevice() {
+            $('#saveModal').modal('hide');
+
+            $('#consoleLog').html('');
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'save_file';
+            rpcRequest['params'] = {};
+            rpcRequest['params']['filename'] = folder + '/' + $('#saveFilename').val();
+            rpcRequest['params']['data'] = editor.getValue();
+
+            // Store the python code
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    HuConApp.appendConsoleLog(rpcResponse['result']);
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Return the python code.
+        function getPythonCode() {
+            return editor.getValue();
+        }
+
+    </script>
+
+{% endblock %}
+
+{% block content %}
+            <pre id="editor"></pre>
+{% endblock %}

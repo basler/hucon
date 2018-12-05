@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+
+    <script type="text/javascript">
+        var buttonNeedUpdate = true
+
+        // On document ready this function will be called and initialize the complete website.
+        $(document).ready(function () {
+            window.setInterval(isRunning, 1000);
+        }());
+
+        // Check if the application is running.
+        // Do not use the HuConApp.isRunnign method, because this function will handle it a little bit different.
+        function isRunning() {
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'is_running';
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return;
+                    }
+
+                    if (rpcResponse['result']) {
+                        $('#spinner').hide();
+                        updateButtons();
+                    } else {
+                        $('#spinner').show();
+                        buttonNeedUpdate = true;
+                    }
+                },
+                error: function(rpcResponse) {
+                    $('#spinner').show();
+                    buttonNeedUpdate = true;
+                }
+            });
+        }
+
+        // Call for the buttons list and show them.
+        function updateButtons() {
+            if (buttonNeedUpdate) {
+                var rpcRequest = HuConApp.getRpcRequest();
+                rpcRequest['method'] = 'get_possible_post_data';
+
+                // append all available buttons
+                $.ajax('/API', {
+                    method: 'POST',
+                    data: JSON.stringify(rpcRequest),
+                    dataType: 'json',
+                    success: function(rpcResponse) {
+                        if (HuConApp.isResponseError(rpcResponse)) {
+                            return;
+                        }
+
+                        $('#buttonArea').empty();
+                        for (var index in rpcResponse['result']) {
+                            var btn = $('<button onclick="setEvent(' + index + ')" class="ui orange button">' + rpcResponse['result'][index] + '</button>')
+                            $('#buttonArea').append(btn);
+                        }
+                        buttonNeedUpdate = false;
+                    }
+                });
+            }
+        }
+
+        // Call an event on the device.
+        function setEvent(eventNumber) {
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'event';
+            rpcRequest['params'] = eventNumber;
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse){
+                    console.log('event fired');
+                },
+                error: function(request, status, error){
+                    rpcResponse = JSON.parse(request.responseText)
+                    console.log(rpcResponse['error']);
+                }
+            });
+        }
+
+    </script>
+
+{% endblock %}
+
+{% block container %}
+        <div class="ui segment" style="background: none">
+            <div id="buttonArea" class="spaced"></div>
+            <div id="spinner" class="ui active dimmer">
+                <div class="ui loader"></div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block modal %}{% endblock %}

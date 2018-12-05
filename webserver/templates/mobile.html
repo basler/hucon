@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %} - Mobile{% endblock %}
+{% block head %}
+    {{ super() }}
+
+    <script type="text/javascript">
+
+        // On document ready this function will be called and initialize the complete website.
+        $(document).ready(function () {
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'get_file_list';
+
+            configureMenu();
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return;
+                    }
+                    var values = Array();
+                    var isFirst = true;
+
+                    for (i=0; i<rpcResponse['result'].length; i++) {
+                        var filename = rpcResponse['result'][i]
+                        if (filename.substr(-3) === '.py') {
+                            values.push({name: filename, value: filename, selected: isFirst});
+                            isFirst = false;
+                        }
+                    }
+
+                    $('#fileDropDown').dropdown({
+                        values: values
+                    });
+                },
+                error: HuConApp.appendErrorLog
+            });
+
+            // poll for new messages
+            HuConApp.poll();
+
+        });
+
+        // Hide the code button from the menu.
+        function configureMenu() {
+            $('#fileButton').hide();
+            $('#runButton').click(HuConApp.run);
+            $('#stopButton').click(HuConApp.stop);
+            $('#consoleButton').hide();
+            $('#codeButton').hide();
+            $('#buttonModalButton').click(HuConApp.buttonModal);
+        }
+
+    </script>
+
+{% endblock %}
+
+{% block main %}{% endblock %}
