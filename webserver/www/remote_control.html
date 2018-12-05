@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="de">
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <title>HuCon Robot :) - Remote Control</title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="semantic/semantic.min.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <script src="semantic/semantic.min.js"></script>
+
+    <script type="text/javascript">
+        var buttonNeedUpdate = true
+
+        // On document ready this function will be called and initialize the complete website.
+        $(document).ready(function () {
+            window.setInterval(isRunning, 1000);
+        }());
+
+        // Call for the buttons list and show them.
+        function updateButtons() {
+            if (buttonNeedUpdate) {
+                // append all availabel buttons
+                $.ajax('/get_possible_post_data', {
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#buttonArea').empty();
+                        for (var index in data['PostCommands']) {
+                            var btn = $('<button onclick="setEvent(' + index + ')" class="ui orange button">' + data['PostCommands'][index] + '</button>')
+                            $('#buttonArea').append(btn);
+                        }
+                        buttonNeedUpdate = false;
+                    }
+                });
+            }
+        }
+
+        // Check if the application is running.
+        function isRunning() {
+            $.ajax('/is_running', {
+                method: 'POST',
+                dataType: 'json',
+                success: function(data) {
+                    if (data['is_running']) {
+                        $('#spinner').hide();
+                        updateButtons();
+                    } else {
+                        $('#spinner').show();
+                        buttonNeedUpdate = true;
+                    }
+                },
+                error: function(message) {
+                    $('#spinner').show();
+                    buttonNeedUpdate = true;
+                }
+            });
+        }
+
+        // Call an event on the device.
+        function setEvent(eventNumber) {
+            var data = {};
+            data['EventNumber'] = eventNumber;
+
+            $.ajax('/event', {
+                method: 'POST',
+                data: JSON.stringify(data),
+                success: function(message){
+                    console.log('event fired');
+                }
+            });
+        }
+
+    </script>
+
+<head>
+</head>
+<body id="body">
+
+    <div class="container">
+        <div class="ui segment" style="background: none">
+            <div id="buttonArea" class="spaced"></div>
+            <div id="spinner" class="ui active dimmer">
+                <div class="ui loader"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

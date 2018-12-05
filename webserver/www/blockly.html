@@ -4,13 +4,17 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="cache-control" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=0.5">
-    <title>Hacker School :) - Blockly</title>
+    <title>HuCon Robot :) - Blockly</title>
 
-    <!-- Blockly Sourcen -->
+    <!-- Blockly sources -->
     <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
     <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
     <script type="text/javascript" src="blockly/python_compressed.js"></script>
     <script type="text/javascript" src="blockly/en.js"></script>
+
+    <!-- Prettify sources -->
+    <script type="text/javascript" src="prettify/prettify.js"></script>
+    <link rel="stylesheet" href="prettify/prettify.css">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="semantic/semantic.min.css">
@@ -24,51 +28,108 @@
     <script type="text/javascript" src="js/custom_blocks_servo.js"></script>
     <script type="text/javascript" src="js/custom_blocks_motor.js"></script>
     <script type="text/javascript" src="js/custom_blocks_mpu.js"></script>
-    <script type="text/javascript" src="js/webserver_blockly.js"></script>
+
+    <script type="text/javascript" src="js/webserver.js"></script>
 
     <script type="text/javascript">
-        $(document).ready(function poll() {
-            $.ajax('/poll', {
-                method: 'POST',
-                timeout: 30000, // 30 seconds
-                success: function(message){
-                    appendConsoleLog(message);
-                    poll();
-                },
-                error: function(){
-                    setTimeout(poll, 1000);
-                }
-            });
-        }());
+        var blocklyWorkspace;
 
+        // Ask the user to go before he goes.
+        $(window).bind("beforeunload", function(){
+            return "Do you really want to go?\nAll your unsaved data will be lost.";
+        });
+
+        // On document ready this function will be called and initialize the complete website.
+        $(document).ready(function () {
+
+            // Load the extra template content
+            $('#headerArea').load('template/header.html', updateVersion);
+            $('#menuArea').load('template/menu.html', configureMenu);
+            $('#logArea').load('template/console.html', showConsole);
+            $('#openModal').load('template/open.html');
+            $('#saveModal').load('template/save.html');
+            $('#buttonModal').load('template/button.html');
+
+            window.addEventListener('resize', onResize);
+
+            // Update the version information on the ui
+            updateVersion();
+
+            // poll for new messages
+            poll();
+
+            $.ajax('xml/toolbox.xml', {
+                method: 'GET',
+                dataType: 'text',
+                success: function (message) {
+                    // Initialize blockly
+                    // Do this as a last step in this function to calculate the size correctly!
+                    blocklyWorkspace = Blockly.inject('blocklyDiv', {
+                        grid: {
+                            spacing: 25,
+                            length: 3,
+                            colour: '#ccc',
+                            snap: true
+                        },
+                        media: 'blockly/media/',
+                        toolbox: message,
+                        zoom: {
+                            controls: true,
+                            wheel: true
+                        }
+                    });
+
+                    // Add the listener on resize to call the onResize function
+                    onResize();
+                    Blockly.svgResize(blocklyWorkspace);
+
+                    // Add the listener on every change to update the code
+                    blocklyWorkspace.addChangeListener(udpateCode);
+                },
+                error: appendErrorLog
+            });
+        });
+
+        // Hide the code button from the menu.
+        function configureMenu() {
+            $('#fileDropDown').hide();
+            showCode();
+        }
+
+        // Clear the workspace and remove the filename
+        function newFile() {
+            Blockly.mainWorkspace.clear();
+            $('#consoleLog').html('');
+            $('#saveFilename').val('');
+        }
+
+        // Load the file list and show the open file modal.
         function openFileModal() {
             $.ajax('/get_file_list', {
                 method: 'POST',
-                success: function(message) {
+                dataType: 'json',
+                success: function(data) {
 
                     // clear the list
                     $('#openFileList').html('');
 
                     // add the files to the empty list
-                    var data = JSON.parse(message);
                     for (i=0; i<data['files'].length; i++) {
                         var filename = data['files'][i]
-                        if (filename.endsWith('.xml')) {
+                        if (filename.substr(-4) === '.xml') {
                             $('#openFileList').append('<div onclick="loadFileFromDevice(\'' + filename + '\');" class="item content ok"><div class="header">' + filename.slice(0, -4) + '</div></div>');
                         }
                     }
 
                     $('#openModal').modal('show');
                 },
-                error: function(){
-                    appendConsoleLog('Could not get the file list from the device.');
-                }
+                error: appendErrorLog
             });
         }
 
+        // Hide the open file modal and load the content from the file.
         function loadFileFromDevice(filename) {
             $('#openModal').modal('hide');
-
             $('#consoleLog').html('');
 
             var data = {};
@@ -80,51 +141,51 @@
             $.ajax('/file_load', {
                 method: 'POST',
                 data: JSON.stringify(data),
-                success: function(message) {
-                    var data = JSON.parse(message);
+                dataType: 'json',
+                success: function(data) {
                     loadFile(data['data']);
                 },
-                error: function(){
-                    appendConsoleLog('Could not load the file from the device.')
-                }
+                error: appendErrorLog
             });
         }
 
+        // Show the save file modal and load the file list from the device.
         function saveFileModal() {
             $('#saveModal').modal('show');
 
             $.ajax('/get_file_list', {
                 method: 'POST',
-                success: function(message) {
+                dataType: 'json',
+                success: function(data) {
                     $('#saveFileList').html('');
-                    var data = JSON.parse(message);
                     for (i=0; i<data['files'].length; i++) {
                         var filename = data['files'][i]
-                        if (filename.endsWith('.xml')) {
+                        if (filename.substr(-4) === '.xml') {
                             $('#saveFileList').append('<div onclick="$(\'#saveFilename\').val(\'' + filename.slice(0, -4) + '\');" class="item content ok"><div class="header">' + filename.slice(0, -4) + '</div></div>');
                         }
                     }
-                }
+                },
+                error: appendErrorLog
             });
         }
 
+        // Save the file on the device and hide the file save modal.
         function saveFileOnDevice() {
             $('#saveModal').modal('hide');
 
             $('#consoleLog').html('');
 
             var data = {};
+            var xmlDom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
 
             // Store the blockly code
             data['filename'] = $('#saveFilename').val() + '.xml';
-            data['data'] = getFileData();
+            data['data'] = Blockly.Xml.domToPrettyText(xmlDom);
             $.ajax('/file_save', {
                 method: 'POST',
                 data: JSON.stringify(data),
                 success: appendConsoleLog,
-                error: function(){
-                    appendConsoleLog('Could not save the blockly file on the device.')
-                }
+                error: appendErrorLog
             });
 
             // Store the python code
@@ -134,161 +195,74 @@
                 method: 'POST',
                 data: JSON.stringify(data),
                 success: appendConsoleLog,
-                error: function(){
-                    appendConsoleLog('Could not save the python file on the device.')
-                }
+                error: appendErrorLog
             });
         }
 
-        function run() {
-            $('#consoleLog').html('');
-            appendConsoleLog('Loading program ...\n');
-
-            var data = {};
-            data['data'] = getPythonCode();
-            $.ajax('/execute', {
-                method: 'POST',
-                data: JSON.stringify(data),
-                success: appendConsoleLog
-            });
-
-            $('#runButton').addClass('disabled')
-            $('#stopButton').removeClass('disabled')
-            setTimeout(isRunning, 500 );
+        // Return the python code.
+        function getPythonCode() {
+            return Blockly.Python.workspaceToCode(blocklyWorkspace);
         }
 
-        function stop() {
-            var data = {};
-            $.ajax('/kill', {
-                method: 'POST',
-                success: function () {
-                    appendConsoleLog('Application stopped.\n');
-                }
-            });
+        // Load the workspace with the file data.
+        function loadFile(data) {
+            if (data) {
+                Blockly.mainWorkspace.clear();
+                xmlDom = Blockly.Xml.textToDom(data);
+                Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
+            }
+            appendConsoleLog('Blockly workspace loaded from local device.', 'green');
         }
 
-        function isRunning() {
-            $.ajax('/is_running', {
-                method: 'POST',
-                success: function(message) {
-                    var data = JSON.parse(message);
-                    if (data['is_running']) {
-                        setTimeout( isRunning, 500 );
-                    } else {
-                        $('#runButton').removeClass('disabled')
-                        $('#stopButton').addClass('disabled')
-                    }
-                },
-                error: function() {
-                    appendConsoleLog('Error during run.');
-                }
-            });
+        // This function will be called whenever an element on the workspace is changed
+        // to update the code and show it on the page.
+        function udpateCode(event) {
+            var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
+            code = code.replace(/\n/g, '<br>');
+            code = PR.prettyPrintOne(code, 'py');
+            $('#pythonCode').html(code);
         }
+
+
+        // Resize the area, so blockly will fit all ways.
+        function onResize(){
+            var mainArea = document.getElementById('mainArea');
+            var blocklyArea = document.getElementById('blocklyArea');
+            var blocklyDiv = document.getElementById('blocklyDiv');
+
+            // Position blocklyDiv over blocklyArea.
+            blocklyDiv.style.left = '0px';
+            blocklyDiv.style.top = '0px';
+            blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+            blocklyDiv.style.height = mainArea.offsetHeight + 'px';
+        };
 
     </script>
 
 <head>
 </head>
-<body>
+<body onload="PR.prettyPrint()">
 
     <div class="container">
-
-        <div id="headerArea" class="spaceBottom">
-            <div class="whitesmoke" id="version"></div>
-            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="top: 8px; right: 6px; position: absolute;">
-                <i class="icon github"></i>
-                GitHub
-            </button>
-        </div>
-
-        <div id="buttonArea" class="spaceBottom">
-            <div class="ui buttons">
-                <button onclick="newFile()" class="ui orange labeled icon button">
-                    <i class="file icon"></i>
-                    New
-                </button>
-                <button onclick="openFileModal()" class="ui orange labeled icon button">
-                    <i class="folder open icon"></i>
-                    Open
-                </button>
-                <button onclick="saveFileModal()" class="ui orange labeled icon button">
-                    <i class="save icon"></i>
-                    Save
-                </button>
-            </div>
-            <div class="ui buttons">
-                <button id="runButton" onclick="run()" class="ui orange labeled icon button">
-                    <i class="play icon"></i>
-                    Run
-                </button>
-                <button id="stopButton" onclick="stop()" class="ui orange labeled icon button disabled">
-                    <i class="stop icon"></i>
-                    Stop
-                </button>
-            </div>
-            <div class="ui buttons">
-                <button id="codeButton" onclick="toggleCodeView()" class="ui orange labeled icon button active">
-                    <i class="code icon"></i>
-                    Code
-                </button>
-            </div>
-            <button onclick="location.href='index.html'" class="ui blue right floated labeled icon button" style="left: 0px;">
-                Index
-                <i class="home icon"></i>
-            </button>
-        </div>
-
-        <div id="mainArea" class="spaceBottom spaceRight shortWidth">
-            <div id="blocklyDiv"></div>
-        </div>
-
-        <div id="codeArea" class="spaceBottom">
-            <div class="ui form">
-                <div class="field">
+        <div id="headerArea"></div>
+        <div id="menuArea" class="ui top attached menu"></div>
+        <div id="mainArea" class="ui attached segment">
+            <div class="ui celled grid" style="height: 100%; margin: 0px;">
+                <div id="blocklyArea" class="twelve wide column" style="padding: 0px;z-index: 1;">
+                    <div id="blocklyDiv"></div>
+                </div>
+                <div id="codeArea" class="four wide column" style="overflow:scroll;height:100%;">
                     <label>Python Code</label>
-                    <div id="pythonCode" class="codeText"># Let's start ...</div>
+                    <pre id="pythonCode" class="prettyprint lang-python" style="border: none;padding: 0px;">#Lets start ...</pre>
                 </div>
             </div>
         </div>
-
-        <div id="logArea">
-            <div class="ui form">
-                <div class="field">
-                    <label>Console Log</label>
-                    <div id="consoleLog" class="codeText"></div>
-                </div>
-            </div>
-        </div>
+        <div id="logArea" class="ui bottom attached"></div>
     </div>
 
-    <div id="openModal" class="ui modal">
-        <div class="header">
-            Open file
-        </div>
-        <div class="scrolling content">
-            <div id="openFileList" class="ui middle aligned selection list"></div>
-        </div>
-        <div class="actions">
-            <div class="ui orange cancel button">
-                Cancel
-            </div>
-        </div>
-    </div>
+    <div id="openModal" class="ui modal"></div>
+    <div id="saveModal" class="ui modal"></div>
+    <div id="buttonModal" class="ui modal"></div>
 
-    <div id="saveModal" class="ui modal">
-        <div class="header">
-            Save file
-        </div>
-        <div class="scrolling content">
-            <div id="saveFileList" class="ui middle aligned selection list"></div>
-        </div>
-        <div class="ui form content">
-            <div class="field">
-                <input type="text" id="saveFilename" placeholder="Filename">
-            </div>
-            <button onclick="$('#saveModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
-            <button onclick="saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
-        </div>
-    </div>
 </body>
 </html>

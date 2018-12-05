@@ -6,304 +6,472 @@ import json
 import subprocess
 import time
 import tempfile
-import sys
 import signal
 
 class HSRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
-    def do_AUTHHEAD(self):
+    def log_message(cls, format, *args):
+        """
+        Overwrite the log method to disable all log messages during run.
+        """
+        if cls.server._debug:
+            print("%s - [%s] %s" % (cls.client_address[0], cls.log_date_time_string(), format % args))
+
+    def do_AUTHHEAD(cls):
         """
         Send a 'Authentication' response to the browser.
         """
-        self.send_response(401)
-        self.send_header('WWW-Authenticate', 'Basic realm="HackerSchool"')
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write('not authenticated')
-        self.wfile.close()
+        cls.send_response(401)
+        cls.send_header('WWW-Authenticate', 'Basic realm="%s"' % cls.server._SERVER_NAME)
+        cls.send_header('Content-type', 'text/html')
+        cls.end_headers()
+        cls.wfile.write('not authenticated')
+        cls.wfile.close()
 
-    def do_GET(self):
+    def do_GET(cls):
         """
-        Present frontpage with user authentication.
+        Overwrite the default get method to handle authentication to the server if needed.
         """
-        if self.headers.get('Authorization') == 'Basic ' + str(self.server._authorization_key):
-            SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+        if cls._is_authorized():
+            SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(cls)
 
         else:
-            self.do_AUTHHEAD()
+            cls.do_AUTHHEAD()
 
-    def do_POST(self):
+    def do_POST(cls):
         """
-        Present frontpage with user authentication.
+        Overwrite the default post method to handle all post request directly.
         """
-        if self.headers.get('Authorization') == 'Basic ' + str(self.server._authorization_key):
+        if cls._is_authorized():
 
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
+            content_length = int(cls.headers['Content-Length'])
+            post_data = cls.rfile.read(content_length)
             args = {}
             if post_data != '':
                 args = json.loads(post_data.decode('utf-8'))
-            data = {}
 
-            if self.path == '/file_save':
-                # Store all incomming data into the file.
-                print('Save file %s' % args['filename'])
+            if cls.path == '/file_save':
+                cls._save_file(args, content_length)
 
-                savename = self.server._CODE_ROOT + '/' + args['filename']
-                with open(savename, 'w') as file:
-                    file.write(args['data'])
-                self.server._log.put('File %s saved. %d bytes written.' % (savename, content_length))
+            elif cls.path == '/file_load':
+                cls._load_file(args)
 
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write('Done ...')
+            elif cls.path == '/execute':
+                cls._execute(args)
 
-            elif self.path == '/file_load':
-                # Return the file to the browser.
-                print('Load file %s' % args['filename'])
+            elif cls.path == '/run':
+                cls._run(args)
 
-                filename = self.server._CODE_ROOT + '/' + args['filename']
-                f = open(filename, 'r')
-                data['data'] = f.read()
-                f.close()
-                json_dump = json.dumps(data)
+            elif cls.path == '/event':
+                cls._event(args)
 
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(json_dump)
+            elif cls.path == '/get_file_list':
+                cls._get_file_list()
 
-            elif self.path == '/execute':
-                # Execute the code from RAM when the content is smaller than 1k
-                message = 'Done ...'
+            elif cls.path == '/get_possible_post_data':
+                cls._get_possible_post_data()
 
-                if self.server._is_running is False:
-                    try:
-                        self.server._is_running = True
+            elif cls.path == '/is_running':
+                cls._is_running()
 
-                        # save the data into a file
-                        filename = os.path.join(tempfile.gettempdir(), 'execute.py')
+            elif cls.path == '/kill':
+                cls._kill()
 
-                        with open(filename, 'w') as f:
-                            f.write(args['data'])
-                        f.close()
+            elif cls.path == '/get_version':
+                cls._get_version()
 
-                        proc = subprocess.Popen(['python', '-u', filename], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                        self.server._current_pid = proc.pid
+            elif cls.path == '/check_update':
+                cls._check_update()
 
-                        while True:
-                            output = proc.stdout.readline()
-                            if output == '' and proc.poll() is not None:
-                                break
-                            if output:
-                                # Replace the file error like 'File "/tmp/execute.py", line x, in'
-                                output = output.replace('File "/tmp/execute.py", l', 'L')
-                                self.server._log.put(output.strip())
-                        proc.poll()
+            elif cls.path == '/update':
+                cls._update()
 
-                    except Exception as e:
-                        self.server._log.put('Error: %s' % str(e))
+            elif cls.path == '/shutdown':
+                cls._shutdown()
 
-                    time.sleep(0.1)
-                    # Wait until the queue is empty
-                    while self.server._log.empty() is False:
-                        time.sleep(0.1)
+            elif cls.path == '/save_password':
+                cls._save_password(args)
 
-                    self.server._is_running = False
-                    self.server._current_pid = None
-
-                else:
-                    message = 'There is a programm running.'
-
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(message)
-
-            elif self.path == '/run':
-                # Run the file which is saved on the device
-                message = 'Done ...'
-
-                if self.server._is_running is False:
-                    print('Run file %s' % args['filename'])
-                    run_file = self.server._CODE_ROOT + '/' + args['filename']
-                    try:
-                        self.server._is_running = True
-
-                        proc = subprocess.Popen(['python', '-u', run_file], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                        self.server._current_pid = proc.pid
-
-                        while True:
-                            output = proc.stdout.readline()
-                            if output == '' and proc.poll() is not None:
-                                break
-                            if output:
-                                # Replace the file error like 'File "/tmp/execute.py", line x, in'
-                                output = output.replace('File "/tmp/execute.py", l', 'L')
-                                self.server._log.put(output.strip())
-                        proc.poll()
-
-                    except Exception as e:
-                        self.server._log.put('Error: %s' % str(e))
-
-                    time.sleep(0.1)
-                    # Wait until the queue is empty
-                    while self.server._log.empty() is False:
-                        time.sleep(0.1)
-
-                    self.server._is_running = False
-                    self.server._current_pid = None
-                else:
-                    message = 'There is a programm running.'
-
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(message)
-
-            elif self.path == '/get_file_list':
-                # Return the list of all files to the browser.
-                data['files'] = os.listdir(self.server._CODE_ROOT)
-                data['files'].sort()
-                json_dump = json.dumps(data)
-
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(json_dump)
-
-            elif self.path == '/is_running':
-                # Get the current running state of the device
-                data['is_running'] = self.server._is_running
-                json_dump = json.dumps(data)
-
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(json_dump)
-
-            elif self.path == '/kill':
-                # Kill the current running process
-                if self.server._current_pid != None:
-                    os.kill(self.server._current_pid, signal.SIGKILL)
-                    time.sleep(0.1)
-
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write('Done ...')
-
-            elif self.path == '/get_version':
-                # Get the version of this project.
-                data['version'] = self.server._version
-                json_dump = json.dumps(data)
-
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(json_dump)
-
-            elif self.path == '/update':
-                # Update all files from the project.
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write('')
-
-                # Update the system first.
-                self.server._log.put('The system will be updated and needs a few seconds.\n')
-                proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-                while True:
-                    output = proc.stdout.readline()
-                    if output == '' and proc.poll() is not None:
-                        break
-                    if output:
-                        self.server._log.put(output.strip())
-                proc.poll()
-
-                # Do a restart.
-                proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-                while True:
-                    output = proc.stdout.readline()
-                    if output == '' and proc.poll() is not None:
-                        break
-                    if output:
-                        self.server._log.put(output.strip())
-                proc.poll()
-
-            elif self.path == '/check_update':
-                # Check if ther is an update available
-                proc = subprocess.Popen(['sh', self.server._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-                while True:
-                    output = proc.stdout.readline()
-                    if output == '' and proc.poll() is not None:
-                        break
-                    if output:
-                        self.server._log.put(output.strip())
-                proc.poll()
-
-                if proc.returncode == 1:
-                    data['is_update_available'] = True
-                else:
-                    data['is_update_available'] = False
-
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(json.dumps(data))
-
-            elif self.path == '/save_password':
-                # Save the new password key only when the oldkey is the same with the current.
-                message = ''
-                if (args['oldKey'] == self.server._authorization_key and args['newKey'] != ''):
-
-                    print('Store the new password')
-                    # Store the password.
-                    self.server._authorization_key = args['newKey']
-                    with open(self.server._PASSWORD_FILE, 'w') as file:
-                        file.write(self.server._authorization_key)
-
-                    message = 'New password written.'
-
-                else:
-                    print('The current used key is wrong.')
-                    message += 'Error: Could not store the password.\n'
-                    message += 'The current Password is not correct!'
-
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(message)
-
-            elif self.path == '/poll':
-                message = self.server._log.get_message_wait()
-
-                try:
-                    self.send_response(200)
-                    self.send_header('Content-type', 'text/plain')
-                    self.end_headers()
-                    self.wfile.write(message)
-                except Exception as e:
-                    # The message could not transfered to teh browser. So requeue it!
-                    self.server._log.requeue(message)
+            elif cls.path == '/poll':
+                cls._poll()
 
             else:
                 # The given command is not known.
-                self.send_response(404)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write('Command not known.')
+                cls._response(404, 'text/html', 'Command not known.\n')
 
         else:
-            self.do_AUTHHEAD()
+            cls.do_AUTHHEAD()
 
-    def get_dict_from_url(self, url):
+    def _save_file(cls, args, content_length):
         """
-        Get a dict of all variables from an url.
+        Save the received content on the local disk.
+        """
+        # Store all incoming data into the file.
+        savename = cls.server._CODE_ROOT + '/' + args['filename']
+        try:
+            with open(savename, 'w') as file:
+                file.write(args['data'])
+        except Exception as e:
+            cls._response(500, 'text/html', str(e))
+        else:
+            cls._response(200, 'text/html', 'File %s saved. %d bytes written.\n' % (savename, content_length))
+
+    def _load_file(cls, args):
+        """
+        Return the content of the file back to the browser.
+        """
+        data = {}
+
+        filename = cls.server._CODE_ROOT + '/' + args['filename']
+        try:
+            f = open(filename, 'r')
+            data['data'] = f.read()
+            f.close()
+            json_dump = json.dumps(data)
+        except Exception as e:
+            cls._response(500, 'text/html', str(e))
+        else:
+            cls._response(200, 'text/html', json_dump)
+
+    def _execute(cls, args):
+        """
+        Store the data on a local file and execute them.
+        """
+        if cls.server._is_running is False:
+            try:
+                cls.server._is_running = True
+
+                # save the data into a file
+                filename = os.path.join(tempfile.gettempdir(), 'execute.py')
+
+                with open(filename, 'w') as f:
+                    f.write(cls._replace_hucon_requests(args['data']))
+                f.close()
+
+                # Wait fgor a while until the file is realy closed before it can be executed.
+                time.sleep(0.2)
+
+                cls._run_file(filename)
+
+            except Exception as e:
+                cls.server._log.put('Error: %s' % str(e))
+
+            time.sleep(0.1)
+            # Wait until the queue is empty
+            while cls.server._log.empty() is False:
+                time.sleep(0.1)
+
+            cls.server._is_running = False
+            cls.server._current_proc = None
+
+            cls._response(200, 'text/html', '')
+        else:
+            cls._response(503, 'text/html', 'There is a program running.\n')
+
+    def _run(cls, args):
+        """
+        Run the file which is saved on the device
+        """
+        if cls.server._is_running is False:
+            print('Run file %s' % args['filename'])
+            filename = cls.server._CODE_ROOT + '/' + args['filename']
+            try:
+                cls.server._is_running = True
+
+                cls._run_file(filename)
+
+            except Exception as e:
+                cls.server._log.put('Error: %s' % str(e))
+
+            time.sleep(0.1)
+            # Wait until the queue is empty
+            while cls.server._log.empty() is False:
+                time.sleep(0.1)
+
+            cls.server._is_running = False
+            cls.server._current_proc = None
+            cls._response(200, 'text/html', '')
+        else:
+            cls._response(503, 'text/html', 'There is a program running.')
+
+    def _event(cls, args):
+        """
+        Store the event on a file and call the
+        """
+        if cls.server._current_proc:
+            if os.name == 'nt':
+                cls._response(500, 'text/html', 'Could not set the event.')
+            else:
+                os.kill(cls.server._current_proc.pid, signal.SIGRTMIN + args['EventNumber'])
+                cls._response(200, 'text/html', 'OK')
+        else:
+            cls._response(503, 'text/html', 'There is no program running')
+
+    def _get_file_list(cls):
+        """
+        Return the list of all files to the browser.
+        """
+        try:
+            data = {}
+            data['files'] = os.listdir(cls.server._CODE_ROOT)
+            data['files'].sort()
+            json_dump = json.dumps(data)
+        except Exception as e:
+            cls._response(500, 'text/html', str(e))
+        else:
+            cls._response(200, 'text/html', json_dump)
+
+    def _get_possible_post_data(cls):
+        """
+        Return the json of available post data events.
+        """
+        try:
+            data = ''
+            # with open(ProcessEvent._EVENT_FILE, 'r') as file:
+            with open(os.path.join(tempfile.gettempdir(), 'possible_events'), 'r') as file:
+                data = file.read()
+            file.close()
+        except Exception as e:
+            cls._response(500, 'text/html', str(e))
+        else:
+            cls._response(200, 'text/html', data)
+
+    def _is_running(cls):
+        """
+        Get the current running state of the device
+        """
+        try:
+            data = {}
+            data['is_running'] = cls.server._is_running
+            json_dump = json.dumps(data)
+        except Exception as e:
+            cls._response(500, 'text/html', str(e))
+        else:
+            cls._response(200, 'text/html', json_dump)
+
+    def _kill(cls):
+        """
+        Kill the current running process
+        """
+        if cls.server._current_proc:
+            try:
+                cls.server._current_proc.send_signal(signal.CTRL_C_EVENT)
+            except:
+                pass
+        if cls.server._current_proc:
+            try:
+                cls.server._current_proc.send_signal(signal.CTRL_BREAK_EVENT)
+            except:
+                pass
+        if cls.server._current_proc:
+            try:
+                cls.server._current_proc.send_signal(signal.SIGTERM)
+            except:
+                pass
+        time.sleep(0.1)
+
+        cls._response(200, 'text/html', 'Application stopped.\n')
+
+    def _get_version(cls):
+        """
+        Get the version of this project.
+        """
+        try:
+            data = {}
+            data['version'] = cls.server._version
+            json_dump = json.dumps(data)
+        except Exception as e:
+            cls._response(500, 'text/html', str(e))
+        else:
+            cls._response(200, 'text/html', json_dump)
+
+    def _check_update(cls):
+        """
+        Check if there is an update available
+        """
+        try:
+            raise Exception('Error')
+            proc = subprocess.Popen(['sh', cls.server._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+            while True:
+                output = proc.stdout.readline()
+                if output == '' and proc.poll() is not None:
+                    break
+                if output:
+                    cls.server._log.put(output.strip())
+            proc.poll()
+
+            data = {}
+            if proc.returncode == 1:
+                data['is_update_available'] = True
+            else:
+                data['is_update_available'] = False
+        except Exception as e:
+            cls._response(500, 'text/html', str(e))
+        else:
+            cls._response(200, 'text/html', json.dumps(data))
+
+    def _update(cls):
+        """
+        Update all files from the project.
+        """
+        try:
+            cls._response(200, 'text/html', '')
+
+            # Update the system first.
+            cls.server._log.put('The system will be updated and needs a few seconds.\n')
+            proc = subprocess.Popen(['sh', cls.server._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+            while True:
+                output = proc.stdout.readline()
+                if output == '' and proc.poll() is not None:
+                    break
+                if output:
+                    cls.server._log.put(output.strip())
+            proc.poll()
+
+            # Do a restart.
+            proc = subprocess.Popen(['sh', cls.server._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+            while True:
+                output = proc.stdout.readline()
+                if output == '' and proc.poll() is not None:
+                    break
+                if output:
+                    cls.server._log.put(output.strip())
+            proc.poll()
+        except Exception as e:
+            cls.server._log.put(str(e))
+
+    def _shutdown(cls):
+        """
+        Shutdown the robot.
+        """
+        try:
+            cls._response(200, 'text/html', '')
+
+            # Update the system first.
+            cls.server._log.put('The system will be shutdown.\n')
+            proc = subprocess.Popen(['sh', cls.server._UPDATE_FILE, '-s'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+            while True:
+                output = proc.stdout.readline()
+                if output == '' and proc.poll() is not None:
+                    break
+                if output:
+                    cls.server._log.put(output.strip())
+            proc.poll()
+        except Exception as e:
+            cls.server._log.put(str(e))
+
+    def _save_password(cls, args):
+        """
+        Save the new password key only when the oldkey is the same with the current.
+        """
+        try:
+            message = ''
+            # Remove the password
+            if (args['oldKey'] == cls.server._authorization_key and args['remove']):
+                cls.server._authorization_key = ''
+                with open(cls.server._PASSWORD_FILE, 'w') as file:
+                    file.write(cls.server._authorization_key)
+                message = 'Password removed.'
+
+            # Store the password.
+            elif ((cls.server._authorization_key == '' or args['oldKey'] == cls.server._authorization_key) and args['newKey'] != ''):
+                cls.server._authorization_key = args['newKey']
+                with open(cls.server._PASSWORD_FILE, 'w') as file:
+                    file.write(cls.server._authorization_key)
+                message = 'New password written.'
+
+            else:
+                if args['remove']:
+                    message += 'Error: Could not remove the password.\n'
+                else:
+                    message += 'Error: Could not store the password.\n'
+                message += 'The current Password is not correct!'
+        except Exception as e:
+            cls._response(500, 'text/html', str(e))
+        else:
+            cls._response(200, 'text/html', message)
+
+    def _poll(cls):
+        """
+        Return the log messages to the browser.
+        """
+        try:
+            data = {}
+            data['message'] = cls.server._log.get_message()
+            cls._response(200, 'text/plain', json.dumps(data))
+        except Exception as e:
+            # The message could not transfered to the browser. So re queue it!
+            cls.server._log.requeue(data['message'])
+
+    def _replace_hucon_requests(cls, message):
+        """
+        Print an answer from HuCon whenever the the message 'Hello HoCon!' is found.
+        """
+        search_string = 'print(\'Hello HuCon!\')'
+        replace_string = 'print(\'Hello HuCon!\\n\\nHello human!\\nI am a human controlled robot.\\n\\n\')'
+        if search_string in message:
+            message = message.replace(search_string, replace_string)
+        return message
+
+    def _run_file(cls, filename):
+        """
+        Run the file and catch all output of it.
+        """
+        cls.server._current_proc = subprocess.Popen(['python', '-u', filename],
+                                                    bufsize=1,
+                                                    stdin=subprocess.PIPE,
+                                                    stdout=subprocess.PIPE,
+                                                    stderr=subprocess.STDOUT)
+
+        while True:
+            output = cls.server._current_proc.stdout.readline()
+            if output == '' and cls.server._current_proc.poll() is not None:
+                break
+            if output:
+                # Replace the file error like 'File "/tmp/execute.py", line x, in'
+                line = output.replace('File "' + filename + '", l', 'Error: L')
+
+                cls.server._log.put(line)
+        cls.server._current_proc.poll()
+
+    def _response(cls, status, content_type, data):
+        """
+        Send the response back to the server.
+        """
+        try:
+            cls.send_response(status)
+            cls.send_header('Content-type', content_type)
+            cls.end_headers()
+            cls.wfile.write(data)
+        except Exception as e:
+            print('error on response')
+            print(str(e))
+            print(status)
+            print(content_type)
+            print(data)
+
+    def _is_authorized(cls):
+        """
+        Return true when the authorization is OK.
+        This is always good when the key is empty.
+        """
+        authenticated = False
+
+        if cls.server._authorization_key == '':
+            authenticated = True
+
+        elif cls.headers.get('Authorization') == 'Basic ' + str(cls.server._authorization_key):
+            authenticated = True
+
+        return authenticated
+
+    def get_dict_from_url(cls, url):
+        """
+        Get a dictionary of all variables from an URL.
         """
         variables = url.split('?')[1]
         variables = variables.replace('&', '","')

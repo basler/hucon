@@ -26,26 +26,13 @@ div.container {
 }
 
 #mainArea {
-    float: left;
-    height: calc(100% - 434px);
+    padding: 0px;
 }
 
 #editor {
     width: 100%;
     height: 100%;
     margin: 0px;
-}
-
-#codeArea {
-    height: calc(100% - 436px);
-    margin-left: calc(100% - 340px);
-    width: 340px;
-    overflow: hidden;
-    background-color: #FFFFFF;
-}
-
-#pythonCode {
-    overflow-y: auto;
 }
 
 #logArea {
@@ -57,14 +44,10 @@ div.container {
 
 .center {
     width: 300px;
+    margin-top: 50px;
     position: absolute;
-    top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(-50%);
-}
-
-.spaceBottom {
-    margin-bottom: 10px;
+    transform: translateX(-50%);
 }
 
 .spaceRight {
@@ -83,21 +66,20 @@ div.container {
     display: none;
 }
 
-.shortWidth {
-    width: calc(100% - 350px);
+.shortHeight {
+    height: calc(100% - 434px);
 }
 
-.fullWidth {
-    width: 100%;
+.fullHeight {
+    height: calc(100% - 436px + 250px);
 }
 
-.blocklySvg {
-    background-color: #000000;
+.spaced {
+    margin: 1.0em;
 }
 
-.blocklyToolboxDiv, .injectionDiv {
-    background-color: #ddd;
-    color: #000000;
+.spaced .button {
+    margin-bottom: 0.75em;
 }
 
 /* semantic changes */

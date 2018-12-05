@@ -8,11 +8,13 @@ from HSLogMessage import HSLogMessage
 from HSRequestHandler import HSRequestHandler
 
 ThreadingMixIn.daemon_threads = True
-
 class HSHttpServer(ThreadingMixIn, HTTPServer):
     """
     This implementation is a simple HTTP Server which works on Windows, Linux and macOS with different Browser.
     """
+
+    # Name for the server to identificate
+    _SERVER_NAME = 'HuCon'
 
     # Folder where all files for the server are stored.
     _DOCUMENT_ROOT = os.path.abspath(os.path.join(os.getcwd(), 'www'))
@@ -32,6 +34,9 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
     # Define the port on which the server should listening on.
     _LISTENING_PORT = 8080
 
+    # Print more debug messages
+    _debug = False
+
     # Private key for the authorization to the key.
     _authorization_key = ''
 
@@ -41,41 +46,45 @@ class HSHttpServer(ThreadingMixIn, HTTPServer):
     # Store the current running state
     _is_running = False
 
-    # Store the current process id
-    _current_pid = None
+    # Store the current process to comunicate with a runing process
+    _current_proc = None
+
+    # Possible post data events stored as json format
+    _possible_post_data = None
 
     # Queue for all log messages
     _log = HSLogMessage()
 
-    def __init__(self, key):
+    def __init__(cls, key, debug=False):
         """
         Create a socket to get its own ip address.
         """
-        if os.path.exists(self._VERSION_FILE):
-            with open(self._VERSION_FILE, 'r') as file:
-                self._version = file.readline()
+        if os.path.exists(cls._VERSION_FILE):
+            with open(cls._VERSION_FILE, 'r') as file:
+                cls._version = file.readline()
 
-        print('HackerSchool v. %s' % self._version)
-        print('Code path: \'%s\'' % self._CODE_ROOT)
-        print('WWW path: \'%s\'\n' % self._DOCUMENT_ROOT)
-        self._authorization_key = key
-        HTTPServer.__init__(self, ('', 8080), HSRequestHandler)
+        print('%s v. %s' % (cls._SERVER_NAME, cls._version))
+        print('Code path: \'%s\'' % cls._CODE_ROOT)
+        print('WWW path:  \'%s\'\n' % cls._DOCUMENT_ROOT)
+        cls._authorization_key = key
+        cls._debug = debug
+        HTTPServer.__init__(cls, ('', cls._LISTENING_PORT), HSRequestHandler)
 
-    def get_auth_key(self):
+    def get_auth_key(cls):
         """
         Returns the authorization key for the webpages.
         """
-        return self._authorization_key
+        return cls._authorization_key
 
-    def start(self):
+    def start(cls):
         """
         Configure the server completly and start it forever.
         """
         print('Starting server, use <Ctrl+C> to stop.')
-        self._log.put('Server started ...')
-        os.chdir(self._DOCUMENT_ROOT)
+        cls._log.put('\n\nServer started ...\n\n')
+        os.chdir(cls._DOCUMENT_ROOT)
         try:
-            self.serve_forever()
+            cls.serve_forever()
         except KeyboardInterrupt:
             pass
-        self.server_close()
+        cls.server_close()

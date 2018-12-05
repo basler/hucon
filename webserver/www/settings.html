@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="cache-control" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=0.8">
-    <title>Hacker School :) - Settings</title>
+    <title>HuCon Robot :) - Settings</title>
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="semantic/semantic.min.css">
@@ -13,129 +13,138 @@
     <script src="jquery/jquery-3.3.1.min.js"></script>
     <script src="semantic/semantic.min.js"></script>
 
+    <script type="text/javascript" src="js/webserver.js"></script>
+
     <script type="text/javascript">
+
+        // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
-            $.ajax('/get_version', {
-                method: 'POST',
-                success: function(message) {
-                    var data = JSON.parse(message);
-                    $('#version').html(data['version']);
-                },
-                error: function(){
-                    $('#version').html('error');
-                }
-            });
+
+            // Load the extra template content
+            $('#headerArea').load('template/header.html', updateVersion);
+
+            // poll for new messages
+            poll();
         }());
 
-        $(document).ready(function poll() {
-            $.ajax('/poll', {
-                method: 'POST',
-                timeout: 30000, // 30 seconds
-                success: function(message){
-                    appendConsoleLog(message);
-                    poll();
-                },
-                error: function(){
-                    setTimeout(poll, 1000);
-                }
-            });
-        }());
-
-        function savePassword() {
+        // Save the password on the device.
+        function savePassword(remove) {
             oldUsername = document.getElementById('current_username').value;
             oldPassword = document.getElementById('current_password').value;
             newUsername = document.getElementById('new_username').value;
             newPassword = document.getElementById('new_password').value;
             confirmPassword = document.getElementById('new_password_confirm').value;
 
-            console.log(oldUsername);
-            console.log(oldPassword);
-            console.log(newUsername);
-            console.log(newPassword);
-            console.log(confirmPassword);
-
-            if (oldUsername == '' || oldPassword == '' || newUsername == '' || newPassword == '' || confirmPassword == '') {
-                alert('You must fill every element.');
-                return
-            }
-
-            if (newPassword != confirmPassword) {
-                alert('The new and confirmed password are not the same.');
-                return
-            }
-
-            oldKey = btoa(oldUsername + ':' + oldPassword);
-            newKey = btoa(newUsername + ':' + newPassword);
-
             var data = {};
-            data['oldKey'] = oldKey;
-            data['newKey'] = newKey;
+            data['oldKey'] = '';
+            data['newKey'] = '';
+            data['remove'] = remove;
+
+            if (oldUsername != '' || oldPassword != '') {
+                data['oldKey'] = btoa(oldUsername + ':' + oldPassword);
+            }
+
+            if (!remove) {
+                if (newUsername == '' || newPassword == '' || confirmPassword == '') {
+                    alert('You must fill the new password.');
+                    return
+                }
+
+                if (newPassword != confirmPassword) {
+                    alert('The new and confirmed password are not the same.');
+                    return
+                }
+
+                data['newKey'] = btoa(newUsername + ':' + newPassword);
+            }
+
             $.ajax('/save_password', {
                 method: 'POST',
                 data: JSON.stringify(data),
                 success: function (message) {
                     alert(message);
                     $('#changePasswordModal').modal('hide');
-                }
+                },
+                error: appendErrorLog
             });
         }
 
+        // Check for updates.
         function checkUpdate() {
             $('#updateModal').modal('show');
             $('#consoleLog').html('');
             $('#updateButton').addClass('disabled');
 
-            appendConsoleLog('Check for updates ...\n');
+            appendConsoleLog('Check for updates ...', 'green');
 
             $.ajax('/check_update', {
                 method: 'POST',
-                success: function (message) {
-                    var data = JSON.parse(message);
+                dataType: 'json',
+                success: function (data) {
                     if (data['is_update_available']) {
                         $('#updateButton').removeClass('disabled');
                     }
-                }
+                },
+                error: appendErrorLog
             });
         }
 
+        // Call the update script.
         function updateSystem() {
             $.ajax('/update', {
-                method: 'POST'
+                method: 'POST',
+                error: appendErrorLog
             });
         }
 
-        function appendConsoleLog(message) {
-            $('#consoleLog').append(message.replace(/\n/g, '<br>'));
-            $("#consoleLog").scrollTop($("#consoleLog")[0].scrollHeight);
+        // Overwrite the default appenConsoleLogMessage function.
+        // Append the message, which can be a an array, to the console output.
+        function appendConsoleLogMessage(message, colour) {
+            if (colour === undefined) {
+                colour = 'black';
+            }
+
+            if (message.includes('Error:')) {
+                colour = 'red';
+            }
+
+            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
+            $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
         }
 
     </script>
 
-<head>
 </head>
-<body id="body">
+<body>
 
     <div class="container">
 
-        <div id="headerArea">
-            <div class="whitesmoke" id="version"></div>
-            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="top: 8px; right: 6px; position: absolute;">
-                <i class="icon github"></i>
-                GitHub
-            </button>
-        </div>
+        <div id="headerArea"></div>
 
         <div class="center">
-            <button onclick="$('#changePasswordModal').modal('show')" class="fluid ui orange button">Change Password</button><br>
-            <button onclick="checkUpdate()" class="fluid ui orange button">Update</button>
+            <button onclick="$('#changePasswordModal').modal('show')" class="fluid ui orange button">
+                <i class="icon key"></i>
+                Change Password
+            </button>
             <p></p>
-            <button onclick="location.href='index.html'" class="fluid ui blue button">Index</button><br>
+            <button onclick="checkUpdate()" class="fluid ui orange button">
+                <i class="icon cloud download"></i>
+                Update
+            </button>
+            <p></p>
+            <button onclick="location.href='index.html'" class="fluid ui blue button">
+                <i class="icon home"></i>
+                Home
+            </button>
         </div>
 
     </div>
 
     <div id="changePasswordModal" class="ui modal">
-        <div class="header">Change Password</div>
+        <div class="header">
+            <i class="icon key"></i>
+            Change Password
+        </div>
 
         <div class="content">
             <div class="ui form">
@@ -166,13 +175,17 @@
                 </div>
 
                 <button onclick="$('#changePasswordModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
-                <button onclick="savePassword()" class="ui blue right button">Save</button>
+                <button onclick="savePassword(true)" class="ui red button">Remove password</button>
+                <button onclick="savePassword(false)" class="ui blue right button">Save</button>
             </div>
         </div>
     </div>
 
     <div id="updateModal" class="ui modal">
-        <div class="header">Update</div>
+        <div class="header">
+            <i class="icon cloud download"></i>
+            Update
+        </div>
 
         <div class="content">
             <div id="consoleLog" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
