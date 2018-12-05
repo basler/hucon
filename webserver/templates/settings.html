@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %} - Settings{% endblock %}
+{% block head %}
+    {{ super() }}
+
+    <script type="text/javascript">
+
+        // On document ready this function will be called and initialize the complete website.
+        $(document).ready(function () {
+            // poll for new messages
+            HuConApp.poll();
+        }());
+
+        // Save the password on the device.
+        function savePassword(remove) {
+            oldUsername = document.getElementById('current_username').value;
+            oldPassword = document.getElementById('current_password').value;
+            newUsername = document.getElementById('new_username').value;
+            newPassword = document.getElementById('new_password').value;
+            confirmPassword = document.getElementById('new_password_confirm').value;
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'save_password';
+            rpcRequest['params'] = {};
+            rpcRequest['params']['oldKey'] = '';
+            rpcRequest['params']['newKey'] = '';
+            rpcRequest['params']['remove'] = remove;
+
+            if (oldUsername != '' || oldPassword != '') {
+                rpcRequest['params']['oldKey'] = btoa(oldUsername + ':' + oldPassword);
+            }
+
+            if (!remove) {
+                if (newUsername == '' || newPassword == '' || confirmPassword == '') {
+                    alert('You must fill the new password.');
+                    return
+                }
+
+                if (newPassword != confirmPassword) {
+                    alert('The new and confirmed password are not the same.');
+                    return
+                }
+
+                rpcRequest['params']['newKey'] = btoa(newUsername + ':' + newPassword);
+            }
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        alert(rpcResponse[error]);
+                    }
+
+                    alert(rpcResponse['result']);
+                    $('#changePasswordModal').modal('hide');
+                },
+                error: function(request, status, error) {
+                    rpcResponse = JSON.parse(request.responseText)
+                    alert(rpcResponse['error']);
+                }
+            });
+        }
+
+        // Check for updates.
+        function checkUpdate() {
+            $('#updateModal').modal('show');
+            $('#consoleLog').html('');
+            $('#updateButton').addClass('disabled');
+
+            HuConApp.appendConsoleLog('Check for updates ...', 'green');
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'check_update';
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        alert(rpcResponse[error]);
+                    }
+
+                    if (rpcResponse['result']) {
+                        $('#updateButton').removeClass('disabled');
+                    }
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Call the update script.
+        function updateSystem() {
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'update';
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Overwrite the default appenConsoleLogMessage function.
+        // Append the message, which can be a an array, to the console output.
+        HuConApp.appendConsoleLogMessage = function(message, colour) {
+            if (colour === undefined) {
+                colour = 'black';
+            }
+
+            if (message.includes('Error:')) {
+                colour = 'red';
+            }
+
+            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
+            $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
+        }
+
+    </script>
+
+{% endblock %}
+
+{% block menu %}{% endblock %}
+{% block log %}{% endblock %}
+
+{% block main %}
+        <div class="center">
+            <button onclick="$('#changePasswordModal').modal('show')" class="fluid ui orange button">
+                <i class="icon key"></i>
+                Change Password
+            </button>
+            <p></p>
+            <button onclick="checkUpdate()" class="fluid ui orange button">
+                <i class="icon cloud download"></i>
+                Update
+            </button>
+            <p></p>
+            <button onclick="location.href='index.html'" class="fluid ui blue button">
+                <i class="icon home"></i>
+                Home
+            </button>
+        </div>
+{% endblock %}
+
+{% block modal %}
+
+    <div id="changePasswordModal" class="ui modal">
+        <div class="header">
+            <i class="icon key"></i>
+            Change Password
+        </div>
+
+        <div class="content">
+            <div class="ui form">
+
+                <h4 class="ui dividing header">Current Name / Password</h4>
+                <div class="field">
+                    <div class="two fields">
+                        <div class="field">
+                            <input type="text" id="current_username" placeholder="Name">
+                        </div>
+                        <div class="field">
+                            <input type="password" id="current_password" placeholder="Password">
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="ui dividing header">New Name / Password</h4>
+                <div class="field">
+                    <div class="two fields">
+                        <div class="field">
+                            <input type="text" id="new_username" placeholder="Name">
+                        </div>
+                        <div class="field">
+                            <input type="password" id="new_password" placeholder="Password">
+                            <input type="password" id="new_password_confirm" placeholder="Confirm Password">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="$('#changePasswordModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
+                <button onclick="savePassword(true)" class="ui red button">Remove password</button>
+                <button onclick="savePassword(false)" class="ui blue right button">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="updateModal" class="ui modal">
+        <div class="header">
+            <i class="icon cloud download"></i>
+            Update
+        </div>
+
+        <div class="content">
+            <div id="consoleLog" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
+
+            <button onclick="$('#updateModal').modal('hide')" class="ui orange button">Close</button>
+            <button onclick="updateSystem()" id="updateButton" class="ui blue button disabled">Update</button>
+        </div>
+    </div>
+
+{% endblock %}

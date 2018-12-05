@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block title %} - Blockly{% endblock %}
+{% block head %}
+    {{ super() }}
+
+    <!-- Blockly sources -->
+    <script type="text/javascript" src="{{ url_for('.static', filename='blockly/blockly_compressed.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='blockly/blocks_compressed.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='blockly/python_compressed.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='blockly/en.js') }}"></script>
+
+    <!-- Blockly components -->
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/custom_blocks_machine.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/custom_blocks_eye.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/custom_blocks_servo.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/custom_blocks_motor.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/custom_blocks_mpu.js') }}"></script>
+
+    <!-- Prettify sources -->
+    <script type="text/javascript" src="{{ url_for('.static', filename='prettify/prettify.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('.static', filename='prettify/prettify.css') }}">
+
+    <script type="text/javascript">
+        var blocklyWorkspace;
+        var folder = '';
+
+        // Ask the user to go before he goes.
+        $(window).bind("beforeunload", function(){
+            return "Do you really want to go?\nAll your unsaved data will be lost.";
+        });
+
+        // On document ready this function will be called and initialize the complete website.
+        $(document).ready(function () {
+
+            window.addEventListener('resize', onResize);
+
+            // poll for new messages
+            HuConApp.poll();
+
+            configureMenu();
+            HuConApp.showCode();
+            HuConApp.showConsole();
+
+            $.ajax("{{ url_for('.static', filename='xml/toolbox.xml') }}", {
+                method: 'GET',
+                dataType: 'text',
+                success: function (message) {
+                    // Initialize blockly
+                    // Do this as a last step in this function to calculate the size correctly!
+                    blocklyWorkspace = Blockly.inject('blocklyDiv', {
+                        grid: {
+                            spacing: 25,
+                            length: 3,
+                            colour: '#ccc',
+                            snap: true
+                        },
+                        media: "{{ url_for('.static', filename='blockly/media/') }}",
+                        toolbox: message,
+                        zoom: {
+                            controls: true,
+                            wheel: true
+                        }
+                    });
+
+                    // Add the listener on resize to call the onResize function
+                    onResize();
+                    Blockly.svgResize(blocklyWorkspace);
+
+                    // Add the listener on every change to update the code
+                    blocklyWorkspace.addChangeListener(udpateCode);
+                },
+                error: HuConApp.appendErrorLog
+            });
+
+            PR.prettyPrint();
+
+        });
+
+        // Hide the code button from the menu.
+        function configureMenu() {
+            $('#fileDropDown').hide();
+            $('#runButton').click(HuConApp.execute);
+            $('#stopButton').click(HuConApp.stop);
+            $('#consoleButton').click(HuConApp.toggleConsoleView);
+            $('#codeButton').click(HuConApp.toggleCodeView);
+            $('#buttonModalButton').click(HuConApp.buttonModal);
+        }
+
+        // Clear the workspace and remove the filename
+        function newFile() {
+            Blockly.mainWorkspace.clear();
+            $('#consoleLog').html('');
+            $('#saveFilename').val('');
+        }
+
+        // Load the file list and show the open file modal.
+        function openFileModal() {
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'get_file_list';
+            rpcRequest['params'] = folder;
+
+            $('#breadcrumb').append('<div class="divider">/</div>')
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse) {
+
+                    // clear the list
+                    $('#openFileList').html('');
+
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    // add the files to the empty list
+                    for (i=0; i<rpcResponse['result'].length; i++) {
+                        var filename = rpcResponse['result'][i];
+
+                        // Append a folder
+                        if (filename.indexOf('.') === -1) {
+                            $('#openFileList').append('<div onclick="goIntoSubFolder(\'' + filename + '\')" class="item content ok"><div class="header">' + filename + '</div></div>');
+                        }
+
+                        // Append a file
+                        if (filename.substr(-4) === '.xml') {
+                            $('#openFileList').append('<div onclick="loadFileFromDevice(\'' + filename + '\');" class="item content ok"><div class="header">' + filename + '</div></div>');
+                        }
+                    }
+
+                    $('#openModal').modal('show');
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Hide the open file modal and load the content from the file.
+        function loadFileFromDevice(filename) {
+            $('#openModal').modal('hide');
+            $('#consoleLog').html('');
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'load_file';
+            rpcRequest['params'] = folder + '/' + filename;
+
+            // Store the filename for the save dialog
+            $('#saveFilename').val(filename);
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    if (rpcResponse['result']) {
+                        loadFile(rpcResponse['result']);
+                    }
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Show the save file modal and load the file list from the device.
+        function saveFileModal() {
+            $('#saveModal').modal('show');
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'get_file_list';
+            rpcRequest['params'] = folder;
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function(rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    $('#saveFileList').html('');
+                    for (i=0; i<rpcResponse['result'].length; i++) {
+                        var filename = rpcResponse['result'][i];
+                        if (filename.substr(-4) === '.xml') {
+                            $('#saveFileList').append('<div onclick="$(\'#saveFilename\').val(\'' + filename + '\');" class="item content ok"><div class="header">' + filename + '</div></div>');
+                        }
+                    }
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Save the file on the device and hide the file save modal.
+        function saveFileOnDevice() {
+            $('#saveModal').modal('hide');
+
+            $('#consoleLog').html('');
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'save_file';
+            rpcRequest['params'] = {};
+
+            var data = {};
+            var xmlDom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
+
+            // check the file extension
+            var filename = $('#saveFilename').val();
+            if (filename.substr(-4) !== '.xml') {
+                filename += '.xml';
+                $('#saveFilename').val(filename);
+            }
+
+            // Store the blockly code
+            rpcRequest['params']['filename'] = folder + '/' + filename;
+            rpcRequest['params']['data'] = Blockly.Xml.domToPrettyText(xmlDom);
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    HuConApp.appendConsoleLog(rpcResponse['result']);
+                },
+                error: HuConApp.appendErrorLog
+            });
+
+            // Store the python code
+            rpcRequest['params']['filename'] = folder + '/' + filename.substr(0, filename.length - 4) + '.py';
+            rpcRequest['params']['data'] = getPythonCode();
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        return
+                    }
+
+                    HuConApp.appendConsoleLog(rpcResponse['result']);
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        // Return the python code.
+        function getPythonCode() {
+            return Blockly.Python.workspaceToCode(blocklyWorkspace);
+        }
+
+        // Load the workspace with the file data.
+        function loadFile(data) {
+            if (data) {
+                Blockly.mainWorkspace.clear();
+                xmlDom = Blockly.Xml.textToDom(data);
+                Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
+            }
+            HuConApp.appendConsoleLog('Blockly workspace loaded from local device.', 'green');
+        }
+
+        // This function will be called whenever an element on the workspace is changed
+        // to update the code and show it on the page.
+        function udpateCode(event) {
+            var code = Blockly.Python.workspaceToCode(blocklyWorkspace);
+            code = code.replace(/\n/g, '<br>');
+            code = PR.prettyPrintOne(code, 'py');
+            $('#pythonCode').html(code);
+        }
+
+        // Resize the area, so blockly will fit all ways.
+        function onResize(){
+            var mainArea = document.getElementById('mainArea');
+            var blocklyArea = document.getElementById('blocklyArea');
+            var blocklyDiv = document.getElementById('blocklyDiv');
+
+            // Position blocklyDiv over blocklyArea.
+            blocklyDiv.style.left = '0px';
+            blocklyDiv.style.top = '0px';
+            blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+            blocklyDiv.style.height = mainArea.offsetHeight + 'px';
+        };
+
+    </script>
+
+{% endblock %}
+
+{% block content %}
+            <div class="ui celled grid" style="height: 100%; margin: 0px;">
+                <div id="blocklyArea" class="twelve wide column" style="padding: 0px;z-index: 1;">
+                    <div id="blocklyDiv"></div>
+                </div>
+                <div id="codeArea" class="four wide column" style="overflow:scroll;height:100%;">
+                    <label>Python Code</label>
+                    <pre id="pythonCode" class="prettyprint lang-python" style="border: none;padding: 0px;">#Lets start ...</pre>
+                </div>
+            </div>
+{% endblock %}

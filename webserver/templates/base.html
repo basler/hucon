@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="de">
+
+    {% block head %}
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+    <title>HuCon Robot :) {% block title %}{% endblock %}</title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('.static', filename='semantic/semantic.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/main.css') }}">
+
+    <script src="{{ url_for('.static', filename='jquery/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('.static', filename='semantic/semantic.min.js') }}"></script>
+
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/webserver.js') }}"></script>
+
+    {% endblock %}
+<head>
+</head>
+<body>
+
+    <div class="container">
+        {% block container %}
+        <div id="headerArea">
+            <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
+                <i class="icon github"></i>
+                <div class="floating ui blue label" id="version"></div>
+                GitHub
+            </button>
+            {% block header %}{% endblock %}
+        </div>
+        {% block menu %}
+        <div id="menuArea" class="ui top attached menu">
+            <div id="fileButton" class="ui simple dropdown item">
+                <i class="folder outline icon"></i>
+                File
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a onclick="newFile()" class="item"><i class="file icon"></i>New</a>
+                    <a onclick="openFileModal()" class="item"><i class="folder open icon"></i> Open</a>
+                    <a onclick="saveFileModal()" class="item"><i class="save icon"></i> Save</a>
+                </div>
+            </div>
+            <div id="fileDropDown" class="ui selection dropdown">
+                <input type="hidden" id="filename">
+                <i class="dropdown icon"></i>
+                <div class="default text">Select file ...</div>
+                <div class="menu"></div>
+            </div>
+            <a id="runButton" class="item"><i class="play icon"></i>Run</a>
+            <a id="stopButton" class="item disabled"><i class="stop icon"></i>Stop</a>
+            <a id="consoleButton" class="item"><i class="terminal icon"></i>Console</a>
+            <a id="codeButton" class="item"><i class="code icon"></i>Code</a>
+            <a id="buttonModalButton" class="item"><i class="grid layout icon"></i> Buttons</a>
+            <div class="right menu">
+                <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
+            </div>
+        </div>
+        {% endblock %}
+        {% block main %}
+        <div id="mainArea" class="ui attached segment">
+            {% block content %}{% endblock %}
+        </div>
+        {% endblock %}
+        {% block log %}
+        <div id="logArea" class="ui bottom attached">
+            <div class="ui form warning">
+                <div class="field">
+                    <h3>Console Log</h3>
+                    <div id="consoleLog" class="codeText"></div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+        {% endblock %}
+    </div>
+
+    {% block modal %}
+    <div id="openModal" class="ui modal">
+        <div class="header">
+            Open file<br>
+            <div id="breadcrumb" class="ui breadcrumb"></div>
+        </div>
+        <div class="scrolling content">
+            <div id="openFileList" class="ui middle aligned selection list"></div>
+        </div>
+        <div class="actions">
+            <div class="ui orange cancel button">
+                Cancel
+            </div>
+        </div>
+    </div>
+
+    <div id="saveModal" class="ui modal">
+        <div class="header">
+            Save file
+        </div>
+        <div class="scrolling content">
+            <div id="saveFileList" class="ui middle aligned selection list"></div>
+        </div>
+        <div class="ui form content">
+            <div class="field">
+                <input type="text" id="saveFilename" placeholder="Filename">
+            </div>
+            <button onclick="$('#saveModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
+            <button onclick="saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
+        </div>
+    </div>
+
+    <div id="buttonModal" class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            Click a button
+        </div>
+        <div id="buttonEmbed" class="ui embed" data-url="remote_control.html"></div>
+    </div>
+    {% endblock %}
+
+</body>
+</html>

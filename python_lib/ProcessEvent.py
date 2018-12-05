@@ -1,6 +1,7 @@
 import signal
 import tempfile
 import os
+import json
 
 _internal_event_handler = None
 
@@ -39,7 +40,7 @@ class ProcessEvent():
         _events_to_catch = events_to_catch
 
         with open(cls._POSSIBLE_EVENTS_FILE, 'w') as file:
-            file.write(str({"PostCommands": events_to_catch}).replace("'", '"'))
+            json.dump(events_to_catch, file)
         file.close()
 
         cls._events_to_catch = events_to_catch

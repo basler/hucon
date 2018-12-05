@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %} - JSON RPC{% endblock %}
+
+{% block menu %}{% endblock %}
+
+{% block content %}
+This server is providing a JSON RPC API version 2.0 with the following methods.</br>
+
+<table class="ui celled table">
+<thead><tr><th>Method</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>get_version</td><td>Return the version of the server.</td></tr>
+<tr><td>poll</td><td>Return the last messages which come from the server or the running application.</td></tr>
+<tr><td>get_file_list</td><td>Return the list of files and folder.</td></tr>
+<tr><td>load_file</td><td>Return the content of the given file.</td></tr>
+<tr><td>save_file</td><td>Saves the given file on disk of the robot.</td></tr>
+<tr><td>is_running</td><td>Return True whenever a program is currently running.</td></tr>
+<tr><td>execute</td><td>Save the given python code on the device and run it.</td></tr>
+<tr><td>run</td><td>Run the file from the device.</td></tr>
+<tr><td>kill</td><td>Kill the current running application.</td></tr>
+<tr><td>get_possible_post_data</td><td>Return an array with all possible events.</td></tr>
+<tr><td>event</td><td>Call the event by sending the id of it.</td></tr>
+<tr><td>check_update</td><td>TBD</td></tr>
+<tr><td>update</td><td>TBD</td></tr>
+<tr><td>shutdown</td><td>TBD</td></tr>
+<tr><td>save_password</td><td>TBD</td></tr>
+
+</tbody>
+</table>
+{% endblock %}
+
+{% block log %}{% endblock %}
