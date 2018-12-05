@@ -150,6 +150,12 @@ class HuConJsonRpc():
 
         cls._current_proc.poll()
 
+        # Wait until the queue is empty or the timout occured
+        timeout = 0
+        while (cls._log.empty() is False) and (timeout < 30):
+            time.sleep(0.1)
+            timeout = timeout + 1
+
 # ----------------------------------------------------------------------------------------------------------------------
 # JSON RPC API Methods
 # ----------------------------------------------------------------------------------------------------------------------
