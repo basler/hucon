@@ -1,7 +1,19 @@
+// Ask the user to go before he goes.
+$(window).bind("beforeunload", function(){
+    if (HuConApp.UnsavedContent) {
+        return "Do you really want to go?\nAll your unsaved data will be lost.";
+    }
+});
+
 // On document ready this function will be called and do a base initialization.
 $(document).ready(function () {
     // Update the version information on the ui
     HuConApp.updateVersion();
+
+    $('#loadModal').modal({allowMultiple: true});
+    $('#newFolderModal').modal('attach events', '#newFolderButton')
+;
+;
 });
 
 // Handle some key bindings
@@ -37,6 +49,15 @@ var HuConApp = {}
 
 // Id for JSON-RPC protocol
 HuConApp.RpcId = 0;
+
+// Folder path to save and load on the device
+HuConApp.Folder = '';
+
+// File extension which is currently used.
+HuConApp.FileExt = '';
+
+// Remeber any changes after save.
+HuConApp.UnsavedContent = false;
 
 // Get a new JSON-RPC message data with a new id.
 HuConApp.getRpcRequest = function() {
@@ -310,4 +331,272 @@ HuConApp.toggleConsoleView = function() {
 HuConApp.buttonModal = function() {
     $('#buttonModal').modal('show');
     $('#buttonEmbed').embed();
+}
+
+// Set the breadcrump based on the current folder.
+HuConApp.setBreadcrumb = function(modal) {
+    modal.html('<div class="divider">/</div>');
+
+    var folderPath = HuConApp.Folder.split('/');
+    for (var i = 0; i < folderPath.length; i++) {
+        if (folderPath[i] != '') {
+            modal.append('<div class="section">' + folderPath[i] + '</div>');
+            modal.append('<div class="divider">/</div>');
+        }
+    }
+}
+
+// Show a form to create a new folder.
+HuConApp.createNewFolder = function() {
+    foldername = $('#folderFilename').val();
+
+    if (foldername != '') {
+        var rpcRequest = HuConApp.getRpcRequest();
+        rpcRequest['method'] = 'create_folder';
+        rpcRequest['params'] = HuConApp.Folder + '/' + foldername;
+
+        $.ajax('/API', {
+            method: 'POST',
+            data: JSON.stringify(rpcRequest),
+            dataType: 'json',
+            error: HuConApp.appendErrorLog
+        });
+
+        HuConApp.saveFileModal(HuConApp.Folder);
+    }
+    console.log($('#folderFilename'));
+}
+
+// Show the file open modal and list all folder.
+HuConApp.openFileModal = function(newFolder) {
+
+    if (newFolder != undefined) {
+        HuConApp.Folder = newFolder;
+    }
+
+    HuConApp.setBreadcrumb($('#openBreadcrumb'));
+
+    var rpcRequest = HuConApp.getRpcRequest();
+    rpcRequest['method'] = 'get_file_list';
+    rpcRequest['params'] = HuConApp.Folder;
+
+    $.ajax('/API', {
+        method: 'POST',
+        data: JSON.stringify(rpcRequest),
+        dataType: 'json',
+        success: function(rpcResponse) {
+            HuConApp.configureLoadSaveModal(rpcResponse, $('#openFileList'), 'openFileModal', true);
+
+            $('#openModal').modal('show');
+        },
+        error: function(request, status, error) {
+            HuConApp.Folder = '';
+            HuConApp.appendErrorLog(request, status, error);
+        }
+    });
+}
+
+// Hide the open file modal and load the content from the file.
+HuConApp.loadFileFromDevice = function(filename) {
+    $('#openModal').modal('hide');
+    $('#consoleLog').html('');
+
+    var rpcRequest = HuConApp.getRpcRequest();
+    rpcRequest['method'] = 'load_file';
+    rpcRequest['params'] = HuConApp.Folder + '/' + filename;
+
+    // Store the filename for the save dialog
+    $('#saveFilename').val(filename);
+
+    $.ajax('/API', {
+        method: 'POST',
+        data: JSON.stringify(rpcRequest),
+        dataType: 'json',
+        success: function(rpcResponse) {
+            if (HuConApp.isResponseError(rpcResponse)) {
+                return
+            }
+
+            if (rpcResponse['result']) {
+                setFileContent(rpcResponse['result']);
+
+                HuConApp.appendConsoleLog('File "' + HuConApp.Folder + '/' + filename + '" loaded from local device.', 'green');
+
+                HuConApp.UnsavedContent = false;
+            }
+        },
+        error: HuConApp.appendErrorLog
+    });
+}
+
+// Show the save file modal and load the file list from the device.
+HuConApp.saveFileModal = function(newFolder) {
+
+    // Set the new Folder
+    if (newFolder != undefined) {
+        HuConApp.Folder = newFolder;
+    }
+
+    // The example folder is read only, so go back to root on save.
+    if (HuConApp.Folder == '/examples') {
+        HuConApp.Folder = '';
+    }
+
+    HuConApp.setBreadcrumb($('#saveBreadcrumb'));
+
+    var rpcRequest = HuConApp.getRpcRequest();
+    rpcRequest['method'] = 'get_file_list';
+    rpcRequest['params'] = HuConApp.Folder;
+
+    $.ajax('/API', {
+        method: 'POST',
+        data: JSON.stringify(rpcRequest),
+        dataType: 'json',
+        success: function(rpcResponse) {
+            HuConApp.configureLoadSaveModal(rpcResponse, $('#saveFileList'), 'saveFileModal', false);
+
+            $('#saveModal').modal('show');
+        },
+        error: function(request, status, error) {
+            HuConApp.Folder = '';
+            HuConApp.appendErrorLog(request, status, error);
+        }
+    });
+}
+
+// Save the file on the device and hide the file save modal.
+HuConApp.saveFileOnDevice = function() {
+    $('#saveModal').modal('hide');
+
+    $('#consoleLog').html('');
+
+    // Abort on write within the example folder
+    if (HuConApp.Folder == '/examples') {
+        HuConApp.appendConsoleLog('The file is not written on device.\nThe examples folder is read only!', 'red');
+        return;
+    }
+
+    // Get the filename without any extension.
+    filename = $('#saveFilename').val();
+    if (filename.substr(-HuConApp.FileExt.length) == HuConApp.FileExt) {
+        filename = filename.slice(0, -HuConApp.FileExt.length);
+    }
+    $('#saveFilename').val(filename + HuConApp.FileExt);
+
+    var rpcRequest = HuConApp.getRpcRequest();
+    rpcRequest['method'] = 'save_file';
+    rpcRequest['params'] = {};
+
+    // Store the blockly code if needed
+    if (HuConApp.FileExt == '.xml') {
+        rpcRequest['params']['filename'] = HuConApp.Folder + '/' + filename + '.xml';
+        rpcRequest['params']['data'] = getBlocklyCode();
+        $.ajax('/API', {
+            method: 'POST',
+            data: JSON.stringify(rpcRequest),
+            dataType: 'json',
+            success: function (rpcResponse) {
+                if (HuConApp.isResponseError(rpcResponse)) {
+                    return
+                }
+
+                HuConApp.appendConsoleLog(rpcResponse['result']);
+            },
+            error: HuConApp.appendErrorLog
+        });
+    }
+
+    // Store the python code
+    rpcRequest['params']['filename'] = HuConApp.Folder + '/' + filename + '.py';
+    rpcRequest['params']['data'] = getPythonCode();
+    $.ajax('/API', {
+        method: 'POST',
+        data: JSON.stringify(rpcRequest),
+        dataType: 'json',
+        success: function (rpcResponse) {
+            if (HuConApp.isResponseError(rpcResponse)) {
+                return
+            }
+
+            HuConApp.appendConsoleLog(rpcResponse['result']);
+        },
+        error: HuConApp.appendErrorLog
+    });
+
+    HuConApp.UnsavedContent = false;
+}
+
+// Configure the load or save modal correctly.
+HuConApp.configureLoadSaveModal = function(rpcResponse, modal, folderCallback, openFile) {
+    // clear the list
+    modal.html('');
+
+    if (HuConApp.isResponseError(rpcResponse)) {
+        return
+    }
+
+    folderHtml = `
+    <div onclick="HuConApp.{1}(\'{2}\')" class="item ok">
+        <i class="folder icon"></i>
+        <div class="content header">{3}</div>
+    </div>
+    `;
+
+    // Append the folder up if needed.
+    if (HuConApp.Folder != '') {
+        // Determine the parent folder
+        var upperFolder = HuConApp.Folder.slice(0, HuConApp.Folder.lastIndexOf('/'));
+        modal.append(HuConApp.formatVarString(folderHtml, folderCallback, upperFolder, '..'));
+    }
+
+    // Add the folder to the empty list
+    for (i=0; i<rpcResponse['result'].length; i++) {
+        var filename = rpcResponse['result'][i];
+        if (filename.indexOf('.') === -1) {
+            var newFolder = HuConApp.Folder + '/' + filename;
+
+            // Do not show the examples folder as possible folder.
+            if (!openFile && (newFolder == '/examples')) {
+                continue;
+            }
+
+            modal.append(HuConApp.formatVarString(folderHtml, folderCallback, newFolder, filename));
+        }
+    }
+
+    fileHtml = '';
+    if (openFile) {
+        fileHtml = `
+        <div onclick="HuConApp.loadFileFromDevice(\'{1}\');" class="item ok">
+            <i class="file icon"></i>
+            <div class="content header">{1}</div>
+        </div>
+        `;
+    } else {
+        fileHtml = `
+        <div onclick="$(\'#saveFilename\').val(\'{1}\');" class="item ok">
+            <i class="file icon"></i>
+            <div class="content header">{1}</div>
+        </div>
+        `;
+    }
+
+    // Add the files to the empty list
+    for (i=0; i<rpcResponse['result'].length; i++) {
+        var filename = rpcResponse['result'][i];
+        if (filename.substr(-HuConApp.FileExt.length) === HuConApp.FileExt) {
+            modal.append(HuConApp.formatVarString(fileHtml, filename));
+        }
+    }
+}
+
+HuConApp.formatVarString = function() {
+    var args = [].slice.call(arguments);
+    if(this.toString() != '[object Object]')
+    {
+        args.unshift(this.toString());
+    }
+
+    var pattern = new RegExp('{([1-' + args.length + '])}','g');
+    return String(args[0]).replace(pattern, function(match, index) { return args[index]; });
 }

@@ -70,6 +70,8 @@ class HuConJsonRpc():
             return cls._poll(rpc_request)
         elif rpc_request['method'] == 'get_file_list':
             return cls._get_file_list(rpc_request)
+        elif rpc_request['method'] == 'create_folder':
+            return cls._create_folder(rpc_request)
         elif rpc_request['method'] == 'load_file':
             return cls._load_file(rpc_request)
         elif rpc_request['method'] == 'save_file':
@@ -124,7 +126,7 @@ class HuConJsonRpc():
         Print an answer from HuCon whenever the the message 'Hello HoCon!' is found.
         """
         search_string = 'print(\'Hello HuCon!\')'
-        replace_string = 'print(\'Hello HuCon!\\n\\nHello human!\\nI am a human controlled robot.\\n\\n\')'
+        replace_string = 'print(\'Hello HuCon!\\n\\nHello human!\\nI am a Hu[man] Con[trolled] robot.\\n\')'
         if search_string in message:
             message = message.replace(search_string, replace_string)
         return message
@@ -200,6 +202,23 @@ class HuConJsonRpc():
             json_dump = json.dumps(rpc_response)
         except Exception as e:
             return cls._return_error(rpc_request['id'], 'Could not get a file list for the folder. (%s)' % str(e))
+        else:
+            return json_dump
+
+    def _create_folder(cls, rpc_request):
+        """
+        Creates the folder on the device.
+        """
+        try:
+            new_folder = os.path.join(cls._CODE_ROOT, rpc_request['params'].strip('/\\'))
+
+            if not os.path.exists(new_folder):
+                os.makedirs(new_folder)
+
+            rpc_response = cls._get_rpc_response(rpc_request['id'])
+            json_dump = json.dumps(rpc_response)
+        except Exception as e:
+            return cls._return_error(rpc_request['id'], 'Could not create the folder. (%s)' % str(e))
         else:
             return json_dump
 

@@ -22,12 +22,8 @@
 
     <script type="text/javascript">
         var blocklyWorkspace;
-        var folder = '';
 
-        // Ask the user to go before he goes.
-        $(window).bind("beforeunload", function(){
-            return "Do you really want to go?\nAll your unsaved data will be lost.";
-        });
+        HuConApp.FileExt = '.xml';
 
         // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
@@ -73,12 +69,14 @@
             });
 
             PR.prettyPrint();
-
         });
 
         // Hide the code button from the menu.
         function configureMenu() {
             $('#fileDropDown').hide();
+            $('#newButton').click(newFile);
+            $('#openButton').click(function(){HuConApp.openFileModal()});
+            $('#saveButton').click(function(){HuConApp.saveFileModal()});
             $('#runButton').click(HuConApp.execute);
             $('#stopButton').click(HuConApp.stop);
             $('#consoleButton').click(HuConApp.toggleConsoleView);
@@ -91,176 +89,28 @@
             Blockly.mainWorkspace.clear();
             $('#consoleLog').html('');
             $('#saveFilename').val('');
+
+            HuConApp.UnsavedContent = false;
         }
 
-        // Load the file list and show the open file modal.
-        function openFileModal() {
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'get_file_list';
-            rpcRequest['params'] = folder;
-
-            $('#breadcrumb').append('<div class="divider">/</div>')
-
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function(rpcResponse) {
-
-                    // clear the list
-                    $('#openFileList').html('');
-
-                    if (HuConApp.isResponseError(rpcResponse)) {
-                        return
-                    }
-
-                    // add the files to the empty list
-                    for (i=0; i<rpcResponse['result'].length; i++) {
-                        var filename = rpcResponse['result'][i];
-
-                        // Append a folder
-                        if (filename.indexOf('.') === -1) {
-                            $('#openFileList').append('<div onclick="goIntoSubFolder(\'' + filename + '\')" class="item content ok"><div class="header">' + filename + '</div></div>');
-                        }
-
-                        // Append a file
-                        if (filename.substr(-4) === '.xml') {
-                            $('#openFileList').append('<div onclick="loadFileFromDevice(\'' + filename + '\');" class="item content ok"><div class="header">' + filename + '</div></div>');
-                        }
-                    }
-
-                    $('#openModal').modal('show');
-                },
-                error: HuConApp.appendErrorLog
-            });
-        }
-
-        // Hide the open file modal and load the content from the file.
-        function loadFileFromDevice(filename) {
-            $('#openModal').modal('hide');
-            $('#consoleLog').html('');
-
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'load_file';
-            rpcRequest['params'] = folder + '/' + filename;
-
-            // Store the filename for the save dialog
-            $('#saveFilename').val(filename);
-
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function(rpcResponse) {
-                    if (HuConApp.isResponseError(rpcResponse)) {
-                        return
-                    }
-
-                    if (rpcResponse['result']) {
-                        loadFile(rpcResponse['result']);
-                    }
-                },
-                error: HuConApp.appendErrorLog
-            });
-        }
-
-        // Show the save file modal and load the file list from the device.
-        function saveFileModal() {
-            $('#saveModal').modal('show');
-
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'get_file_list';
-            rpcRequest['params'] = folder;
-
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function(rpcResponse) {
-                    if (HuConApp.isResponseError(rpcResponse)) {
-                        return
-                    }
-
-                    $('#saveFileList').html('');
-                    for (i=0; i<rpcResponse['result'].length; i++) {
-                        var filename = rpcResponse['result'][i];
-                        if (filename.substr(-4) === '.xml') {
-                            $('#saveFileList').append('<div onclick="$(\'#saveFilename\').val(\'' + filename + '\');" class="item content ok"><div class="header">' + filename + '</div></div>');
-                        }
-                    }
-                },
-                error: HuConApp.appendErrorLog
-            });
-        }
-
-        // Save the file on the device and hide the file save modal.
-        function saveFileOnDevice() {
-            $('#saveModal').modal('hide');
-
-            $('#consoleLog').html('');
-
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'save_file';
-            rpcRequest['params'] = {};
-
-            var data = {};
-            var xmlDom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
-
-            // check the file extension
-            var filename = $('#saveFilename').val();
-            if (filename.substr(-4) !== '.xml') {
-                filename += '.xml';
-                $('#saveFilename').val(filename);
+        // Load the workspace with the file data.
+        function setFileContent(data) {
+            if (data) {
+                Blockly.mainWorkspace.clear();
+                var xmlDom = Blockly.Xml.textToDom(data);
+                Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
             }
+        }
 
-            // Store the blockly code
-            rpcRequest['params']['filename'] = folder + '/' + filename;
-            rpcRequest['params']['data'] = Blockly.Xml.domToPrettyText(xmlDom);
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    if (HuConApp.isResponseError(rpcResponse)) {
-                        return
-                    }
-
-                    HuConApp.appendConsoleLog(rpcResponse['result']);
-                },
-                error: HuConApp.appendErrorLog
-            });
-
-            // Store the python code
-            rpcRequest['params']['filename'] = folder + '/' + filename.substr(0, filename.length - 4) + '.py';
-            rpcRequest['params']['data'] = getPythonCode();
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    if (HuConApp.isResponseError(rpcResponse)) {
-                        return
-                    }
-
-                    HuConApp.appendConsoleLog(rpcResponse['result']);
-                },
-                error: HuConApp.appendErrorLog
-            });
+        // Returns the blockly code.
+        function getBlocklyCode() {
+            var xmlDom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
+            return Blockly.Xml.domToPrettyText(xmlDom);
         }
 
         // Return the python code.
         function getPythonCode() {
             return Blockly.Python.workspaceToCode(blocklyWorkspace);
-        }
-
-        // Load the workspace with the file data.
-        function loadFile(data) {
-            if (data) {
-                Blockly.mainWorkspace.clear();
-                xmlDom = Blockly.Xml.textToDom(data);
-                Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
-            }
-            HuConApp.appendConsoleLog('Blockly workspace loaded from local device.', 'green');
         }
 
         // This function will be called whenever an element on the workspace is changed
@@ -270,6 +120,8 @@
             code = code.replace(/\n/g, '<br>');
             code = PR.prettyPrintOne(code, 'py');
             $('#pythonCode').html(code);
+
+            HuConApp.UnsavedContent = true;
         }
 
         // Resize the area, so blockly will fit all ways.
