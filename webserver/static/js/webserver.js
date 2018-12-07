@@ -9,6 +9,9 @@ $(window).bind("beforeunload", function(){
 $(document).ready(function () {
     // Update the version information on the ui
     HuConApp.updateVersion();
+
+    // Set the button states based on running.
+    HuConApp.isRunning();
 });
 
 // Handle some key bindings
@@ -210,6 +213,8 @@ HuConApp.isRunning = function() {
             }
 
             if (rpcResponse['result']) {
+                $('#runButton').addClass('disabled');
+                $('#stopButton').removeClass('disabled');
                 setTimeout(HuConApp.isRunning, 1000);
             } else {
                 $('#runButton').removeClass('disabled');
