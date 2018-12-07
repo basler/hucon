@@ -39,9 +39,9 @@
                 File
                 <i class="dropdown icon"></i>
                 <div class="menu">
-                    <a onclick="newFile()" class="item"><i class="file icon"></i>New</a>
-                    <a onclick="openFileModal()" class="item"><i class="folder open icon"></i> Open</a>
-                    <a onclick="saveFileModal()" class="item"><i class="save icon"></i> Save</a>
+                    <a id="newButton" class="item"><i class="file icon"></i>New</a>
+                    <a id="openButton" class="item"><i class="folder open icon"></i> Open</a>
+                    <a id="saveButton" class="item"><i class="save icon"></i> Save</a>
                 </div>
             </div>
             <div id="fileDropDown" class="ui selection dropdown">
@@ -82,7 +82,7 @@
     <div id="openModal" class="ui modal">
         <div class="header">
             Open file<br>
-            <div id="breadcrumb" class="ui breadcrumb"></div>
+            <div id="openBreadcrumb" class="ui breadcrumb"></div>
         </div>
         <div class="scrolling content">
             <div id="openFileList" class="ui middle aligned selection list"></div>
@@ -94,9 +94,26 @@
         </div>
     </div>
 
+    <div id="newFolderModal" class="ui modal">
+        <div class="header">
+            New folder
+        </div>
+        <div class="ui form content">
+            <div class="field">
+                <input type="text" id="folderFilename" placeholder="Foldername">
+            </div>
+            <button onclick="$('#saveModal').modal('show')" class="ui orange button" type="cancel">Cancel</button>
+            <button onclick="HuConApp.createNewFolder()" class="ui blue right button" type="submit">Create</button>
+        </div>
+    </div>
+
     <div id="saveModal" class="ui modal">
         <div class="header">
-            Save file
+            Save file</br>
+            <div id="saveBreadcrumb" class="ui breadcrumb"></div>
+            <div id="newFolderButton" class="ui blue right floated button">
+                New Folder
+            </div>
         </div>
         <div class="scrolling content">
             <div id="saveFileList" class="ui middle aligned selection list"></div>
@@ -106,7 +123,7 @@
                 <input type="text" id="saveFilename" placeholder="Filename">
             </div>
             <button onclick="$('#saveModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
-            <button onclick="saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
+            <button onclick="HuConApp.saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
         </div>
     </div>
 
