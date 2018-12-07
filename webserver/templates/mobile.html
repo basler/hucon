@@ -5,6 +5,8 @@
 
     <script type="text/javascript">
 
+        HuConApp.FileExt = '.py';
+
         // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
 
@@ -46,6 +48,7 @@
 
         // Hide the code button from the menu.
         function configureMenu() {
+            $('#chooseInput').click(function(){HuConApp.chooseFileModal()});
             $('#fileButton').hide();
             $('#runButton').click(HuConApp.run);
             $('#stopButton').click(HuConApp.stop);
@@ -55,6 +58,12 @@
         }
 
     </script>
+
+    <style>
+        #logArea {
+            height: calc(100% - 180px);
+        }
+    </style>
 
 {% endblock %}
 

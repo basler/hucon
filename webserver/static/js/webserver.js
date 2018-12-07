@@ -9,11 +9,6 @@ $(window).bind("beforeunload", function(){
 $(document).ready(function () {
     // Update the version information on the ui
     HuConApp.updateVersion();
-
-    $('#loadModal').modal({allowMultiple: true});
-    $('#newFolderModal').modal('attach events', '#newFolderButton')
-;
-;
 });
 
 // Handle some key bindings
@@ -163,7 +158,7 @@ HuConApp.run = function() {
 
     var rpcRequest = HuConApp.getRpcRequest();
     rpcRequest['method'] = 'run';
-    rpcRequest['params'] = document.getElementById('filename').value;
+    rpcRequest['params'] = HuConApp.Folder + '/' + $('#chooseFilename').val();
 
     $.ajax('/API', {
         method: 'POST',
@@ -385,7 +380,7 @@ HuConApp.openFileModal = function(newFolder) {
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
         success: function(rpcResponse) {
-            HuConApp.configureLoadSaveModal(rpcResponse, $('#openFileList'), 'openFileModal', true);
+            HuConApp.configureLoadSaveModal(rpcResponse, $('#openFileList'), 'openFileModal', 'open');
 
             $('#openModal').modal('show');
         },
@@ -453,7 +448,7 @@ HuConApp.saveFileModal = function(newFolder) {
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
         success: function(rpcResponse) {
-            HuConApp.configureLoadSaveModal(rpcResponse, $('#saveFileList'), 'saveFileModal', false);
+            HuConApp.configureLoadSaveModal(rpcResponse, $('#saveFileList'), 'saveFileModal', 'save');
 
             $('#saveModal').modal('show');
         },
@@ -527,7 +522,7 @@ HuConApp.saveFileOnDevice = function() {
 }
 
 // Configure the load or save modal correctly.
-HuConApp.configureLoadSaveModal = function(rpcResponse, modal, folderCallback, openFile) {
+HuConApp.configureLoadSaveModal = function(rpcResponse, modal, folderCallback, state) {
     // clear the list
     modal.html('');
 
@@ -556,7 +551,7 @@ HuConApp.configureLoadSaveModal = function(rpcResponse, modal, folderCallback, o
             var newFolder = HuConApp.Folder + '/' + filename;
 
             // Do not show the examples folder as possible folder.
-            if (!openFile && (newFolder == '/examples')) {
+            if ((state == 'save') && (newFolder == '/examples')) {
                 continue;
             }
 
@@ -565,16 +560,23 @@ HuConApp.configureLoadSaveModal = function(rpcResponse, modal, folderCallback, o
     }
 
     fileHtml = '';
-    if (openFile) {
+    if (state == 'open') {
         fileHtml = `
         <div onclick="HuConApp.loadFileFromDevice(\'{1}\');" class="item ok">
             <i class="file icon"></i>
             <div class="content header">{1}</div>
         </div>
         `;
-    } else {
+    } else if(state == 'save') {
         fileHtml = `
         <div onclick="$(\'#saveFilename\').val(\'{1}\');" class="item ok">
+            <i class="file icon"></i>
+            <div class="content header">{1}</div>
+        </div>
+        `;
+    } else {
+        fileHtml = `
+        <div onclick="HuConApp.setFileFromDevice(\'{1}\');" class="item ok">
             <i class="file icon"></i>
             <div class="content header">{1}</div>
         </div>
@@ -588,6 +590,43 @@ HuConApp.configureLoadSaveModal = function(rpcResponse, modal, folderCallback, o
             modal.append(HuConApp.formatVarString(fileHtml, filename));
         }
     }
+}
+
+// Show the choose file modal and load the file list from the device.
+HuConApp.chooseFileModal = function(newFolder) {
+
+    // Set the new Folder
+    if (newFolder != undefined) {
+        HuConApp.Folder = newFolder;
+    }
+
+    HuConApp.setBreadcrumb($('#chooseBreadcrumb'));
+
+    var rpcRequest = HuConApp.getRpcRequest();
+    rpcRequest['method'] = 'get_file_list';
+    rpcRequest['params'] = HuConApp.Folder;
+
+    $.ajax('/API', {
+        method: 'POST',
+        data: JSON.stringify(rpcRequest),
+        dataType: 'json',
+        success: function(rpcResponse) {
+            HuConApp.configureLoadSaveModal(rpcResponse, $('#chooseFileList'), 'chooseFileModal', 'choose');
+
+            $('#chooseModal').modal('show');
+        },
+        error: function(request, status, error) {
+            HuConApp.Folder = '';
+            HuConApp.appendErrorLog(request, status, error);
+        }
+    });
+}
+
+// Set the file to run it on the mobile page.
+HuConApp.setFileFromDevice = function(filename) {
+
+    $('#chooseFilename').val(filename);
+    $('#chooseModal').modal('hide');
 }
 
 HuConApp.formatVarString = function() {
