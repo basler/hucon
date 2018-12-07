@@ -44,11 +44,9 @@
                     <a id="saveButton" class="item"><i class="save icon"></i> Save</a>
                 </div>
             </div>
-            <div id="fileDropDown" class="ui selection dropdown">
-                <input type="hidden" id="filename">
-                <i class="dropdown icon"></i>
-                <div class="default text">Select file ...</div>
-                <div class="menu"></div>
+            <div id="chooseInput" class="ui icon input">
+                <input id="chooseFilename" class="prompt readonly" type="text" placeholder="Choose ...">
+                <i class="search link icon"></i>
             </div>
             <a id="runButton" class="item"><i class="play icon"></i>Run</a>
             <a id="stopButton" class="item disabled"><i class="stop icon"></i>Stop</a>
@@ -79,6 +77,21 @@
     </div>
 
     {% block modal %}
+    <div id="chooseModal" class="ui modal">
+        <div class="header">
+            Choose file<br>
+            <div id="chooseBreadcrumb" class="ui breadcrumb"></div>
+        </div>
+        <div class="scrolling content">
+            <div id="chooseFileList" class="ui middle aligned selection list"></div>
+        </div>
+        <div class="actions">
+            <div class="ui orange cancel button">
+                Cancel
+            </div>
+        </div>
+    </div>
+
     <div id="openModal" class="ui modal">
         <div class="header">
             Open file<br>
