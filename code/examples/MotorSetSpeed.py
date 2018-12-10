@@ -1,4 +1,4 @@
-from hackerschool import Motor
+from hucon import Motor
 
 motor = None
 

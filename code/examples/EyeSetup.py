@@ -1,4 +1,4 @@
-from hackerschool import Eye
+from hucon import Eye
 
 eye_tl = None
 eye_tr = None

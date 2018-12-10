@@ -7,7 +7,7 @@ var eventDict = null;
 // It should be rewritten when I understand the system a little bit more.
 function appendEvent(eventName, funcName) {
     // add the nedded include
-    Blockly.Python.definitions_['import_event'] = 'from hackerschool import Event, Button';
+    Blockly.Python.definitions_['import_event'] = 'from hucon import Event, Button';
 
     // Create or append the event to the list
     if (Blockly.Python.definitions_['eventDict'] == undefined) {

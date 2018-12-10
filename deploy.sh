@@ -4,7 +4,7 @@ cd "$BASEDIR"
 
 # compress the needed files into one tar image
 echo $1 > __version__
-tar -czvf hackerschool.tar.gz __version__ README.md code/ install.sh python_lib/ start_server.sh uninstall.sh update.sh webserver/
+tar -czvf hucon.tar.gz __version__ README.md code/ install.sh python_lib/ start_server.sh uninstall.sh update.sh webserver/
 
 # generate a self extracting tar image
 tmp=__extract__$RANDOM
@@ -15,9 +15,9 @@ PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 # Install tar to decompress the image.
 opkg install tar
 
-path=/root/hackerschool
+path=/root/hucon
 if [ \$1 ]; then
-    path=\"\$1\"hackerschool
+    path=\"\$1\"hucon
 fi
 
 mkdir -p \$path | tail -n+\$PAYLOAD_LINE \$0 | tar -xvzC \$path
@@ -27,5 +27,5 @@ sh \$path/install.sh
 exit 0
 __PAYLOAD_BELOW__\n" > "$tmp"
 
-cat "$tmp" "hackerschool.tar.gz" > "hackerschool.run" && rm "$tmp" && rm "hackerschool.tar.gz" && rm __version__
-chmod +x "hackerschool.run"
+cat "$tmp" "hucon.tar.gz" > "hucon.run" && rm "$tmp" && rm "hucon.tar.gz" && rm __version__
+chmod +x "hucon.run"

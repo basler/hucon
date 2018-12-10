@@ -1,6 +1,6 @@
-from hackerschool import Eye
-from hackerschool import Servo
-from hackerschool import Motor
+from hucon import Eye
+from hucon import Servo
+from hucon import Motor
 import time
 
 eyes = None

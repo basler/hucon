@@ -21,7 +21,7 @@ Blockly.Blocks['eye_object_code'] = {
     }
 }
 Blockly.Python['eye_object_code'] = function(block) {
-    Blockly.Python.definitions_['import_eye'] = 'from hackerschool import Eye';
+    Blockly.Python.definitions_['import_eye'] = 'from hucon import Eye';
 
     var argument0 = Blockly.Python.valueToCode(block, 'Position', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var colorCoding = block.getFieldValue('ColorCoding');
@@ -42,7 +42,7 @@ Blockly.Blocks['eye_object'] = {
     }
 }
 Blockly.Python['eye_object'] = function(block) {
-    Blockly.Python.definitions_['import_eye'] = 'from hackerschool import Eye';
+    Blockly.Python.definitions_['import_eye'] = 'from hucon import Eye';
 
     var argument0 = Blockly.Python.valueToCode(block, 'Position', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var code = 'Eye(' + argument0 + ')';

@@ -13,7 +13,7 @@ Blockly.Blocks['motor_object'] = {
     }
 }
 Blockly.Python['motor_object'] = function(block) {
-    Blockly.Python.definitions_['import_motor'] = 'from hackerschool import Motor';
+    Blockly.Python.definitions_['import_motor'] = 'from hucon import Motor';
 
     var argument0 = Blockly.Python.valueToCode(block, 'Pin', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var code = 'Motor(' + argument0 + ')';
