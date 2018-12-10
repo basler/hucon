@@ -16,8 +16,8 @@ To install this project on your Omega2+, do the following steps on your console:
         | grep -oP '"browser_download_url": "\K(.*)(?=")' \
         | wget -
 
-    wget https://github.com/juwis/hackerschool/releases/download/[ReleaseName]/hackerschool.run
-    sh hackerschool.run
+    wget https://github.com/juwis/hackerschool/releases/download/[ReleaseName]/hucon.run
+    sh hucon.run
 
 ## Usage
 After restarting the system, the web server is started automatically. Visit http://Omega-ABCD.local:8080 with a browser. ABCD must be replaced with the last four characters of your device's MAC address.

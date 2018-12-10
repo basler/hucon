@@ -46,18 +46,18 @@ if [ $do_update ]; then
         echo "Update the system from $currentVersion to $latestVersion"
 
         # remove the old package if needed.
-        if [ -f hackerschool.run ]; then
-            rm hackerschool.run
+        if [ -f hucon.run ]; then
+            rm hucon.run
         fi
 
         # download the new package
-        downloadUrl="https://github.com/juwis/hackerschool/releases/download/$latestVersion/hackerschool.run"
+        downloadUrl="https://github.com/juwis/hackerschool/releases/download/$latestVersion/hucon.run"
 
         # Download the new package
         wget $downloadUrl
 
         # and install it.
-        sh hackerschool.run
+        sh hucon.run
     else
         echo "You are using the up to date version."
     fi

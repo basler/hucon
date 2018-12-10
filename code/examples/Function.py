@@ -4,5 +4,5 @@ def FunctionA():
   print('Hello from the function!')
 
 
-print('Hello HackerSchool')
+print('Hello HuCon')
 FunctionA()

@@ -1,4 +1,4 @@
-from hackerschool import Servo
+from hucon import Servo
 
 servo = None
 

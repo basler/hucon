@@ -1,4 +1,4 @@
-from hackerschool import Mpu6050
+from hucon import Mpu6050
 
 mpu = None
 

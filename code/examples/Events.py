@@ -1,5 +1,5 @@
-from hackerschool import Eye
-from hackerschool import Event, Button
+from hucon import Eye
+from hucon import Event, Button
 
 eye = None
 

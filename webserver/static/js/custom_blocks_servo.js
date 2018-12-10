@@ -13,7 +13,7 @@ Blockly.Blocks['servo_object'] = {
     }
 }
 Blockly.Python['servo_object'] = function(block) {
-    Blockly.Python.definitions_['import_servo'] = 'from hackerschool import Servo';
+    Blockly.Python.definitions_['import_servo'] = 'from hucon import Servo';
 
     var argument0 = Blockly.Python.valueToCode(block, 'VAR', Blockly.Python.ORDER_ATOMIC) || 'NULL';
     var code = 'Servo(' + argument0 + ')';
