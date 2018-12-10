@@ -1,0 +1,176 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <variables>
+    <variable type="" id="A4wNyB[1}w4l*rif{C}6">eye</variable>
+  </variables>
+  <block type="event_init" id="}QO#R]A49HgUe~/J7tb9" x="-37" y="-88">
+    <next>
+      <block type="text_print" id="WY]jW|Vt,e0XA!XfmLEt">
+        <value name="TEXT">
+          <shadow type="text" id="]`|F[aa|~TdS*yD|#MC2">
+            <field name="TEXT">Start</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="event_run_endless" id="0$bI:XV6f-H#l~Vx2ryJ">
+            <next>
+              <block type="text_print" id="6?Lukn@UPnSY|q3d;$6]">
+                <value name="TEXT">
+                  <shadow type="text" id="gyj:apm64K)E}AQQYuxD">
+                    <field name="TEXT">End</field>
+                  </shadow>
+                </value>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+  <block type="event_button_object" id="{9Rp6n/|KMNs:me|bKY." x="238" y="-88">
+    <field name="EventName">A</field>
+    <statement name="function">
+      <block type="text_print" id="BmNiFp-Hr|uSMV{%~fc;">
+        <value name="TEXT">
+          <shadow type="text" id="s[JL`u@i!))uZgID|PCe">
+            <field name="TEXT">Top left</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="variables_set" id="sWm*eG:Z2(7[0|Hnd$n+">
+            <field name="VAR" id="A4wNyB[1}w4l*rif{C}6" variabletype="">eye</field>
+            <value name="VALUE">
+              <block type="eye_object_code" id="4XQg4]F2r4]?%*0KC[p?">
+                <field name="ColorCoding">Eye.GRB</field>
+                <value name="Position">
+                  <block type="machine_eye" id="1Sp#-b7m@#kURm#{UZ)~">
+                    <field name="Eye">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="eye_colour" id="DO$!u1WlG;KU#rN+yVL5">
+                <field name="VAR" id="A4wNyB[1}w4l*rif{C}6" variabletype="">eye</field>
+                <field name="Colour">#ff0000</field>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="event_button_object" id="V)=JDbJY6jd(K,Ca^,Gq" x="238" y="38">
+    <field name="EventName">B</field>
+    <statement name="function">
+      <block type="text_print" id="BC%%JQ#?9]qk@3qpiX76">
+        <value name="TEXT">
+          <shadow type="text" id="nt%aM^x0!Hjpmbg90nR1">
+            <field name="TEXT">Top right</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="variables_set" id="aBouPQ8#xL{qKI{R;Fk]">
+            <field name="VAR" id="A4wNyB[1}w4l*rif{C}6" variabletype="">eye</field>
+            <value name="VALUE">
+              <block type="eye_object_code" id="Y5+Ft1g18xLz^;M9I{41">
+                <field name="ColorCoding">Eye.GRB</field>
+                <value name="Position">
+                  <block type="machine_eye" id="=lSyYez4ueT#]KT3n/7d">
+                    <field name="Eye">2</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="eye_colour" id="~P15sw]}RF58u=_cT^;k">
+                <field name="VAR" id="A4wNyB[1}w4l*rif{C}6" variabletype="">eye</field>
+                <field name="Colour">#ff0000</field>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="event_button_object" id="eIyDpv%K$$1USrUn^GX*" x="237" y="162">
+    <field name="EventName">C</field>
+    <statement name="function">
+      <block type="text_print" id="v3Bjg1m63toQUwyg%T,U">
+        <value name="TEXT">
+          <shadow type="text" id="lL;Rh/pnFNQBPIbf|}ri">
+            <field name="TEXT">Bottom left</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="variables_set" id="yJ908yMld~~U2r$I^$0M">
+            <field name="VAR" id="A4wNyB[1}w4l*rif{C}6" variabletype="">eye</field>
+            <value name="VALUE">
+              <block type="eye_object_code" id="a/?qT)(-jAyl6CaDjhQ|">
+                <field name="ColorCoding">Eye.GRB</field>
+                <value name="Position">
+                  <block type="machine_eye" id="w|Q%#,T?a{TtySm?Hn1,">
+                    <field name="Eye">3</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="eye_colour" id="Db%bXIKc`{^K6_C5ii_h">
+                <field name="VAR" id="A4wNyB[1}w4l*rif{C}6" variabletype="">eye</field>
+                <field name="Colour">#ff0000</field>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="event_button_object" id="$2?caB_vioxZ@_|LPe^P" x="238" y="287">
+    <field name="EventName">D</field>
+    <statement name="function">
+      <block type="text_print" id="yD+TI:$^.RWkYsh7Xtme">
+        <value name="TEXT">
+          <shadow type="text" id="p7myng}qoSXB}QvpGJt+">
+            <field name="TEXT">Bottom right</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="variables_set" id=".vLAgmqNM`|6PT.3X~t(">
+            <field name="VAR" id="A4wNyB[1}w4l*rif{C}6" variabletype="">eye</field>
+            <value name="VALUE">
+              <block type="eye_object_code" id="1%NKz*qD{fqLz}5DP:M:">
+                <field name="ColorCoding">Eye.GRB</field>
+                <value name="Position">
+                  <block type="machine_eye" id="8U3IdtMVc)T_[Vq/V,v#">
+                    <field name="Eye">4</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="eye_colour" id="TZCOo+?kx|$i3HtG48ef">
+                <field name="VAR" id="A4wNyB[1}w4l*rif{C}6" variabletype="">eye</field>
+                <field name="Colour">#ff0000</field>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="event_button_object" id="rBuV]Q:dB2-q);Yg)obk" x="237" y="413">
+    <field name="EventName">Stop</field>
+    <statement name="function">
+      <block type="text_print" id="+-aQ,YDG{e$}(6%kq00{">
+        <value name="TEXT">
+          <shadow type="text" id="=X@itFpu?%+^Do?_5yTJ">
+            <field name="TEXT">Stop</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="event_stop_endless" id="mxg_[d?[3Gm^ulC{H9,*"></block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>

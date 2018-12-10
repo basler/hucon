@@ -336,4 +336,10 @@
         <block type="mpu_get_gyroscope_data"></block>
         <block type="mpu_get_mpu_data"></block>
     </category>
+    <category name="Events" colour="250">
+        <block type="event_init"></block>
+        <block type="event_run_endless"></block>
+        <block type="event_stop_endless"></block>
+        <block type="event_button_object"></block>
+    </category>
 </xml>
