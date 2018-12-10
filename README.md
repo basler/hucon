@@ -1,4 +1,4 @@
-![Hacker School](webserver/www/images/Logo.svg)
+![Hacker School](webserver/static/images/Logo.svg)
 
 This project was created to teach children about programming on a self-built robot.
 The base is the Omega2+ from www.onion.io. In addition to WLAN and the integrated python, this offers a good basis.
@@ -24,10 +24,10 @@ After restarting the system, the web server is started automatically. Visit http
 
 ## TODO
 
-- [ ] Support folder to save the code. (File explorer)
-- [ ] Make the examples read only.
-- [ ] Ask the server if there is a running application on page load to set the buttons correctly.
+- [x] Support folder to save the code. (File explorer)
+- [x] Make the examples read only.
+- [x] Ask the server if there is a running application on page load to set the buttons correctly.
 - [ ] The menu bar is to big for a smart phone device.
-- [ ] Create a block for the events.
-- [ ] Check the maximum size for the events array.
-- [ ] Define a proper interface for the events list to use more complex button types.
+- [x] Create a block for the events.
+- [x] Check the maximum size for the events array.
+- [x] Define a proper interface for the events list to use more complex button types.

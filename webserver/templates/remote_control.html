@@ -57,8 +57,12 @@
                         }
 
                         $('#buttonArea').empty();
-                        for (var index in rpcResponse['result']) {
-                            var btn = $('<button onclick="setEvent(' + index + ')" class="ui orange button">' + rpcResponse['result'][index] + '</button>')
+
+                        for (var index in rpcResponse['result']['Button']) {
+                            var name = rpcResponse['result']['Button'][index]['Name']
+                            var eventNumber = rpcResponse['result']['Button'][index]['Event']
+
+                            var btn = $('<div class="column"><button onclick="setEvent(' + eventNumber + ')" class="ui orange button">' + name + '</button></div>')
                             $('#buttonArea').append(btn);
                         }
                         buttonNeedUpdate = false;
@@ -78,7 +82,7 @@
                 data: JSON.stringify(rpcRequest),
                 dataType: 'json',
                 success: function(rpcResponse){
-                    console.log('event fired');
+                    console.log(`event fired ${eventNumber}`);
                 },
                 error: function(request, status, error){
                     rpcResponse = JSON.parse(request.responseText)
@@ -93,7 +97,7 @@
 
 {% block container %}
         <div class="ui segment" style="background: none">
-            <div id="buttonArea" class="spaced"></div>
+            <div id="buttonArea" class="ui stackable eight column grid"></div>
             <div id="spinner" class="ui active dimmer">
                 <div class="ui loader"></div>
             </div>
