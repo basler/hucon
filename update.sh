@@ -1,4 +1,9 @@
 #!/bin/sh -e
+# 2018-12-11
+#
+# Update the system or return the latest released version from github.
+#
+# Author: Sascha.MuellerzumHagen@baslerweb.com
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 

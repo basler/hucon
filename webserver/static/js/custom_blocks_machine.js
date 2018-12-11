@@ -1,3 +1,9 @@
+// 2018-12-11
+//
+// Blockly blocks to support roboter based things.
+//
+// Author: Sascha.MuellerzumHagen@baslerweb.com
+
 var COLOR_MACHINE = 180;
 var COLOR_EYE = 0;
 var COLOR_SERVO = 30;

@@ -1,4 +1,10 @@
 #!/bin/bash
+# 2018-12-11
+#
+# Bundle installation data into a tar.gz file and prepend it with a bash script for self extracting / installation.
+#
+# Author: Sascha.MuellerzumHagen@baslerweb.com
+
 BASEDIR=`dirname "${0}"`
 cd "$BASEDIR"
 

@@ -5,7 +5,7 @@ Released under the MIT License
 Copyright (c) 2015, 2016, 2017 MrTijn/Tijndagamer
 **********************************************************************
 * Sascha Mueller zum Hagen:
-* Adopted to work with the onion Omega2+ Board
+* Adapted to work with the onion Omega2+ Board
 **********************************************************************
 """
 
@@ -66,7 +66,7 @@ class Mpu6050:
     # I2C communication methods
 
     def read_i2c_word(self, register):
-        """Read two i2c registers and combine them.
+        """ Read two i2c registers and combine them.
 
         register -- the first register to read from.
         Returns the combined read results.

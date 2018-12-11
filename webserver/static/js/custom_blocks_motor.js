@@ -1,3 +1,9 @@
+// 2018-12-11
+//
+// Blockly blocks to support pwm motors.
+//
+// Author: Sascha.MuellerzumHagen@baslerweb.com
+
 var COLOR_MOTOR = 60;
 
 Blockly.Blocks['motor_object'] = {

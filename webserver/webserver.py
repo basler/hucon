@@ -1,4 +1,11 @@
 #!/usr/bin/python
+""" 2018-12-11
+
+Flask based web server to handle all legal requests.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 import argparse
 import logging
 from flask import Flask
@@ -16,16 +23,14 @@ app = Flask(json_rpc._SERVER_NAME)
 
 
 def check_auth(username, password):
-    """
-    This function is called to check if a user-name /
-    password combination is valid.
+    """ This function is called to check if a user-name /
+        password combination is valid.
     """
     return username == 'hucon' and password == 'robot'
 
 
 def authenticate():
-    """
-    Sends a 401 response that enables basic auth
+    """ Sends a 401 response that enables basic auth
     """
     return Response('You have to login',
                     401,
@@ -89,8 +94,7 @@ def api():
 
 
 if __name__ == '__main__':
-    """
-    Create the Server and listen on each incoming request.
+    """ Create the Server and listen on each incoming request.
     """
     parser = argparse.ArgumentParser(description='Start the %s web server.' % json_rpc._SERVER_NAME)
     parser.add_argument('--debug',

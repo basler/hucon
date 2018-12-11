@@ -1,3 +1,10 @@
+""" 2018-12-11
+
+Set eye color of all.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 from hucon import Eye
 
 eye_tl = None

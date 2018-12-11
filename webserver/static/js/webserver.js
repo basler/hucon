@@ -1,3 +1,9 @@
+// 2018-12-11
+//
+// Base javascript file to handle the communication between the browser and web server.
+//
+// Author: Sascha.MuellerzumHagen@baslerweb.com
+
 // Ask the user to go before he goes.
 $(window).bind("beforeunload", function(){
     if (HuConApp.UnsavedContent) {

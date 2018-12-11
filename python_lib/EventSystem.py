@@ -1,3 +1,10 @@
+""" 2018-12-11
+
+The event system is using SIGRT signals from linux.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 import signal
 import tempfile
 import os
@@ -6,31 +13,29 @@ import json
 
 glob_event_callback_dict = None
 
+
 class Button():
-    """
-    Button event type. This type has only one event which can be called.
+    """ Button event object. Can be assigned to one event per instance.
     """
     callback = None
     x = 0
     y = 0
 
-    def __init__(cls, callback, x=1, y=1):
-        cls.callback = callback
+    def __init__(cls, register_callback, x=1, y=1):
+        cls.callback = register_callback
         cls.x = x
         cls.y = y
 
 
-class Event():
-    """
-    Receive events over a signal event.
+class EventSystem():
+    """ Receive events over a signal event.
     """
     _POSSIBLE_EVENTS_FILE = os.path.join(tempfile.gettempdir(), 'possible_events')
 
     _run = True
 
     def __init__(cls, events_dict):
-        """
-        Set the handler to catch the signal for the process.
+        """ Set the handler to catch the signal for the process.
         """
         global glob_event_callback_dict
 
@@ -62,25 +67,22 @@ class Event():
 
         # Connect all SIRGT signal to the global reachable function.
         for x in range(signal.SIGRTMAX - signal.SIGRTMIN):
-            signal.signal(signal.SIGRTMIN + x, Event.receive_signal)
+            signal.signal(signal.SIGRTMIN + x, EventSystem.receive_signal)
 
     def run(cls):
-        """
-        Run in an endless loop to catch all events.
+        """ Run in an endless loop to catch all events.
         """
         while cls._run:
             pass
 
     def stop(cls):
-        """
-        Stop the current running endless loop
+        """ Stop the current running endless loop
         """
         cls._run = False
 
     @staticmethod
     def receive_signal(signum, stack):
-        """
-        The signal was received, so call the event handler with the event from the file.
+        """ The signal was received, so call the event handler with the event from the file.
         """
         global glob_event_callback_dict
 

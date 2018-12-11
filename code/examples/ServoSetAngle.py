@@ -1,3 +1,10 @@
+""" 2018-12-11
+
+Move servo to angle.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 from hucon import Servo
 
 servo = None

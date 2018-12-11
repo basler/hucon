@@ -1,3 +1,10 @@
+""" 2018-12-11
+
+Print a text on the console looping.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 i = None
 
 

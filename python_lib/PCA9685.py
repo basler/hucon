@@ -1,5 +1,5 @@
 #!/usr/bin/python
-'''
+"""
 **********************************************************************
 * Filename    : PCA9685.py
 * Description : A driver module for PCA9685
@@ -10,9 +10,9 @@
 * Version     : v2.0.0
 **********************************************************************
 * Sascha Mueller zum Hagen:
-* Adopted to work with the onion Omega2+ Board
+* Adapted to work with the onion Omega2+ Board
 **********************************************************************
-'''
+"""
 
 import time
 import math
@@ -49,7 +49,8 @@ class PWM(object):
         self.i2c     = onionI2C.OnionI2C()
 
     def setup(self):
-        '''Init the class with bus_number and address'''
+        """ Init the class with bus_number and address
+        """
         if self._DEBUG:
             print self._DEBUG_INFO, 'Reseting PCA9685 MODE1 (without SLEEP) and MODE2'
         self.write_all_value(0, 0)
@@ -64,7 +65,8 @@ class PWM(object):
         self._frequency = 60
 
     def _write_byte_data(self, reg, value):
-        '''Write data to I2C with self.address'''
+        """ Write data to I2C with self.address
+        """
         if self._DEBUG:
             print self._DEBUG_INFO, 'Writing value %2X to %2X' % (value, reg)
         try:
@@ -74,7 +76,8 @@ class PWM(object):
             self._check_i2c()
 
     def _read_byte_data(self, reg):
-        '''Read data from I2C with self.address'''
+        """ Read data from I2C with self.address
+        """
         if self._DEBUG:
             print self._DEBUG_INFO, 'Reading value from %2X' % reg
         try:
@@ -130,7 +133,8 @@ class PWM(object):
 
     @frequency.setter
     def frequency(self, freq):
-        '''Set PWM frequency'''
+        """ Set PWM frequency
+        """
         if self._DEBUG:
             print self._DEBUG_INFO, 'Set frequency to %d' % freq
         self._frequency = freq
@@ -154,7 +158,8 @@ class PWM(object):
         self._write_byte_data(self._MODE1, old_mode | 0x80)
 
     def write(self, channel, on, off):
-        '''Set on and off value on specific channel'''
+        """ Set on and off value on specific channel
+        """
         if self._DEBUG:
             print self._DEBUG_INFO, 'Set channel "%d" to value "%d"' % (channel, off)
         self._write_byte_data(self._LED0_ON_L+4*channel, on & 0xFF)
@@ -163,7 +168,8 @@ class PWM(object):
         self._write_byte_data(self._LED0_OFF_H+4*channel, off >> 8)
 
     def write_all_value(self, on, off):
-        '''Set on and off value on all channel'''
+        """ Set on and off value on all channel
+        """
         if self._DEBUG:
             print self._DEBUG_INFO, 'Set all channel to value "%d"' % (off)
         self._write_byte_data(self._ALL_LED_ON_L, on & 0xFF)
@@ -172,7 +178,8 @@ class PWM(object):
         self._write_byte_data(self._ALL_LED_OFF_H, off >> 8)
 
     def map(self, x, in_min, in_max, out_min, out_max):
-        '''To map the value from arange to another'''
+        """ To map the value from arange to another
+        """
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
     @property
@@ -181,7 +188,8 @@ class PWM(object):
 
     @debug.setter
     def debug(self, debug):
-        '''Set if debug information shows'''
+        """ Set if debug information shows
+        """
         if debug in (True, False):
             self._DEBUG = debug
         else:
