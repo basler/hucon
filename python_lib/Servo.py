@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''
+"""
 **********************************************************************
 * Filename    : Servo.py
 * Description : Driver module for servo, with PCA9685
@@ -13,12 +13,13 @@
 * Sascha Mueller zum Hagen:
 * Adopted to work with the onion Omega2+ Board
 **********************************************************************
-'''
+"""
 
 import PCA9685
 
 class Servo(object):
-    '''Servo driver class'''
+    """ Servo driver class
+    """
     _MIN_PULSE_WIDTH = 600
     _MAX_PULSE_WIDTH = 2400
     _DEFAULT_PULSE_WIDTH = 1500
@@ -28,7 +29,8 @@ class Servo(object):
     _DEBUG_INFO = 'DEBUG "Servo.py":'
 
     def __init__(self, channel, offset=0, lock=True, address=0x5A):
-        ''' Init a servo on specific channel, this offset '''
+        """ Init a servo on specific channel, this offset
+        """
         if channel<0 or channel > 16:
             raise ValueError("Servo channel \"{0}\" is not in (0, 15).".format(channel))
         if self._DEBUG:
@@ -44,7 +46,8 @@ class Servo(object):
 
 
     def _angle_to_analog(self, angle):
-        ''' Calculate 12-bit analog value from giving angle '''
+        """ Calculate 12-bit analog value from giving angle
+        """
         pulse_wide   = self.pwm.map(angle, 0, 180, self._MIN_PULSE_WIDTH, self._MAX_PULSE_WIDTH)
         analog_value = int(float(pulse_wide) / 1000000 * self.frequency * 4096)
         if self._DEBUG:
@@ -66,13 +69,15 @@ class Servo(object):
 
     @offset.setter
     def offset(self, value):
-        ''' Set offset for much user-friendly '''
+        """ Set offset for much user-friendly
+        """
         self._offset = value
         if self._DEBUG:
             print self._DEBUG_INFO, 'Set offset to %d' % self.offset
 
     def set_angle(self, angle):
-        ''' Turn the servo with giving angle. '''
+        """ Turn the servo with giving angle.
+        """
         if self.lock:
             if angle > 180:
                 angle = 180
@@ -93,7 +98,8 @@ class Servo(object):
 
     @debug.setter
     def debug(self, debug):
-        ''' Set if debug information shows '''
+        """ Set if debug information shows
+        """
         if debug in (True, False):
             self._DEBUG = debug
         else:
@@ -105,7 +111,8 @@ class Servo(object):
             print self._DEBUG_INFO, "Set debug off"
 
 def range_test():
-    '''Servo driver test on channel 0'''
+    """ Servo driver test on channel 0
+    """
     import time
     a = Servo(0)
     print self._DEBUG_INFO, "Set Angle: 0"
@@ -122,7 +129,8 @@ def range_test():
     time.sleep(0.1)
 
 def test():
-    '''Servo driver test on channel 0'''
+    """ Servo driver test on channel 0
+    """
     import time
     a = Servo(0)
     for i in range(0, 180, 5):

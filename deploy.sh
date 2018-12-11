@@ -1,4 +1,10 @@
 #!/bin/bash
+# 2018-12-11
+#
+# Script which will generate a hucon.run file.
+#
+# Author: Sascha.MuellerzumHagen@baslerweb.com
+
 BASEDIR=`dirname "${0}"`
 cd "$BASEDIR"
 

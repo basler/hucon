@@ -1,3 +1,10 @@
+""" 2018-12-11
+
+Run a hardware test over all eyes and a connected server and motor.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 from hucon import Eye
 from hucon import Servo
 from hucon import Motor

@@ -1,3 +1,10 @@
+""" 2018-12-11
+
+Set the angle from the servo.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 from hucon import Servo
 
 servo = None

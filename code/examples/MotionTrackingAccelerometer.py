@@ -1,3 +1,10 @@
+""" 2018-12-11
+
+Print the gyro sensor data.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 from hucon import Mpu6050
 
 mpu = None

@@ -1,3 +1,10 @@
+""" 2018-12-11
+
+Set the speed form the motor.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 from hucon import Motor
 
 motor = None

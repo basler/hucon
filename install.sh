@@ -1,4 +1,9 @@
 #!/bin/sh -e
+# 2018-12-11
+#
+# Install all packages and copy needed files.
+#
+# Author: Sascha.MuellerzumHagen@baslerweb.com
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 

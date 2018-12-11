@@ -1,3 +1,11 @@
+#!/usr/bin/python
+""" 2018-12-11
+
+The JSON RPC class to handle all incoming requests and return a well formed response.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 import os
 import json
 import subprocess
@@ -9,8 +17,7 @@ from HuConLogMessage import HuConLogMessage
 
 
 class HuConJsonRpc():
-    """
-    This class implements the functionality of the which will the server provide.
+    """ This class implements the functionality of the which will the server provide.
     """
 
     # Name for the server to identification
@@ -50,8 +57,7 @@ class HuConJsonRpc():
     _log = HuConLogMessage()
 
     def __init__(cls):
-        """
-        Initialize the RPC server.
+        """ Initialize the RPC server.
         """
         if os.path.exists(cls._VERSION_FILE):
             with open(cls._VERSION_FILE, 'r') as file:
@@ -61,8 +67,7 @@ class HuConJsonRpc():
         print('Code path: \'%s\'' % cls._CODE_ROOT)
 
     def handle_control(cls, rpc_request):
-        """
-        Handle the JSON RPC request.
+        """ Handle the JSON RPC request.
         """
         if rpc_request['method'] == 'get_version':
             return cls._get_version(rpc_request)
@@ -100,8 +105,7 @@ class HuConJsonRpc():
             return cls._return_error(rpc_request['id'], 'Command not known.')
 
     def _get_rpc_response(cls, rpc_id):
-        """
-        Return a json rpc response message.
+        """ Return a json rpc response message.
         """
         rpc_response = {}
         rpc_response['jsonrpc'] = '2.0'
@@ -111,8 +115,7 @@ class HuConJsonRpc():
         return rpc_response
 
     def _return_error(cls, rpc_id, error, status_code=400):
-        """
-        Return an well formed error.
+        """ Return an well formed error.
         """
         rpc_response = {}
         rpc_response['jsonrpc'] = '2.0'
@@ -122,8 +125,7 @@ class HuConJsonRpc():
         return (json.dumps(rpc_response), status_code)
 
     def _replace_hucon_requests(cls, message):
-        """
-        Print an answer from HuCon whenever the the message 'Hello HoCon!' is found.
+        """ Print an answer from HuCon whenever the the message 'Hello HoCon!' is found.
         """
         search_string = 'print(\'Hello HuCon!\')'
         replace_string = 'print(\'Hello HuCon!\\n\\nHello human!\\nI am a Hu[man] Con[trolled] robot.\\n\')'
@@ -132,8 +134,7 @@ class HuConJsonRpc():
         return message
 
     def _run_file(cls, filename):
-        """
-        Run the file and catch all output of it.
+        """ Run the file and catch all output of it.
         """
         cls._current_proc = subprocess.Popen(['python', '-u', filename],
                                              bufsize=1,
@@ -163,8 +164,7 @@ class HuConJsonRpc():
 # ----------------------------------------------------------------------------------------------------------------------
 
     def _get_version(cls, rpc_request):
-        """
-        Get the version of this project.
+        """ Get the version of this project.
         """
         try:
             rpc_response = cls._get_rpc_response(rpc_request['id'])
@@ -176,8 +176,7 @@ class HuConJsonRpc():
             return json_dump
 
     def _poll(cls, rpc_request):
-        """
-        Return the log messages to the browser.
+        """ Return the log messages to the browser.
         """
         try:
             rpc_response = cls._get_rpc_response(rpc_request['id'])
@@ -190,8 +189,7 @@ class HuConJsonRpc():
             return json_dump
 
     def _get_file_list(cls, rpc_request):
-        """
-        Return the list of all files/folder to the browser.
+        """ Return the list of all files/folder to the browser.
         """
         try:
             code_folder = os.path.join(cls._CODE_ROOT, rpc_request['params'].strip('/\\'))
@@ -206,8 +204,7 @@ class HuConJsonRpc():
             return json_dump
 
     def _create_folder(cls, rpc_request):
-        """
-        Creates the folder on the device.
+        """ Creates the folder on the device.
         """
         try:
             new_folder = os.path.join(cls._CODE_ROOT, rpc_request['params'].strip('/\\'))
@@ -223,8 +220,7 @@ class HuConJsonRpc():
             return json_dump
 
     def _load_file(cls, rpc_request):
-        """
-        Return the content of the file back to the browser.
+        """ Return the content of the file back to the browser.
         """
         try:
             filename = os.path.join(cls._CODE_ROOT, rpc_request['params'].strip('/\\'))
@@ -240,8 +236,7 @@ class HuConJsonRpc():
             return json_dump
 
     def _save_file(cls, rpc_request):
-        """
-        Save the received content on the local disk.
+        """ Save the received content on the local disk.
         """
         # Store all incoming data into the file.
         try:
@@ -257,8 +252,7 @@ class HuConJsonRpc():
             return json_dump
 
     def _get_is_running(cls, rpc_request):
-        """
-        Get the current running state of the device
+        """ Get the current running state of the device
         """
         try:
             rpc_response = cls._get_rpc_response(rpc_request['id'])
@@ -270,8 +264,7 @@ class HuConJsonRpc():
             return json_dump
 
     def _execute(cls, rpc_request):
-        """
-        Store the data on a local file and execute them.
+        """ Store the data on a local file and execute them.
         """
         if cls._is_running is False:
             try:
@@ -301,8 +294,7 @@ class HuConJsonRpc():
         return json.dumps(rpc_response)
 
     def _run(cls, rpc_request):
-        """
-        Run the file which is saved on the device
+        """ Run the file which is saved on the device
         """
         if cls._is_running is False:
             try:
@@ -324,8 +316,7 @@ class HuConJsonRpc():
         return json.dumps(rpc_response)
 
     def _kill(cls, rpc_request):
-        """
-        Kill the current running process
+        """ Kill the current running process
         """
         if cls._current_proc:
             try:
@@ -349,8 +340,7 @@ class HuConJsonRpc():
         return json.dumps(rpc_response)
 
     def _get_possible_post_data(cls, rpc_request):
-        """
-        Return the json of available post data events.
+        """ Return the json of available post data events.
         """
         try:
             rpc_response = cls._get_rpc_response(rpc_request['id'])
@@ -363,8 +353,7 @@ class HuConJsonRpc():
             return json.dumps(rpc_response)
 
     def _event(cls, rpc_request):
-        """
-        Fire the event on the device.
+        """ Fire the event on the device.
         """
         if cls._is_running:
 
@@ -382,8 +371,7 @@ class HuConJsonRpc():
         return json.dumps(rpc_response)
 
     def _check_update(cls, rpc_request):
-        """
-        Check if there is an update available.
+        """ Check if there is an update available.
         """
         try:
             proc = subprocess.Popen(['sh', cls._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -407,8 +395,7 @@ class HuConJsonRpc():
             return json.dumps(rpc_response)
 
     def _update(cls, rpc_request):
-        """
-        Update all files from the project.
+        """ Update all files from the project.
         """
         try:
             # Update the system first.
@@ -441,8 +428,7 @@ class HuConJsonRpc():
             return cls._return_error(rpc_request['id'], 'Could not perform an update.', 500)
 
     def _shutdown(cls, rpc_request):
-        """
-        Shutdown the robot.
+        """ Shutdown the robot.
         """
         try:
             cls._log.put('The system will be shutdown.\n')
@@ -462,8 +448,7 @@ class HuConJsonRpc():
             return cls._return_error(rpc_request['id'], 'Could not shutdown the system.', 500)
 
     def _save_password(cls, rpc_request):
-        """
-        Save the new password key only when the oldkey is the same with the current.
+        """ Save the new password key only when the oldkey is the same with the current.
         """
         try:
             rpc_response = cls._get_rpc_response(rpc_request['id'])

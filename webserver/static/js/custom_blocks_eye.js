@@ -1,3 +1,9 @@
+// 2018-12-11
+//
+// Blockly blocks to support RGB LEDs (eyes).
+//
+// Author: Sascha.MuellerzumHagen@baslerweb.com
+
 var COLOR_EYE = 0;
 var MACHINE_EYES_CODE = [
     ['create RGB eye for', 'Eye.RGB'],

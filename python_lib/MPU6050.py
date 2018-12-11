@@ -66,7 +66,7 @@ class Mpu6050:
     # I2C communication methods
 
     def read_i2c_word(self, register):
-        """Read two i2c registers and combine them.
+        """ Read two i2c registers and combine them.
 
         register -- the first register to read from.
         Returns the combined read results.

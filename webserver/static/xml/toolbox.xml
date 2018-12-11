@@ -1,3 +1,9 @@
+<!-- 2018-12-11
+
+Blocky definition file for the toolbox.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+ -->
 <xml>
     <category id="catLogic" colour="210" name="Logic">
         <block type="controls_if"></block>

@@ -1,3 +1,10 @@
+""" 2018-12-11
+
+Set the color on the first eye.
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
+
 from hucon import Eye
 
 eye = None

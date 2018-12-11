@@ -1,3 +1,9 @@
+// 2018-12-11
+//
+// Blockly blocks to support mpu devices.
+//
+// Author: Sascha.MuellerzumHagen@baslerweb.com
+
 var COLOR_MOTION_TRACKING = 90;
 
 Blockly.Blocks['mpu_object'] = {

@@ -1,3 +1,4 @@
+{# 2018-12-11 Author: Sascha.MuellerzumHagen@baslerweb.com #}
 {% extends "base.html" %}
 {% block title %} - JSON RPC{% endblock %}
 
@@ -21,10 +22,10 @@ This server is providing a JSON RPC API version 2.0 with the following methods.<
 <tr><td>kill</td><td>Kill the current running application.</td></tr>
 <tr><td>get_possible_post_data</td><td>Return an array with all possible events.</td></tr>
 <tr><td>event</td><td>Call the event by sending the id of it.</td></tr>
-<tr><td>check_update</td><td>TBD</td></tr>
-<tr><td>update</td><td>TBD</td></tr>
-<tr><td>shutdown</td><td>TBD</td></tr>
-<tr><td>save_password</td><td>TBD</td></tr>
+<tr><td>check_update</td><td>Check for an update from github and return the latest released firmware version.</td></tr>
+<tr><td>update</td><td>Perform an update.</td></tr>
+<tr><td>shutdown</td><td>Shutdown the system.</td></tr>
+<tr><td>save_password</td><td>Save the password for user authentication on the web page.</td></tr>
 
 </tbody>
 </table>

@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-'''
-**********************************************************************
-* Filename    : Motor.py
-* Description : Driver module for leds, with PCA9685
-* Author      : Sascha Mueller zum Hagen
-**********************************************************************
-'''
+""" 2018-12-11
+
+Driver module for leds, with PCA9685
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
+"""
 
 import PCA9685
 
 class Eye(object):
-    '''Eye driver class'''
+    """Eye driver class
+    """
     _MIN_PULSE_WIDTH = 0
     _MAX_PULSE_WIDTH = 1024
     _DEFAULT_PULSE_WIDTH = 0
@@ -27,7 +27,8 @@ class Eye(object):
     BRG = [0, 2, 1]
 
     def __init__(self, position, color_coding=RGB, lock=True, address=0x4A):
-        ''' Init an eye on specific position, this offset '''
+        """Init an eye on specific position, this offset
+        """
         if position<1 or position>4:
             raise ValueError("Eye position \"{0}\" is not in (1, 4).".format(position))
         if self._DEBUG:
@@ -62,7 +63,8 @@ class Eye(object):
         self.channel_blue  = offset + color_coding[2]
 
     def _color_to_analog(self, color):
-        ''' Calculate 12-bit analog value from giving color '''
+        """ Calculate 12-bit analog value from giving color
+        """
         pulse_wide   = self.pwm.map(color, 0, 255, self._MIN_PULSE_WIDTH, self._MAX_PULSE_WIDTH)
         analog_value = int(float(pulse_wide) / 1000000 * self.frequency * 4096)
         if self._DEBUG:
@@ -117,7 +119,8 @@ class Eye(object):
         else:
             self.blue = blue
 
-        ''' Set the color on the pre seted eye. '''
+        """ Set the color on the pre seted eye.
+        """
         if self.lock:
             if red > 255:
                 red = 255
@@ -150,7 +153,8 @@ class Eye(object):
 
     @debug.setter
     def debug(self, debug):
-        ''' Set if debug information shows '''
+        """ Set if debug information shows
+        """
         if debug in (True, False):
             self._DEBUG = debug
         else:
@@ -162,7 +166,8 @@ class Eye(object):
             print self._DEBUG_INFO, "Set debug off"
 
 def test():
-    '''Eye driver test on all position'''
+    """ Eye driver test on all position
+    """
     import time
 
     for position in range(1, 5):
@@ -192,7 +197,8 @@ def test():
         eye.set_color(0,0,0)
 
 def install():
-    '''Eye driver install test on all position'''
+    """ Eye driver install test on all position
+    """
     import time
 
     eye1 = Eye(1)

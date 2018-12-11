@@ -1,3 +1,9 @@
+// 2018-12-11
+//
+// Blockly blocks to support servos.
+//
+// Author: Sascha.MuellerzumHagen@baslerweb.com
+
 var COLOR_SERVO = 30;
 
 Blockly.Blocks['servo_object'] = {

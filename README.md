@@ -24,10 +24,4 @@ After restarting the system, the web server is started automatically. Visit http
 
 ## TODO
 
-- [x] Support folder to save the code. (File explorer)
-- [x] Make the examples read only.
-- [x] Ask the server if there is a running application on page load to set the buttons correctly.
 - [ ] The menu bar is to big for a smart phone device.
-- [x] Create a block for the events.
-- [x] Check the maximum size for the events array.
-- [x] Define a proper interface for the events list to use more complex button types.
