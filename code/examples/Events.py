@@ -13,7 +13,7 @@ from hucon import EventSystem, Button
 eye = None
 
 
-def callback_a():
+def call_a():
   """ Callback for Button 'Name A' event.
   """
   global eye
@@ -22,7 +22,7 @@ def callback_a():
   eye.set_color(255, 0, 0)
 
 
-def callback_b():
+def call_b():
   """ Callback for Button 'Name B' event.
   """
   global eye
@@ -31,7 +31,7 @@ def callback_b():
   eye.set_color(255, 0, 0)
 
 
-def callback_c():
+def call_c():
   """ Callback for Button 'Name C' event.
   """
   global eye
@@ -40,7 +40,7 @@ def callback_c():
   eye.set_color(255, 0, 0)
 
 
-def callback_d():
+def call_d():
   """ Callback for Button 'Name D' event.
   """
   global eye
@@ -48,7 +48,7 @@ def callback_d():
   eye = Eye(4, Eye.GRB)
   eye.set_color(255, 0, 0)
 
-def callback_stop():
+def call_stop():
   """ Callback for Button 'Stop' event.
   """
   global process_events, eye
@@ -58,11 +58,11 @@ def callback_stop():
 
 # Map event name to callback.
 events_dict = {
-  "Name A": Button(callback_a),
-  "Name B": Button(callback_b),
-  "Name C": Button(callback_c),
-  "Name D": Button(callback_d),
-  "Name Stop": Button(callback_stop)
+  "Name A": Button(register_callback=call_a),
+  "Name B": Button(register_callback=call_b),
+  "Name C": Button(register_callback=call_c),
+  "Name D": Button(register_callback=call_d),
+  "Name Stop": Button(call_stop)
 }
 
 # Setup event system.

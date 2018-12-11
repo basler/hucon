@@ -125,7 +125,7 @@ class HuConJsonRpc():
         return (json.dumps(rpc_response), status_code)
 
     def _replace_hucon_requests(cls, message):
-        """ Print an answer from HuCon whenever the the message 'Hello HoCon!' is found.
+        """ Print an answer from HuCon whenever the the message 'Hello HuCon!' is found.
         """
         search_string = 'print(\'Hello HuCon!\')'
         replace_string = 'print(\'Hello HuCon!\\n\\nHello human!\\nI am a Hu[man] Con[trolled] robot.\\n\')'

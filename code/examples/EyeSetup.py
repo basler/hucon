@@ -1,6 +1,6 @@
 """ 2018-12-11
 
-Set the color for all eyes.
+Set eye color of all.
 
 Author: Sascha.MuellerzumHagen@baslerweb.com
 """

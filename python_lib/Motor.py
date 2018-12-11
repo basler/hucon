@@ -20,7 +20,7 @@ class Motor(object):
     _DEBUG_INFO = 'DEBUG "Motor.py":'
 
     def __init__(self, channel, offset=0, lock=True, address=0x5A):
-        """ Init a motor on specific channel, this offset
+        """ Init a motor on specific channel
         """
         if channel<0 or channel > 16:
             raise ValueError("Motor channel \"{0}\" is not in (0, 15).".format(channel))

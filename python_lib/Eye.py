@@ -27,7 +27,7 @@ class Eye(object):
     BRG = [0, 2, 1]
 
     def __init__(self, position, color_coding=RGB, lock=True, address=0x4A):
-        """Init an eye on specific position, this offset
+        """Init an eye on specific position
         """
         if position<1 or position>4:
             raise ValueError("Eye position \"{0}\" is not in (1, 4).".format(position))

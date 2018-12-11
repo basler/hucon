@@ -1,7 +1,7 @@
 #!/bin/bash
 # 2018-12-11
 #
-# Script which will generate a hucon.run file.
+# Bundle installation data into a tar.gz file and prepend it with a bash script for self extracting / installation.
 #
 # Author: Sascha.MuellerzumHagen@baslerweb.com
 

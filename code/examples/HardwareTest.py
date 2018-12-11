@@ -1,6 +1,6 @@
 """ 2018-12-11
 
-Run a hardware test over all eyes and a connected server and motor.
+Run a hardware test over all eyes, a connected servo / motor.
 
 Author: Sascha.MuellerzumHagen@baslerweb.com
 """
@@ -17,7 +17,7 @@ j = None
 eye = None
 i = None
 
-"""Describe this function...
+""" Set eye color of all.
 """
 def test_eyes():
   global eyes, servo, motor, j, eye, i
@@ -32,7 +32,7 @@ def test_eyes():
   servo.set_angle(90)
   time.sleep(0.2)
 
-"""Describe this function...
+""" Set angle of servo.
 """
 def test_servo():
   global eyes, servo, motor, j, eye, i
@@ -46,7 +46,7 @@ def test_servo():
   time.sleep(0.5)
   servo.set_angle(90)
 
-"""Describe this function...
+""" Set speed of motor.
 """
 def test_motor():
   global eyes, servo, motor, j, eye, i

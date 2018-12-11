@@ -1,6 +1,6 @@
 """ 2018-12-11
 
-Set the speed form the motor.
+Set motor to speed.
 
 Author: Sascha.MuellerzumHagen@baslerweb.com
 """

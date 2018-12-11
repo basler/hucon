@@ -1,7 +1,7 @@
 #!/bin/sh -e
 # 2018-12-11
 #
-# Install all packages and copy needed files.
+# Install all packages and copy bundled files.
 #
 # Author: Sascha.MuellerzumHagen@baslerweb.com
 

@@ -1,6 +1,6 @@
 """ 2018-12-11
 
-Print in a loop a text on the console.
+Print a text on the console looping.
 
 Author: Sascha.MuellerzumHagen@baslerweb.com
 """

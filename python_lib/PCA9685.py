@@ -10,7 +10,7 @@
 * Version     : v2.0.0
 **********************************************************************
 * Sascha Mueller zum Hagen:
-* Adopted to work with the onion Omega2+ Board
+* Adapted to work with the onion Omega2+ Board
 **********************************************************************
 """
 

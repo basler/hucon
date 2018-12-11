@@ -1,6 +1,6 @@
 """ 2018-12-11
 
-Set the color on the first eye.
+Set eye color of first.
 
 Author: Sascha.MuellerzumHagen@baslerweb.com
 """

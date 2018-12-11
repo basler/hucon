@@ -5,7 +5,7 @@ Released under the MIT License
 Copyright (c) 2015, 2016, 2017 MrTijn/Tijndagamer
 **********************************************************************
 * Sascha Mueller zum Hagen:
-* Adopted to work with the onion Omega2+ Board
+* Adapted to work with the onion Omega2+ Board
 **********************************************************************
 """
 

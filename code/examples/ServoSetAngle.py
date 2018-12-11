@@ -1,6 +1,6 @@
 """ 2018-12-11
 
-Set the angle from the servo.
+Move servo to angle.
 
 Author: Sascha.MuellerzumHagen@baslerweb.com
 """

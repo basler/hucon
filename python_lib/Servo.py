@@ -11,7 +11,7 @@
 *               Cavon    2016-09-21    Change channel from 1 to all
 **********************************************************************
 * Sascha Mueller zum Hagen:
-* Adopted to work with the onion Omega2+ Board
+* Adapted to work with the onion Omega2+ Board
 **********************************************************************
 """
 
@@ -29,7 +29,7 @@ class Servo(object):
     _DEBUG_INFO = 'DEBUG "Servo.py":'
 
     def __init__(self, channel, offset=0, lock=True, address=0x5A):
-        """ Init a servo on specific channel, this offset
+        """ Init a servo on specific channel
         """
         if channel<0 or channel > 16:
             raise ValueError("Servo channel \"{0}\" is not in (0, 15).".format(channel))
