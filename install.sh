@@ -26,6 +26,13 @@ if [ -f /usr/lib/python2.7/site-packages/hucon ]; then
 fi
 ln -s "$SCRIPT_DIR/python_lib" /usr/lib/python2.7/site-packages/hucon
 
+# add the init script as symbolic link
+chmod +x init.d/i2c_led
+if [ ! -f /etc/init.d/i2c_led ]; then
+    ln -s "$SCRIPT_DIR/init_d/i2c_led" /etc/init.d/i2c_led
+fi
+/etc/init.d/i2c_led enable
+
 # add the server to start at boot
 sed -i '/start_server.sh/d' /etc/rc.local
 sed -i "/^exit 0/i sh $SCRIPT_DIR/start_server.sh >> /tmp/hucon.log 2>&1 & " /etc/rc.local
