@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" 2018-12-11
+""" 2019-01-18
 
 Driver module for leds, with PCA9685
 
@@ -9,15 +9,8 @@ Author: Sascha.MuellerzumHagen@baslerweb.com
 import PCA9685
 
 class Eye(object):
-    """Eye driver class
+    """ Eye driver class.
     """
-    _MIN_PULSE_WIDTH = 0
-    _MAX_PULSE_WIDTH = 1024
-    _DEFAULT_PULSE_WIDTH = 0
-    _FREQUENCY = 60
-
-    _DEBUG = False
-    _DEBUG_INFO = 'DEBUG "Eye.py":'
 
     RGB = [2, 1, 0]
     RBG = [2, 0, 1]
@@ -26,26 +19,24 @@ class Eye(object):
     BGR = [0, 1, 2]
     BRG = [0, 2, 1]
 
+    red = 0
+    green = 0
+    blue = 0
+
     def __init__(self, position, color_coding=RGB, lock=True, address=0x4A):
         """Init an eye on specific position
         """
-        if position<1 or position>4:
+        if position not in range(1, 5):
             raise ValueError("Eye position \"{0}\" is not in (1, 4).".format(position))
-        if self._DEBUG:
-            print self._DEBUG_INFO, "Debug on"
-        self.color_coding = color_coding
-        self.lock = lock
 
-        self.pwm = PCA9685.PWM(address=address)
-        self.pwm.setup()
-        self.frequency = self._FREQUENCY
-        self._set_channel(position, color_coding)
-        self.red = 0
-        self.green = 0
-        self.blue = 0
+        self._position = position
+        self._color_coding = color_coding
+        self._lock = lock
+
+        self._pwm = PCA9685.PCA9685(address)
         self.set_color(self.red, self.green, self.blue)
 
-    def _set_channel(self, position, color_coding):
+    def _get_rgb_channel(self, position):
 
         offset = 0
 
@@ -58,112 +49,61 @@ class Eye(object):
         else:
             offset = 10
 
-        self.channel_red   = offset + color_coding[0]
-        self.channel_green = offset + color_coding[1]
-        self.channel_blue  = offset + color_coding[2]
+        cha_r = offset + self._color_coding[0]
+        cha_g = offset + self._color_coding[1]
+        cha_b = offset + self._color_coding[2]
 
-    def _color_to_analog(self, color):
-        """ Calculate 12-bit analog value from giving color
-        """
-        pulse_wide   = self.pwm.map(color, 0, 255, self._MIN_PULSE_WIDTH, self._MAX_PULSE_WIDTH)
-        analog_value = int(float(pulse_wide) / 1000000 * self.frequency * 4096)
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Color %d equals Analog_value %d' % (color, analog_value)
-        return analog_value
-
-    @property
-    def red(self):
-        return self._red
-
-    @red.setter
-    def red(self, value):
-        self._red = value
-
-    @property
-    def green(self):
-        return self._green
-
-    @green.setter
-    def green(self, value):
-        self._green = value
-
-    @property
-    def blue(self):
-        return self._blue
-
-    @blue.setter
-    def blue(self, value):
-        self._blue = value
-
-    @property
-    def frequency(self):
-        return self._frequency
-
-    @frequency.setter
-    def frequency(self, value):
-        self._frequency = value
-        self.pwm.frequency = value
+        return (cha_r, cha_g, cha_b)
 
     def set_color(self, red=None, green=None, blue=None):
+        """ Set the color for the eye.
+        """
 
-        if red == None:
+        if red is None:
             red = self.red
         else:
             self.red = red
-        if green == None:
+        if green is None:
             green = self.green
         else:
             self.green = green
-        if blue == None:
+        if blue is None:
             blue = self.blue
         else:
             self.blue = blue
 
-        """ Set the color on the pre seted eye.
+        if self._lock:
+            self.red = max(min(red, 255), 0)
+            self.green = max(min(green, 255), 0)
+            self.blue = max(min(blue, 255), 0)
+        else:
+            if red not in range(256) or green not in range(256) or blue not in range(256):
+                raise ValueError("Eye \"{0}\" RGB({1}, {2}, {3}) is not in range of (0, 255).".format(self._position, red, green, blue))
+
+        (cha_r, cha_g, cha_b) = self._get_rgb_channel(self._position)
+
+        self._pwm.set_channel(cha_r, self.red)
+        self._pwm.set_channel(cha_g, self.green)
+        self._pwm.set_channel(cha_b, self.blue)
+
+    def set_all_color(self, red, green, blue):
+        """ Set the color for all eyes.
         """
-        if self.lock:
-            if red > 255:
-                red = 255
-            if red < 0:
-                red = 0
-            if green > 255:
-                green = 255
-            if green < 0:
-                green = 0
-            if blue > 255:
-                blue = 255
-            if blue < 0:
-                blue = 0
+
+        if self._lock:
+            red = max(min(red, 255), 0)
+            green = max(min(green, 255), 0)
+            blue = max(min(blue, 255), 0)
         else:
-            if red<0 or red>255 or green<0 or green>255 or blue<0 or blue>255:
-                raise ValueError("Eye \"{0}\" RGB({1}, {2}, {3}) is not in (0, 255).".format(self.channel, red, green, blue))
-        val_red = self._color_to_analog(red)
-        val_green = self._color_to_analog(green)
-        val_blue = self._color_to_analog(blue)
+            if red not in range(256) or green not in range(256) or blue not in range(256):
+                raise ValueError("All eyes RGB({0}, {1}, {2}) is not in range of (0, 255).".format(red, green, blue))
 
-        self.pwm.write(self.channel_red,   0, val_red)
-        self.pwm.write(self.channel_green, 0, val_green)
-        self.pwm.write(self.channel_blue,  0, val_blue)
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Set color = %d %d %d' % (red, green, blue)
+        for position in range(1, 5):
+            (cha_r, cha_g, cha_b) = self._get_rgb_channel(position)
 
-    @property
-    def debug(self):
-        return self._DEBUG
-
-    @debug.setter
-    def debug(self, debug):
-        """ Set if debug information shows
-        """
-        if debug in (True, False):
-            self._DEBUG = debug
-        else:
-            raise ValueError('debug must be "True" (Set debug on) or "False" (Set debug off), not "{0}"'.format(debug))
-
-        if self._DEBUG:
-            print self._DEBUG_INFO, "Set debug on"
-        else:
-            print self._DEBUG_INFO, "Set debug off"
+            self._pwm.set_channel(cha_r, red)
+            self._pwm.set_channel(cha_g, green)
+            self._pwm.set_channel(cha_b, blue)
 
 def test():
     """ Eye driver test on all position
@@ -171,41 +111,43 @@ def test():
     import time
 
     for position in range(1, 5):
-        print "Position: ", position
+        print 'Position: ', position
         eye = Eye(position)
 
         for i in range(0, 256, 5):
-            print "R: ", i
+            print 'R: ', i
             eye.red = i
             eye.set_color()
             time.sleep(0.02)
 
-        eye.set_color(0,0,0)
+        eye.set_color(0, 0, 0)
         for i in range(0, 256, 5):
-            print "G: ", i
+            print 'G: ', i
             eye.green = i
             eye.set_color()
             time.sleep(0.02)
 
-        eye.set_color(0,0,0)
+        eye.set_color(0, 0, 0)
         for i in range(0, 256, 5):
-            print "B: ", i
+            print 'B: ', i
             eye.blue = i
             eye.set_color()
             time.sleep(0.02)
 
-        eye.set_color(0,0,0)
+        eye.set_color(0, 0, 0)
 
 def install():
     """ Eye driver install test on all position
     """
     import time
 
+    print 'Create objects'
     eye1 = Eye(1)
     eye2 = Eye(2)
     eye3 = Eye(3)
     eye4 = Eye(4)
 
+    print 'Set eye color'
     eye1.set_color(255, 0, 0)
     eye2.set_color(0, 255, 0)
     eye3.set_color(0, 0, 255)
@@ -213,10 +155,7 @@ def install():
 
     time.sleep(2)
 
-    eye1.set_color(0, 0, 0)
-    eye2.set_color(0, 0, 0)
-    eye3.set_color(0, 0, 0)
-    eye4.set_color(0, 0, 0)
+    eye1.set_all_color(0, 0, 0)
 
 
 if __name__ == '__main__':
