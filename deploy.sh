@@ -10,7 +10,7 @@ cd "$BASEDIR"
 
 # compress the needed files into one tar image
 echo $1 > __version__
-tar -czvf hucon.tar.gz __version__ README.md code/ install.sh python_lib/ start_server.sh uninstall.sh update.sh webserver/
+tar -czvf hucon.tar.gz __version__ README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh start_server.sh uninstall.sh update.sh
 
 # generate a self extracting tar image
 tmp=__extract__$RANDOM

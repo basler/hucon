@@ -28,6 +28,7 @@ ln -s "$SCRIPT_DIR/python_lib" /usr/lib/python2.7/site-packages/hucon
 
 # add the init script as symbolic link
 chmod +x init.d/i2c_led
+chmod +x i2c_led.sh
 if [ ! -f /etc/init.d/i2c_led ]; then
     ln -s "$SCRIPT_DIR/init_d/i2c_led" /etc/init.d/i2c_led
 fi
