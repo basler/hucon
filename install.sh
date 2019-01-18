@@ -15,22 +15,22 @@ opkg install curl python-light python-pip pyOnionI2C
 pip install flask
 
 # add the hackerschool to the site packages (only for old code)
-if [ -f /usr/lib/python2.7/site-packages/hackerschool ]; then
+if [ -L /usr/lib/python2.7/site-packages/hackerschool ]; then
     rm /usr/lib/python2.7/site-packages/hackerschool
 fi
 ln -s "$SCRIPT_DIR/python_lib" /usr/lib/python2.7/site-packages/hackerschool
 
 # add the hucon to the site packages
-if [ -f /usr/lib/python2.7/site-packages/hucon ]; then
+if [ -L /usr/lib/python2.7/site-packages/hucon ]; then
     rm /usr/lib/python2.7/site-packages/hucon
 fi
 ln -s "$SCRIPT_DIR/python_lib" /usr/lib/python2.7/site-packages/hucon
 
 # add the init script as symbolic link
-chmod +x init.d/i2c_led
-chmod +x i2c_led.sh
-if [ ! -f /etc/init.d/i2c_led ]; then
-    ln -s "$SCRIPT_DIR/init_d/i2c_led" /etc/init.d/i2c_led
+chmod +x "$SCRIPT_DIR/init.d/i2c_led"
+chmod +x "$SCRIPT_DIR/i2c_led.sh"
+if [ ! -L /etc/init.d/i2c_led ]; then
+    ln -s "$SCRIPT_DIR/init.d/i2c_led" /etc/init.d/i2c_led
 fi
 /etc/init.d/i2c_led enable
 
