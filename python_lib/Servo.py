@@ -1,70 +1,50 @@
 #!/usr/bin/env python
-"""
-**********************************************************************
-* Filename    : Servo.py
-* Description : Driver module for servo, with PCA9685
-* Author      : Cavon
-* Brand       : SunFounder
-* E-mail      : service@sunfounder.com
-* Website     : www.sunfounder.com
-* Update      : Cavon    2016-09-13    New release
-*               Cavon    2016-09-21    Change channel from 1 to all
-**********************************************************************
-* Sascha Mueller zum Hagen:
-* Adapted to work with the onion Omega2+ Board
-**********************************************************************
+""" 2019-01-18
+
+Driver module for leds, with PCA9685
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
 """
 
 import PCA9685
 
 class Servo(object):
-    """ Servo driver class
-    """
-    _MIN_PULSE_WIDTH = 600
-    _MAX_PULSE_WIDTH = 2400
-    _DEFAULT_PULSE_WIDTH = 1500
-    _FREQUENCY = 60
+    """ Servo driver class.
 
-    _DEBUG = False
-    _DEBUG_INFO = 'DEBUG "Servo.py":'
+        The PCA9685 is working with a frequency of 50Hz. That result in a period of 20 ms.
+        This period has a range of 4096 steps which will result in a step of 4.88 us.
+        Normal servos are working with a pulse width from 1 to 2 ms. I Think it is better
+        to support a bigger range from 0.6 to 2.4 ms to get it to work.
+    """
+    _MIN_PULSE_WIDTH = 122.88 #  600 us * 4096 / 20000 us
+    _MAX_PULSE_WIDTH = 491.52 # 2400 us * 4096 / 20000 us
+    _DEGREE_STEP = 2.048 # (self._MAX_PULSE_WIDTH - self._MIN_PULSE_WIDTH) / 180.0
 
     def __init__(self, channel, offset=0, lock=True, address=0x5A):
         """ Init a servo on specific channel
         """
-        if channel<0 or channel > 16:
+        if channel not in range(16):
             raise ValueError("Servo channel \"{0}\" is not in (0, 15).".format(channel))
-        if self._DEBUG:
-            print self._DEBUG_INFO, "Debug on"
-        self.channel = channel
-        self.offset = offset
-        self.lock = lock
 
-        self.pwm = PCA9685.PWM(address=address)
-        self.pwm.setup()
-        self.frequency = self._FREQUENCY
+        self._channel = channel
+        self._offset = offset
+        self._lock = lock
+        self._pwm = PCA9685.PCA9685(address)
+
         self.set_angle(90)
 
-
-    def _angle_to_analog(self, angle):
-        """ Calculate 12-bit analog value from giving angle
+    def _angle_to_pwm(self, angle):
+        """ Calculate 12-bit analog value from giving angle.
+            The angle from 0 to 180 degrees has to be recalculated to a range from _MIN_PULSE_WIDTH to _MAX_PULSE_WIDTH.
+            0 degree equivalent to _MIN_PULSE_WIDTH and 180 degree is equivalent to _MAX_PULSE_WIDTH.
         """
-        pulse_wide   = self.pwm.map(angle, 0, 180, self._MIN_PULSE_WIDTH, self._MAX_PULSE_WIDTH)
-        analog_value = int(float(pulse_wide) / 1000000 * self.frequency * 4096)
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Angle %d equals Analog_value %d' % (angle, analog_value)
-        return analog_value
-
-    @property
-    def frequency(self):
-        return self._frequency
-
-    @frequency.setter
-    def frequency(self, value):
-        self._frequency = value
-        self.pwm.frequency = value
+        pwm_value = int(angle * self._DEGREE_STEP + self._MIN_PULSE_WIDTH + 0.5)
+        return pwm_value
 
     @property
     def offset(self):
+        """ Returns the offset.
+        """
         return self._offset
 
     @offset.setter
@@ -72,85 +52,69 @@ class Servo(object):
         """ Set offset for much user-friendly
         """
         self._offset = value
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Set offset to %d' % self.offset
 
     def set_angle(self, angle):
         """ Turn the servo with giving angle.
         """
-        if self.lock:
-            if angle > 180:
-                angle = 180
-            if angle < 0:
-                angle = 0
+        if self._lock:
+            angle = max(min(angle, 180), 0)
         else:
-            if angle<0 or angle>180:
-                raise ValueError("Servo \"{0}\" turn angle \"{1}\" is not in (0, 180).".format(self.channel, angle))
+            if angle not in range(181):
+                raise ValueError("Servo \"{0}\" turn angle \"{1}\" is not in range (0, 180).".format(self._channel, angle))
         angle += self.offset
-        val = self._angle_to_analog(angle)
-        self.pwm.write(self.channel, 0, val)
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Turn angle = %d' % angle
+        val = self._angle_to_pwm(angle)
+        self._pwm.set_channel(self._channel, val)
 
-    @property
-    def debug(self):
-        return self._DEBUG
-
-    @debug.setter
-    def debug(self, debug):
-        """ Set if debug information shows
+    def set_all_off(self):
+        """ Turn all pwm channels of.
         """
-        if debug in (True, False):
-            self._DEBUG = debug
-        else:
-            raise ValueError('debug must be "True" (Set debug on) or "False" (Set debug off), not "{0}"'.format(debug))
-
-        if self._DEBUG:
-            print self._DEBUG_INFO, "Set debug on"
-        else:
-            print self._DEBUG_INFO, "Set debug off"
+        self._pwm.set_all_channel(0)
 
 def range_test():
     """ Servo driver test on channel 0
     """
     import time
-    a = Servo(0)
-    print self._DEBUG_INFO, "Set Angle: 0"
-    a.set_angle(0)
-    time.sleep(0.1)
-    print self._DEBUG_INFO, "Set Angle: 90"
-    a.set_angle(90)
-    time.sleep(0.1)
-    print self._DEBUG_INFO, "Set Angle: 180"
-    a.set_angle(180)
-    time.sleep(0.1)
-    print self._DEBUG_INFO, "Set Angle: 90"
-    a.set_angle(90)
-    time.sleep(0.1)
+    servo = Servo(0)
+    print "Set Angle: 0"
+    servo.set_angle(0)
+    time.sleep(1)
+    print "Set Angle: 90"
+    servo.set_angle(90)
+    time.sleep(1)
+    print "Set Angle: 180"
+    servo.set_angle(180)
+    time.sleep(1)
+    print "Set Angle: 90"
+    servo.set_angle(90)
+    time.sleep(1)
+
+    servo.set_all_off()
 
 def test():
     """ Servo driver test on channel 0
     """
     import time
-    a = Servo(0)
+    servo = Servo(0)
     for i in range(0, 180, 5):
         print i
-        a.set_angle(i)
+        servo.set_angle(i)
         time.sleep(0.1)
     for i in range(180, 0, -5):
         print i
-        a.set_angle(i)
+        servo.set_angle(i)
         time.sleep(0.1)
     for i in range(0, 91, 2):
-        a.set_angle(i)
+        servo.set_angle(i)
         time.sleep(0.05)
     print i
 
+    servo.set_all_off()
+
 def install():
-    all_servo = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+    """ Run a simple install test.
+    """
     for i in range(16):
-        all_servo[i] = Servo(i)
-    for servo in all_servo:
+        servo = Servo(i)
         servo.set_angle(90)
 
 if __name__ == '__main__':

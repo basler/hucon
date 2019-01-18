@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" 2018-12-11
+""" 2019-01-18
 
 Driver module for servo-motor, with PCA9685
 
@@ -9,52 +9,48 @@ Author: Sascha.MuellerzumHagen@baslerweb.com
 import PCA9685
 
 class Motor(object):
-    """ Motor driver class
-    """
-    _MIN_PULSE_WIDTH = 600
-    _MAX_PULSE_WIDTH = 2400
-    _DEFAULT_PULSE_WIDTH = 1500
-    _FREQUENCY = 60
+    """ Motor driver class.
 
-    _DEBUG = False
-    _DEBUG_INFO = 'DEBUG "Motor.py":'
+        The PCA9685 is working with a frequency of 50Hz. That result in a period of 20 ms.
+        This period has a range of 4096 steps which will result in a step of 4.88 us.
+        Normal servos are working with a pulse width from 1 to 2 ms. I Think it is better
+        to support a bigger range from 0.6 to 2.4 ms to get it to work.
+    """
+    _MIN_PULSE_WIDTH = 122.88 #  600 us * 4096 / 20000 us
+    _MAX_PULSE_WIDTH = 491.52 # 2400 us * 4096 / 20000 us
+    _SPEED_STEP = 1.8432 # (self._MAX_PULSE_WIDTH - self._MIN_PULSE_WIDTH) / 200.0
 
     def __init__(self, channel, offset=0, lock=True, address=0x5A):
         """ Init a motor on specific channel
         """
-        if channel<0 or channel > 16:
+        if channel not in range(16):
             raise ValueError("Motor channel \"{0}\" is not in (0, 15).".format(channel))
-        if self._DEBUG:
-            print self._DEBUG_INFO, "Debug on"
-        self.channel = channel
-        self.offset = offset
-        self.lock = lock
 
-        self.pwm = PCA9685.PWM(address=address)
-        self.pwm.setup()
-        self.frequency = self._FREQUENCY
+        self._channel = channel
+        self._offset = offset
+        self._lock = lock
+
+        self._pwm = PCA9685.PCA9685(address=address)
+
         self.set_speed(0)
 
-    def _speed_to_analog(self, speed):
-        """ Calculate 12-bit analog value from giving speed
+    def _speed_to_pwm(self, speed):
+        """ Calculate 12-bit analog value from giving speed.
+            The speed from -100 to 100 has to be recalculated to a range from _MIN_PULSE_WIDTH to _MAX_PULSE_WIDTH.
+            -100 is equivalent to _MIN_PULSE_WIDTH and 100 is equivalent to _MAX_PULSE_WIDTH.
         """
-        pulse_wide   = self.pwm.map(speed, -100, 100, self._MIN_PULSE_WIDTH, self._MAX_PULSE_WIDTH)
-        analog_value = int(float(pulse_wide) / 1000000 * self.frequency * 4096)
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Speed %d equals Analog_value %d' % (speed, analog_value)
-        return analog_value
 
-    @property
-    def frequency(self):
-        return self._frequency
+        pwm_value = 0
+        if speed != 0:
+            speed += 100
+            pwm_value = int(speed * self._SPEED_STEP + self._MIN_PULSE_WIDTH + 0.5)
 
-    @frequency.setter
-    def frequency(self, value):
-        self._frequency = value
-        self.pwm.frequency = value
+        return pwm_value
 
     @property
     def offset(self):
+        """ Returns the offset.
+        """
         return self._offset
 
     @offset.setter
@@ -62,84 +58,65 @@ class Motor(object):
         """ Set offset for much user-friendly
         """
         self._offset = value
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Set offset to %d' % self.offset
 
     def set_speed(self, speed):
-        """ Turn the motor with giving speed. """
-        if self.lock:
-            if speed > 100:
-                speed = 100
-            if speed < -100:
-                speed = -100
+        """ Turn the motor with giving speed.
+        """
+        if self._lock:
+            speed = max(min(speed, 100), -100)
         else:
-            if speed<-100 or speed>100:
+            if speed not in range(-100, 101):
                 raise ValueError("Motor \"{0}\" turn speed \"{1}\" is not in (-100, 100).".format(self.channel, speed))
 
         speed = speed + self.offset
-        val = self._speed_to_analog(speed)
-        self.pwm.write(self.channel, 0, val)
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Turn speed = %d' % speed
+        val = self._speed_to_pwm(speed)
+        self._pwm.set_channel(self._channel, val)
 
-    @property
-    def debug(self):
-        return self._DEBUG
-
-    @debug.setter
-    def debug(self, debug):
-        """ Set if debug information shows
+    def set_all_off(self):
+        """ Turn all pwm channels of.
         """
-        if debug in (True, False):
-            self._DEBUG = debug
-        else:
-            raise ValueError('debug must be "True" (Set debug on) or "False" (Set debug off), not "{0}"'.format(debug))
-
-        if self._DEBUG:
-            print self._DEBUG_INFO, "Set debug on"
-        else:
-            print self._DEBUG_INFO, "Set debug off"
+        self._pwm.set_all_channel(0)
 
 def range_test():
     """ Motor driver test on channel 0
     """
     import time
-    a = Motor(0)
-    print self._DEBUG_INFO, "Set Speed: -100"
-    a.set_speed(-100)
+    motor = Motor(0)
+    print "Set Speed: -100"
+    motor.set_speed(-100)
     time.sleep(0.2)
-    print self._DEBUG_INFO, "Set Speed: 0"
-    a.set_speed(0)
+    print "Set Speed: 0"
+    motor.set_speed(0)
     time.sleep(0.2)
-    print self._DEBUG_INFO, "Set Speed: 100"
-    a.set_speed(100)
+    print "Set Speed: 100"
+    motor.set_speed(100)
     time.sleep(0.2)
-    print self._DEBUG_INFO, "Set Speed: 0"
-    a.set_speed(0)
+    print "Set Speed: 0"
+    motor.set_speed(0)
 
 def test():
     """ Motor driver test on channel 0
     """
     import time
-    a = Motor(0)
+    motor = Motor(0)
     for i in range(-100, 100, 10):
         print i
-        a.set_speed(i)
+        motor.set_speed(i)
         time.sleep(0.1)
     for i in range(100, -100, -10):
         print i
-        a.set_speed(i)
+        motor.set_speed(i)
         time.sleep(0.1)
     for i in range(-100, 0, 5):
-        a.set_speed(i)
+        motor.set_speed(i)
         time.sleep(0.05)
     print i
 
 def install():
-    all_motor = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+    """ Run a simple install test.
+    """
     for i in range(16):
-        all_motor[i] = Motor(i)
-    for motor in all_motor:
+        motor = Motor(i)
         motor.set_speed(90)
 
 if __name__ == '__main__':

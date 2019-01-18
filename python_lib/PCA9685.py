@@ -1,215 +1,108 @@
-#!/usr/bin/python
-"""
-**********************************************************************
-* Filename    : PCA9685.py
-* Description : A driver module for PCA9685
-* Author      : Cavon
-* Brand       : SunFounder
-* E-mail      : service@sunfounder.com
-* Website     : www.sunfounder.com
-* Version     : v2.0.0
-**********************************************************************
-* Sascha Mueller zum Hagen:
-* Adapted to work with the onion Omega2+ Board
-**********************************************************************
+#!/usr/bin/env python
+""" 2019-01-16
+
+Driver module for PCA9685
+
+Author: Sascha.MuellerzumHagen@baslerweb.com
 """
 
 import time
-import math
 from OmegaExpansion import onionI2C
 
-class PWM(object):
-    """A PWM control class for PCA9685."""
-    _MODE1              = 0x00
-    _MODE2              = 0x01
-    _SUBADR1            = 0x02
-    _SUBADR2            = 0x03
-    _SUBADR3            = 0x04
-    _PRESCALE           = 0xFE
-    _LED0_ON_L          = 0x06
-    _LED0_ON_H          = 0x07
-    _LED0_OFF_L         = 0x08
-    _LED0_OFF_H         = 0x09
-    _ALL_LED_ON_L       = 0xFA
-    _ALL_LED_ON_H       = 0xFB
-    _ALL_LED_OFF_L      = 0xFC
-    _ALL_LED_OFF_H      = 0xFD
+# Set of all addresses which are successfully initialized.
+_INITIALIZED_DRIVER = set()
 
-    _RESTART            = 0x80
-    _SLEEP              = 0x10
-    _ALLCALL            = 0x01
-    _INVRT              = 0x10
-    _OUTDRV             = 0x04
 
-    _DEBUG = False
-    _DEBUG_INFO = 'DEBUG "PCA9685.py":'
+class PCA9685(object):
+    """ Class to to handle multiple initialization from the PCA9685 at the same time.
+        This class will setup the PCA9685 once the first 'init' function is called.
+        After that, the setup routine will not called any more.
+    """
 
-    def __init__(self, address=0x5A):
-        self.address = address
-        self.i2c     = onionI2C.OnionI2C()
+    _address = None
+    _i2c = None
 
-    def setup(self):
-        """ Init the class with bus_number and address
+    _MODE1 = 0x00
+    _MODE2 = 0x01
+    _PRESCALE = 0xFE
+
+    _LED0_ON_L = 0x06
+    _ALL_LED_ON_L = 0xFA
+
+    def __init__(self, address):
+        """ Initialize the module and the PCS9685 driver if this is not initialized at the moment.
         """
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Reseting PCA9685 MODE1 (without SLEEP) and MODE2'
-        self.write_all_value(0, 0)
-        self._write_byte_data(self._MODE2, self._OUTDRV)
-        self._write_byte_data(self._MODE1, self._ALLCALL)
+        global _INITIALIZED_DRIVER
+
+        self._address = address
+        self._i2c = onionI2C.OnionI2C()
+
+        # Initialize the PCA9685 for the first time.
+        if self._address not in _INITIALIZED_DRIVER:
+            self._setup()
+            _INITIALIZED_DRIVER.add(self._address)
+
+
+    def _setup(self):
+        """ Set the PCA into a working state.
+        """
+        self.set_all_channel(0)
+
+        # Set default Mode2 register
+        self._i2c.writeByte(self._address, self._MODE2, 0x04)
+
+        # Set sleep on.
+        self._i2c.writeByte(self._address, self._MODE1, 0x11)
+
+        # Set a frequency of 50 Hz
+        # pre-scale = round(25Mhz/(4096*50Hz))-1 = 121
+        self._i2c.writeByte(self._address, self._PRESCALE, 121)
+
+        # Release sleep.
+        self._i2c.writeByte(self._address, self._MODE1, 0x01)
+
         time.sleep(0.005)
 
-        mode1 = self._read_byte_data(self._MODE1)
-        mode1 = mode1 & ~self._SLEEP
-        self._write_byte_data(self._MODE1, mode1)
-        time.sleep(0.005)
-        self._frequency = 60
+        # Reset device.
+        self._i2c.writeByte(self._address, self._MODE1, 0x81)
 
-    def _write_byte_data(self, reg, value):
-        """ Write data to I2C with self.address
+
+    def set_channel(self, channel, value):
+        """ Write the specific channel
         """
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Writing value %2X to %2X' % (value, reg)
-        try:
-            self.i2c.writeByte(self.address, reg, value)
-        except Exception, i:
-            print i
-            self._check_i2c()
+        if channel not in range(16):
+            raise Exception('The channel must be in range from 0 to 15!')
+        if value not in range(4096):
+            raise Exception('The value must be in range from 0 to 4095!')
 
-    def _read_byte_data(self, reg):
-        """ Read data from I2C with self.address
+        register_address = self._LED0_ON_L + channel * 4
+
+        # Set the on always to 0 and the off value will set the duration of the on state.
+        self._i2c.writeByte(self._address, register_address + 0, 0)
+        self._i2c.writeByte(self._address, register_address + 1, 0)
+        self._i2c.writeByte(self._address, register_address + 2, value & 0xFF)
+        self._i2c.writeByte(self._address, register_address + 3, value >> 8)
+
+    def set_all_channel(self, value):
+        """ Write to all channels with the write ALL_LED register.
         """
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Reading value from %2X' % reg
-        try:
-            results = self.i2c.readBytes(self.address, reg, 1)
-            return results[0]
-        except Exception, i:
-            print i
-            self._check_i2c()
+        if value not in range(4096):
+            raise Exception('The value must be in range from 0 to 4095!')
 
-    def _check_i2c(self):
-        import commands
-        bus_number = self._get_bus_number()
-        print "\nYour Pi Rivision is: %s" % self._get_pi_revision()
-        print "I2C bus number is: %s" % bus_number
-        print "Checking I2C device:"
-        cmd = "ls /dev/i2c-%d" % bus_number
-        output = commands.getoutput(cmd)
-        print 'Commands "%s" output:' % cmd
-        print output
-        if '/dev/i2c-%d' % bus_number in output.split(' '):
-            print "I2C device setup OK"
-        else:
-            print "Seems like I2C have not been set, Use 'sudo raspi-config' to set I2C"
-        cmd = "i2cdetect -y %s" % self.bus_number
-        output = commands.getoutput(cmd)
-        print "Your PCA9685 address is set to 0x%02X" % self.address
-        print "i2cdetect output:"
-        print output
-        outputs = output.split('\n')[1:]
-        addresses = []
-        for tmp_addresses in outputs:
-            tmp_addresses = tmp_addresses.split(':')[1]
-            tmp_addresses = tmp_addresses.strip().split(' ')
-            for address in tmp_addresses:
-                if address != '--':
-                    addresses.append(address)
-        print "Conneceted i2c device:"
-        if addresses == []:
-            print "None"
-        else:
-            for address in addresses:
-                print "  0x%s" % address
-        if "%02X" % self.address in addresses:
-            print "Wierd, I2C device is connected, Try to run the program again, If problem stills, email this information to support@sunfounder.com"
-        else:
-            print "Device is missing."
-            print "Check the address or wiring of PCA9685 Server driver, or email this information to support@sunfounder.com"
-        raise IOError('IO error')
+        # Set the on always to 0 and the off value will set the duration of the on state.
+        self._i2c.writeByte(self._address, self._ALL_LED_ON_L + 0, 0)
+        self._i2c.writeByte(self._address, self._ALL_LED_ON_L + 1, 0)
+        self._i2c.writeByte(self._address, self._ALL_LED_ON_L + 2, value & 0xFF)
+        self._i2c.writeByte(self._address, self._ALL_LED_ON_L + 3, value >> 8)
 
-    @property
-    def frequency(self):
-        return _frequency
-
-    @frequency.setter
-    def frequency(self, freq):
-        """ Set PWM frequency
-        """
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Set frequency to %d' % freq
-        self._frequency = freq
-        prescale_value = 25000000.0
-        prescale_value /= 4096.0
-        prescale_value /= float(freq)
-        prescale_value -= 1.0
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Setting PWM frequency to %d Hz' % freq
-            print self._DEBUG_INFO, 'Estimated pre-scale: %d' % prescale_value
-        prescale = math.floor(prescale_value + 0.5)
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Final pre-scale: %d' % prescale
-
-        old_mode = self._read_byte_data(self._MODE1);
-        new_mode = (old_mode & 0x7F) | 0x10
-        self._write_byte_data(self._MODE1, new_mode)
-        self._write_byte_data(self._PRESCALE, int(math.floor(prescale)))
-        self._write_byte_data(self._MODE1, old_mode)
-        time.sleep(0.005)
-        self._write_byte_data(self._MODE1, old_mode | 0x80)
-
-    def write(self, channel, on, off):
-        """ Set on and off value on specific channel
-        """
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Set channel "%d" to value "%d"' % (channel, off)
-        self._write_byte_data(self._LED0_ON_L+4*channel, on & 0xFF)
-        self._write_byte_data(self._LED0_ON_H+4*channel, on >> 8)
-        self._write_byte_data(self._LED0_OFF_L+4*channel, off & 0xFF)
-        self._write_byte_data(self._LED0_OFF_H+4*channel, off >> 8)
-
-    def write_all_value(self, on, off):
-        """ Set on and off value on all channel
-        """
-        if self._DEBUG:
-            print self._DEBUG_INFO, 'Set all channel to value "%d"' % (off)
-        self._write_byte_data(self._ALL_LED_ON_L, on & 0xFF)
-        self._write_byte_data(self._ALL_LED_ON_H, on >> 8)
-        self._write_byte_data(self._ALL_LED_OFF_L, off & 0xFF)
-        self._write_byte_data(self._ALL_LED_OFF_H, off >> 8)
-
-    def map(self, x, in_min, in_max, out_min, out_max):
-        """ To map the value from arange to another
-        """
-        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-
-    @property
-    def debug(self):
-        return self._DEBUG
-
-    @debug.setter
-    def debug(self, debug):
-        """ Set if debug information shows
-        """
-        if debug in (True, False):
-            self._DEBUG = debug
-        else:
-            raise ValueError('debug must be "True" (Set debug on) or "False" (Set debug off), not "{0}"'.format(debug))
-
-        if self._DEBUG:
-            print self._DEBUG_INFO, "Set debug on"
-        else:
-            print self._DEBUG_INFO, "Set debug off"
 
 if __name__ == '__main__':
-    import time
 
-    pwm = PWM()
-    pwm.frequency = 60
-    for i in range(16):
-        time.sleep(0.5)
-        print '\nChannel %d\n' % i
-        time.sleep(0.5)
-        for j in range(4096):
-            pwm.write(i, 0, j)
-            print 'PWM value: %d' % j
-            time.sleep(0.0003)
+    pwm = PCA9685(0x4A)
+
+    for cha in range(16):
+        print 'Channel %d\n' % cha
+        pwm.set_channel(cha, 255)
+        time.sleep(1)
+
+    pwm.set_all_channel(0)
