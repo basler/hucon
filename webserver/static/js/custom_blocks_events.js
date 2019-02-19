@@ -4,7 +4,7 @@
 //
 // Author: Sascha.MuellerzumHagen@baslerweb.com
 
-const COLOR_EVENTS = 250;
+var COLOR_EVENTS = 250;
 
 var eventDict = null;
 
@@ -13,26 +13,30 @@ var eventDict = null;
 // It should be rewritten when I understand the system a little bit more.
 function appendEvent(eventName, funcName) {
     // add the nedded include
-    Blockly.Python.definitions_['import_event'] = 'from hucon import EventSystem, Button';
+    Blockly.Python.definitions_.import_event = 'from hucon import EventSystem, Button';
 
     // Create or append the event to the list
     if (Blockly.Python.definitions_['eventDict'] == undefined) {
-        Blockly.Python.definitions_['eventDict'] = '';
-        eventDict = `# Map event name to callback.\nevents_dict = {
-  "${eventName}": Button(register_callback=${funcName})
-}
-
-# Setup event system.
-process_events = EventSystem(events_dict)
-`;
+        Blockly.Python.definitions_.eventDict = '';
+        eventDict = [
+            '# Map event name to callback.',
+            'events_dict = {',
+            '  "{1}": Button(register_callback={2})',
+            '}',
+            '',
+            '# Setup event system.',
+            'process_events = EventSystem(events_dict)',
+            ''
+        ].join('\n');
     } else {
-        eventDict = eventDict.replace('\n}', `,\n  "${eventName}": Button(register_callback=${funcName})\n}`);
+        eventDict = eventDict.replace('\n}', ',\n  "{1}": Button(register_callback={2})\n}');
     }
+
+    eventDict = HuConApp.formatVarString(eventDict, eventName, funcName);
 }
 
-
-Blockly.Blocks['event_init'] = {
-    init: function() {
+Blockly.Blocks.event_init = {
+    init: function () {
         this.appendDummyInput()
             .appendField('Init events');
         this.setPreviousStatement(true, null);
@@ -41,13 +45,12 @@ Blockly.Blocks['event_init'] = {
         this.setTooltip('Initialize the event engine.');
     }
 };
-Blockly.Python['event_init'] = function(block) {
+Blockly.Python.event_init = function(block) {
     return eventDict;
 };
 
-
-Blockly.Blocks['event_run_endless'] = {
-    init: function() {
+Blockly.Blocks.event_run_endless = {
+    init: function () {
         this.appendDummyInput()
             .appendField('Run endless ...');
         this.setPreviousStatement(true, null);
@@ -57,13 +60,12 @@ Blockly.Blocks['event_run_endless'] = {
         this.setTooltip('Run forever.');
     }
 };
-Blockly.Python['event_run_endless'] = function(block) {
+Blockly.Python.event_run_endless = function(block) {
     return 'process_events.run()\n';
 };
 
-
-Blockly.Blocks['event_stop_endless'] = {
-    init: function() {
+Blockly.Blocks.event_stop_endless = {
+    init: function () {
         this.appendDummyInput()
             .appendField('Stop endless process');
         this.setPreviousStatement(true, null);
@@ -72,13 +74,12 @@ Blockly.Blocks['event_stop_endless'] = {
         this.setTooltip('Stop the current endless running event process.');
     }
 };
-Blockly.Python['event_stop_endless'] = function(block) {
+Blockly.Python.event_stop_endless = function(block) {
     return 'process_events.stop()\n';
 };
 
-
-Blockly.Blocks['event_button_object'] = {
-    init: function() {
+Blockly.Blocks.event_button_object = {
+    init: function () {
         this.appendDummyInput()
             .appendField('Button Event');
         this.appendStatementInput('function')
@@ -92,7 +93,7 @@ Blockly.Blocks['event_button_object'] = {
         });
     }
 };
-Blockly.Python['event_button_object'] = function(block) {
+Blockly.Python.event_button_object = function(block) {
     // Catch all global variables.
     var globals = [];
     globals.push('process_events');
@@ -111,12 +112,16 @@ Blockly.Python['event_button_object'] = function(block) {
         statementsFunc = Blockly.Python.PASS;
     }
 
-    var code = `def ${funcName}():
-  """ Callback for Button '${eventName}' event.
-  """
-${globals}${statementsFunc}
-`
-    code = Blockly.Python.scrub_(block, code)
+    var code = [
+        'def {1}():',
+        '  """ Callback for Button \'{2}\' event.',
+        '  """',
+        globals + statementsFunc,
+        ''
+    ].join('\n');
+    code = HuConApp.formatVarString(code, funcName, eventName);
+
+    code = Blockly.Python.scrub_(block, code);
     Blockly.Python.definitions_['%' + funcName] = code;
 
     appendEvent(eventName, funcName);
