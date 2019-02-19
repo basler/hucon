@@ -6,7 +6,7 @@ Driver module for servo-motor, with PCA9685
 Author: Sascha.MuellerzumHagen@baslerweb.com
 """
 
-import PCA9685
+from .PCA9685 import PCA9685
 
 class Motor(object):
     """ Motor driver class.
@@ -30,7 +30,7 @@ class Motor(object):
         self._offset = offset
         self._lock = lock
 
-        self._pwm = PCA9685.PCA9685(address=address)
+        self._pwm = PCA9685(address=address)
 
         self.set_speed(0)
 
@@ -66,7 +66,7 @@ class Motor(object):
             speed = max(min(speed, 100), -100)
         else:
             if speed not in range(-100, 101):
-                raise ValueError("Motor \"{0}\" turn speed \"{1}\" is not in (-100, 100).".format(self.channel, speed))
+                raise ValueError("Motor \"{0}\" turn speed \"{1}\" is not in (-100, 100).".format(self._channel, speed))
 
         speed = speed + self.offset
         val = self._speed_to_pwm(speed)
