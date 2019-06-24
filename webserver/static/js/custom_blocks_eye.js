@@ -13,6 +13,28 @@ var MACHINE_EYES_CODE = [
     ['create BGR eye for', 'Eye.BGR'],
     ['create BRG eye for', 'Eye.BRG']
 ];
+var MACHINE_EYES = [
+    ['position top left', '1'],
+    ['position top right', '2'],
+    ['position bottom left', '3'],
+    ['position bottom right', '4']
+];
+
+Blockly.Blocks.machine_eye = {
+    init: function () {
+        this.setColour(COLOR_EYE);
+
+        this.appendDummyInput()
+            .appendField(new Blockly.FieldDropdown(MACHINE_EYES), 'Eye');
+        this.setOutput(true, 'MachineEye');
+
+        this.setTooltip('Get the right value for the eye position.');
+    }
+};
+Blockly.Python.machine_eye = function(block) {
+    var channel = block.getFieldValue('Eye');
+    return [channel, Blockly.Python.ORDER_ATOMIC];
+};
 
 Blockly.Blocks.eye_object_code = {
     init: function () {
