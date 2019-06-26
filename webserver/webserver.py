@@ -18,7 +18,7 @@ def set_led(red, green, blue):
         Eye(4, Eye.GRB).set_color(red, green, blue)
 
     except Exception as ex:
-        pass
+        print(ex)
 
 
 # Set the led eyes to yellow at the beginning
@@ -41,33 +41,6 @@ from HuConJsonRpc import HuConJsonRpc
 json_rpc = HuConJsonRpc()
 
 app = Flask(json_rpc._SERVER_NAME)
-
-
-def check_auth(username, password):
-    """ This function is called to check if a user-name /
-        password combination is valid.
-    """
-    return username == 'hucon' and password == 'robot'
-
-
-def authenticate():
-    """ Sends a 401 response that enables basic auth
-    """
-    return Response('You have to login',
-                    401,
-                    {'WWW-Authenticate': 'Basic realm="%s"' % json_rpc._SERVER_NAME})
-
-
-def requires_auth(f):
-    """ Authentication
-    """
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        return f(*args, **kwargs)
-    return decorated
 
 
 @app.route('/')
@@ -123,8 +96,8 @@ def api():
             return ('Bad Request.', 400)
 
         return json_rpc.handle_control(data)
-    else:
-        return render_template('api.html')
+
+    return render_template('api.html')
 
 
 @app.before_first_request
@@ -148,8 +121,8 @@ def check_service():
             res = conn.getresponse()
             if res.status == 200:
                 not_started = False
-        except Exception as e:
-            pass
+        except Exception as ex:
+            print(ex)
 
 
 if __name__ == '__main__':
