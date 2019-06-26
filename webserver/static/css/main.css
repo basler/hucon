@@ -74,11 +74,13 @@ div.container {
 }
 
 .shortHeight {
-    height: calc(100% - 434px);
+    /* 100% - menuArea - logArea */
+    height: calc(100% - 42px - 250px);
 }
 
 .fullHeight {
-    height: calc(100% - 436px + 250px);
+    /* 100% - menuArea */
+    height: calc(100% - 42px);
 }
 
 .spaced {
