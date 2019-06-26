@@ -134,6 +134,7 @@ class HuConJsonRpc():
     def _run_file(self, filename):
         """ Run the file and catch all output of it.
         """
+        error_detected = False
         self._current_proc = subprocess.Popen(['python', '-u', filename],
                                               bufsize=1,
                                               stdin=subprocess.PIPE,
@@ -145,9 +146,16 @@ class HuConJsonRpc():
             if output == '' and self._current_proc.poll() is not None:
                 break
             if output:
+                file_error_string = 'File "' + filename + '", l'
+                if output.find(file_error_string) != -1:
+                    error_detected = True
                 # Replace the file error like 'File "/tmp/execute.py", line x, in'
-                line = output.replace('File "' + filename + '", l', 'Error: L')
+                line = output.replace(file_error_string, '[red]Error: L')
                 self._log.put(line)
+
+        if not error_detected:
+            self._log.put('')
+            self._log.put('[green]Done ...')
 
         self._current_proc.poll()
 

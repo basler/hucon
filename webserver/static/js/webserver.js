@@ -224,7 +224,6 @@ HuConApp.isRunning = function () {
             } else {
                 $('#runButton').removeClass('disabled');
                 $('#stopButton').addClass('disabled');
-                HuConApp.appendConsoleLog('Done ...', 'green');
             }
         },
         error: HuConApp.appendErrorLog
@@ -258,8 +257,12 @@ HuConApp.appendConsoleLogMessage = function (message, colour) {
         colour = 'black';
     }
 
-    if (message.indexOf('Error:') != -1) {
-        colour = 'red';
+    var myRegexp = /\[([a-zA-Z]+)\]/g;
+    match = myRegexp.exec(message);
+
+    if (match != null && match[1]) {
+        colour = match[1];
+        message = message.replace(match[0], '');
     }
 
     $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'));
