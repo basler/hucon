@@ -1,15 +1,26 @@
 #!/bin/sh /etc/rc.common
-# Copyright (C) 2018 Onion Corporation
-START=11
+# "new(er)" style init script
+# Look at /lib/functions/service.sh on a running system for explanations of what other SERVICE_
+# options you can use, and when you might want them.
 
 USE_PROCD=1
 
+START=80
+
+PROG="sh /opt/hucon/i2c_led.sh"
+
 start_service() {
-	if [ ! -z ${IPKG_INSTROOT+x} ];
-		then echo "In build environment - doing nothing."; 
-	else
-		procd_open_instance 
-		procd_set_param command "sh /opt/hucon/i2c_led.sh on"
-		procd_close_instance
-	fi
+        if [ ! -z ${IPKG_INSTROOT+x} ];
+                then echo "In build environment - doing nothing.";
+        else
+                $PROG on
+        fi
+}
+
+stop_service() {
+        if [ ! -z ${IPKG_INSTROOT+x} ];
+                then echo "In build environment - doing nothing.";
+        else
+                $PROG off
+        fi
 }
