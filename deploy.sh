@@ -14,7 +14,7 @@ cd "$BASEDIR"
 
 # compress the needed files into one tar image
 echo $1 > __version__
-tar -czvf "$TMP_FILENAME" __version__ README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh start_server.sh uninstall.sh update.sh
+tar -czvf "$TMP_FILENAME" __version__ README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh
 
 # generate a self extracting tar image
 tmp=__extract__$RANDOM
