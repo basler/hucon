@@ -272,17 +272,11 @@ Author: Sascha.MuellerzumHagen@baslerweb.com
     <category name="Machine" colour="180">
         <block type="machine_sleep"></block>
         <block type="machine_sleep_value"></block>
-        <label text="Eye"></label>
-        <block type="machine_eye"></block>
-        <label text="Servo"></label>
-        <block type="machine_servo_channel"></block>
-        <label text="Motor"></label>
-        <block type="machine_motor_channel"></block>
     </category>
     <category name="Eye" colour="0">
+        <block type="machine_eye"></block>
         <block type="eye_object_code"></block>
-<!--         <block type="eye_object"></block>
- -->        <block type="eye_colour"></block>
+        <block type="eye_colour"></block>
         <block type="eye_colour_rgb">
             <value name="R">
                 <shadow type="math_number">
@@ -302,6 +296,7 @@ Author: Sascha.MuellerzumHagen@baslerweb.com
         </block>
     </category>
     <category name="Servo" colour="30">
+        <block type="machine_servo_channel"></block>
         <block type="servo_object"></block>
         <block type="servo_set_offset">
             <value name="Offset">
@@ -319,6 +314,7 @@ Author: Sascha.MuellerzumHagen@baslerweb.com
         </block>
     </category>
     <category name="Motor" colour="60">
+        <block type="machine_motor_channel"></block>
         <block type="motor_object"></block>
         <block type="motor_set_offset">
             <value name="Offset">

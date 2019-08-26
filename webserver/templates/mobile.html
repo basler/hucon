@@ -62,10 +62,13 @@
 
     <style>
         #logArea {
-            height: calc(100% - 180px);
+            /* 100% - menuArea */
+            height: calc(100% - 42px);
         }
     </style>
 
 {% endblock %}
+
+{% block headerArea %}{% endblock %}
 
 {% block main %}{% endblock %}

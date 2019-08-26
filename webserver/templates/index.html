@@ -58,31 +58,60 @@
 {% block menu %}{% endblock %}
 {% block log %}{% endblock %}
 {% block main %}
-        <div class="center">
-            <button onclick="location.href='blockly.html'" class="fluid ui orange button">
-                <i class="icon puzzle piece"></i>
-                Blockly
-            </button>
-            <p></p>
-            <button onclick="location.href='editor.html'" class="fluid ui orange button">
-                <i class="icon edit"></i>
-                Editor
-            </button>
-            <p class="whitesmoke">The following site is good when<br>
-            the device has no Internet con-<br>
-            nection.</p>
-            <button onclick="location.href='mobile.html'" class="fluid ui blue button">
-                <i class="icon tablet alternate"></i>
-                Mobile
-            </button>
-            <p class="whitesmoke">You can change your password<br>
-            or update the system<br>
-            with the following site.</p>
-            <button onclick="location.href='settings.html'" class="fluid ui light_blue button">
-                <i class="icon cogs"></i>
-                Settings
-            </button>
+
+<div class="center">
+    <div class="ui four stackable cards">
+        <div class="card">
+            <a class="image" href="blockly.html">
+                <img src="{{ url_for('.static', filename='images/blockly.svg') }}">
+            </a>
+            <div class="content">
+                <a href="blockly.html" class="header" style="color: #14487e;">Blockly</a>
+                <div class="meta">
+                    Use bricks to programm your robot.
+                </div>
+            </div>
         </div>
+        <div class="card">
+            <a class="image" href="editor.html">
+                <img src="{{ url_for('.static', filename='images/editor.svg') }}">
+            </a>
+            <div class="content">
+                <a href="editor.html" class="header" style="color: #14487e;">Editor</a>
+                <div class="meta">
+                    Programm your Robot like a Pro with Python.
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <a class="image" href="mobile.html">
+                <img src="{{ url_for('.static', filename='images/mobile.svg') }}">
+            </a>
+            <div class="content">
+                <a href="mobile.html" class="header" style="color: #14487e;">Mobile</a>
+                <div class="meta">
+                    Run a programm of your Robot with your smartphone.
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <a class="image" href="settings.html">
+                <img src="{{ url_for('.static', filename='images/settings.svg') }}">
+            </a>
+            <div class="content">
+                <a href="settings.html" class="header" style="color: #14487e;">Settings</a>
+                <div class="meta">
+                    Update your robot or change the settings.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ui label licenseBottom">
+    Some icons are used from FontAwesome (<a href="https://fontawesome.com/license">license</a>)
+</div>
+
 {% endblock %}
 
 {% block modal %}

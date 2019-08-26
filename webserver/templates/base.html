@@ -25,6 +25,7 @@
 
     <div class="container">
         {% block container %}
+        {% block headerArea %}
         <div id="headerArea">
             <button onclick="window.open('https://github.com/juwis/hackerschool')" class="circular ui icon button" style="position: relative;">
                 <i class="icon github"></i>
@@ -33,8 +34,14 @@
             </button>
             {% block header %}{% endblock %}
         </div>
+        {% endblock %}
         {% block menu %}
         <div id="menuArea" class="ui top attached menu">
+            <div id="indexButton">
+                <a href="index.html">
+                    <img src="{{ url_for('.static', filename='images/icon.svg') }}" alt="Icon" width="42" height="42" style="border-top-left-radius: 4px;">
+                </a>
+            </div>
             <div id="fileButton" class="ui simple dropdown item">
                 <i class="folder outline icon"></i>
                 File

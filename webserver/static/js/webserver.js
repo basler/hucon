@@ -5,7 +5,7 @@
 // Author: Sascha.MuellerzumHagen@baslerweb.com
 
 // Ask the user to go before he goes.
-$(window).bind("beforeunload", function(){
+$(window).bind("beforeunload", function () {
     if (HuConApp.UnsavedContent) {
         return "Do you really want to go?\nAll your unsaved data will be lost.";
     }
@@ -21,7 +21,7 @@ $(document).ready(function () {
 });
 
 // Handle some key bindings
-$(window).bind('keydown', function(event) {
+$(window).bind('keydown', function (event) {
     if (event.ctrlKey || event.metaKey) {
         switch (String.fromCharCode(event.which).toLowerCase()) {
         case 'n':
@@ -49,7 +49,7 @@ $(window).bind('keydown', function(event) {
 });
 
 // HuCon Name-space
-var HuConApp = {}
+var HuConApp = {};
 
 // Id for JSON-RPC protocol
 HuConApp.RpcId = 0;
@@ -64,93 +64,92 @@ HuConApp.FileExt = '';
 HuConApp.UnsavedContent = false;
 
 // Get a new JSON-RPC message data with a new id.
-HuConApp.getRpcRequest = function() {
+HuConApp.getRpcRequest = function () {
     jsonRpc = {};
-    jsonRpc['jsonrpc'] = '2.0';
-    jsonRpc['method'] = '';
-    jsonRpc['params'] = '';
-    jsonRpc['id'] = HuConApp.RpcId;
+    jsonRpc.jsonrpc = '2.0';
+    jsonRpc.method = '';
+    jsonRpc.params = '';
+    jsonRpc.id = HuConApp.RpcId;
 
     // Increment the id for the next request.
     HuConApp.RpcId = HuConApp.RpcId + 1;
 
     return jsonRpc;
-}
+};
 
 // Check the rpc response and return true whenever there is an error occurred.
 // On error the message will printed on console log.
-HuConApp.isResponseError = function(rpcResponse) {
-    if (rpcResponse['error']) {
-        HuConApp.appendConsoleLog(rpcResponse['error'], 'red');
+HuConApp.isResponseError = function (rpcResponse) {
+    if (rpcResponse.error) {
+        HuConApp.appendConsoleLog(rpcResponse.error, 'red');
         return true;
     }
 
     return false;
-}
+};
 
 // Get the version from the server and update the ui.
-HuConApp.updateVersion = function() {
+HuConApp.updateVersion = function () {
     $('#version').hide();
 
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'get_version';
+    rpcRequest.method = 'get_version';
 
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
+        success: function (rpcResponse) {
             if (HuConApp.isResponseError(rpcResponse)) {
                 return;
             }
 
-            $('#version').html(rpcResponse['result']);
+            $('#version').html(rpcResponse.result);
             $('#version').show();
         },
         error: HuConApp.appendErrorLog
     });
-}
+};
 
 // Poll for a new message.
-HuConApp.poll = function() {
+HuConApp.poll = function () {
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'poll';
+    rpcRequest.method = 'poll';
 
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
-
-            if (rpcResponse['result'].length) {
-                HuConApp.appendConsoleLog(rpcResponse['result']);
-            };
+        success: function (rpcResponse) {
+            if (rpcResponse.result.length) {
+                HuConApp.appendConsoleLog(rpcResponse.result);
+            }
             setTimeout(HuConApp.poll, 500);
         },
-        error: function(message) {
+        error: function (message) {
             HuConApp.appendErrorLog(message);
             setTimeout(HuConApp.poll, 500);
         }
     });
-}
+};
 
 // Run the code on the device and set the button states.
-HuConApp.execute = function() {
+HuConApp.execute = function () {
     $('#consoleLog').html('');
     HuConApp.appendConsoleLog('Loading program ...', 'green');
 
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'execute';
-    rpcRequest['params'] = getPythonCode();
+    rpcRequest.method = 'execute';
+    rpcRequest.params = getPythonCode();
 
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
-            if (rpcResponse['result'] !== undefined) {
-                HuConApp.appendConsoleLog(rpcResponse['result']);
-            };
+        success: function (rpcResponse) {
+            if (rpcResponse.result !== undefined) {
+                HuConApp.appendConsoleLog(rpcResponse.result);
+            }
         },
         error: HuConApp.appendErrorLog
     });
@@ -158,25 +157,25 @@ HuConApp.execute = function() {
     $('#runButton').addClass('disabled');
     $('#stopButton').removeClass('disabled');
     setTimeout(HuConApp.isRunning, 1000);
-}
+};
 
 // Run the file directly from the device.
-HuConApp.run = function() {
+HuConApp.run = function () {
     $('#consoleLog').html('');
     HuConApp.appendConsoleLog('Loading program ...', 'green');
 
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'run';
-    rpcRequest['params'] = HuConApp.Folder + '/' + $('#chooseFilename').val();
+    rpcRequest.method = 'run';
+    rpcRequest.params = HuConApp.Folder + '/' + $('#chooseFilename').val();
 
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
-            if (rpcResponse['result'] !== undefined) {
-                HuConApp.appendConsoleLog(rpcResponse['result']);
-            };
+        success: function (rpcResponse) {
+            if (rpcResponse.result !== undefined) {
+                HuConApp.appendConsoleLog(rpcResponse.result);
+            }
         },
         error: HuConApp.appendErrorLog
     });
@@ -184,74 +183,72 @@ HuConApp.run = function() {
     $('#runButton').addClass('disabled');
     $('#stopButton').removeClass('disabled');
     setTimeout(HuConApp.isRunning, 1000);
-}
+};
 
 // Stop the user application.
-HuConApp.stop = function() {
+HuConApp.stop = function () {
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'kill';
+    rpcRequest.method = 'kill';
 
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
-            if (rpcResponse['result'] !== undefined) {
-                HuConApp.appendConsoleLog(rpcResponse['result'], 'red');
-            };
+        success: function (rpcResponse) {
+            if (rpcResponse.result !== undefined) {
+                HuConApp.appendConsoleLog(rpcResponse.result, 'red');
+            }
         },
         error: HuConApp.appendErrorLog
     });
-}
+};
 
 // Check if the device is still running and set the button states.
-HuConApp.isRunning = function() {
+HuConApp.isRunning = function () {
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'is_running';
+    rpcRequest.method = 'is_running';
 
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
+        success: function (rpcResponse) {
             if (HuConApp.isResponseError(rpcResponse)) {
                 return;
             }
 
-            if (rpcResponse['result']) {
+            if (rpcResponse.result) {
                 $('#runButton').addClass('disabled');
                 $('#stopButton').removeClass('disabled');
                 setTimeout(HuConApp.isRunning, 1000);
             } else {
                 $('#runButton').removeClass('disabled');
                 $('#stopButton').addClass('disabled');
-                HuConApp.appendConsoleLog('Done ...', 'green');
             }
         },
         error: HuConApp.appendErrorLog
     });
-}
+};
 
 // Append a new message from the server or any script to the console.
-HuConApp.appendConsoleLog = function(messages, colour) {
+HuConApp.appendConsoleLog = function (messages, colour) {
     if (Array.isArray(messages)) {
-        messages.forEach(function(message) {
+        messages.forEach(function (message) {
             HuConApp.appendConsoleLogMessage(message, colour);
         });
     } else {
         HuConApp.appendConsoleLogMessage(messages, colour);
     }
-}
+};
 
 // Append an error message to the console and color it red.
-HuConApp.appendErrorLog = function(request, status, error) {
-    rpcResponse = JSON.parse(request.responseText)
-    HuConApp.appendConsoleLog(error + ': ' + rpcResponse['error'], 'red');
-}
+HuConApp.appendErrorLog = function (request, status, error) {
+    rpcResponse = JSON.parse(request.responseText);
+    HuConApp.appendConsoleLog(error + ': ' + rpcResponse.error, 'red');
+};
 
 // Append the message, which can be a an array, to the console output.
-HuConApp.appendConsoleLogMessage = function(message, colour) {
-
+HuConApp.appendConsoleLogMessage = function (message, colour) {
     if (message === undefined) {
         return;
     }
@@ -260,16 +257,20 @@ HuConApp.appendConsoleLogMessage = function(message, colour) {
         colour = 'black';
     }
 
-    if (message.includes('Error:')) {
-        colour = 'red';
+    var myRegexp = /\[([a-zA-Z]+)\]/g;
+    match = myRegexp.exec(message);
+
+    if (match != null && match[1]) {
+        colour = match[1];
+        message = message.replace(match[0], '');
     }
 
-    $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'))
+    $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'));
     $('#logArea').scrollTop($('#logArea')[0].scrollHeight);
-}
+};
 
 // Show the code or hide it.
-HuConApp.showCode = function() {
+HuConApp.showCode = function () {
     show = localStorage.getItem('CodeShow');
 
     if (show === 'no') {
@@ -285,11 +286,10 @@ HuConApp.showCode = function() {
     }
 
     window.dispatchEvent(new Event('resize'));
-}
+};
 
 // Show/Hide the code view.
-HuConApp.toggleCodeView = function() {
-
+HuConApp.toggleCodeView = function () {
     if ($('#codeButton').hasClass('active')) {
         // collapse
         localStorage.setItem('CodeShow', 'no');
@@ -299,10 +299,10 @@ HuConApp.toggleCodeView = function() {
     }
 
     HuConApp.showCode();
-}
+};
 
 // Show the console or hide it.
-HuConApp.showConsole = function() {
+HuConApp.showConsole = function () {
     show = localStorage.getItem('ConsoleShow');
 
     if (show === 'no') {
@@ -318,10 +318,10 @@ HuConApp.showConsole = function() {
     }
 
     window.dispatchEvent(new Event('resize'));
-}
+};
 
 // Show/Hide the console view.
-HuConApp.toggleConsoleView = function() {
+HuConApp.toggleConsoleView = function () {
     if ($('#consoleButton').hasClass('active')) {
         // collapse
         localStorage.setItem('ConsoleShow', 'no');
@@ -331,35 +331,36 @@ HuConApp.toggleConsoleView = function() {
     }
 
     HuConApp.showConsole();
-}
+};
 
 // Show button Modal.
-HuConApp.buttonModal = function() {
+HuConApp.buttonModal = function () {
     $('#buttonModal').modal('show');
     $('#buttonEmbed').embed();
-}
+};
 
 // Set the breadcrump based on the current folder.
-HuConApp.setBreadcrumb = function(modal) {
+HuConApp.setBreadcrumb = function (modal) {
     modal.html('<div class="divider">/</div>');
 
     var folderPath = HuConApp.Folder.split('/');
+
     for (var i = 0; i < folderPath.length; i++) {
         if (folderPath[i] != '') {
             modal.append('<div class="section">' + folderPath[i] + '</div>');
             modal.append('<div class="divider">/</div>');
         }
     }
-}
+};
 
 // Show a form to create a new folder.
-HuConApp.createNewFolder = function() {
+HuConApp.createNewFolder = function () {
     foldername = $('#folderFilename').val();
 
     if (foldername != '') {
         var rpcRequest = HuConApp.getRpcRequest();
-        rpcRequest['method'] = 'create_folder';
-        rpcRequest['params'] = HuConApp.Folder + '/' + foldername;
+        rpcRequest.method = 'create_folder';
+        rpcRequest.params = HuConApp.Folder + '/' + foldername;
 
         $.ajax('/API', {
             method: 'POST',
@@ -370,12 +371,12 @@ HuConApp.createNewFolder = function() {
 
         HuConApp.saveFileModal(HuConApp.Folder);
     }
+
     console.log($('#folderFilename'));
-}
+};
 
 // Show the file open modal and list all folder.
-HuConApp.openFileModal = function(newFolder) {
-
+HuConApp.openFileModal = function (newFolder) {
     if (newFolder != undefined) {
         HuConApp.Folder = newFolder;
     }
@@ -383,33 +384,32 @@ HuConApp.openFileModal = function(newFolder) {
     HuConApp.setBreadcrumb($('#openBreadcrumb'));
 
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'get_file_list';
-    rpcRequest['params'] = HuConApp.Folder;
+    rpcRequest.method = 'get_file_list';
+    rpcRequest.params = HuConApp.Folder;
 
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
+        success: function (rpcResponse) {
             HuConApp.configureLoadSaveModal(rpcResponse, $('#openFileList'), 'openFileModal', 'open');
-
             $('#openModal').modal('show');
         },
-        error: function(request, status, error) {
+        error: function (request, status, error) {
             HuConApp.Folder = '';
             HuConApp.appendErrorLog(request, status, error);
         }
     });
-}
+};
 
 // Hide the open file modal and load the content from the file.
-HuConApp.loadFileFromDevice = function(filename) {
+HuConApp.loadFileFromDevice = function (filename) {
     $('#openModal').modal('hide');
     $('#consoleLog').html('');
 
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'load_file';
-    rpcRequest['params'] = HuConApp.Folder + '/' + filename;
+    rpcRequest.method = 'load_file';
+    rpcRequest.params = HuConApp.Folder + '/' + filename;
 
     // Store the filename for the save dialog
     $('#saveFilename').val(filename);
@@ -418,26 +418,23 @@ HuConApp.loadFileFromDevice = function(filename) {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
+        success: function (rpcResponse) {
             if (HuConApp.isResponseError(rpcResponse)) {
-                return
+                return;
             }
 
-            if (rpcResponse['result']) {
-                setFileContent(rpcResponse['result']);
-
+            if (rpcResponse.result) {
+                setFileContent(rpcResponse.result);
                 HuConApp.appendConsoleLog('File "' + HuConApp.Folder + '/' + filename + '" loaded from local device.', 'green');
-
                 HuConApp.UnsavedContent = false;
             }
         },
         error: HuConApp.appendErrorLog
-    });
-}
+      });
+};
 
 // Show the save file modal and load the file list from the device.
-HuConApp.saveFileModal = function(newFolder) {
-
+HuConApp.saveFileModal = function (newFolder) {
     // Set the new Folder
     if (newFolder != undefined) {
         HuConApp.Folder = newFolder;
@@ -451,29 +448,27 @@ HuConApp.saveFileModal = function(newFolder) {
     HuConApp.setBreadcrumb($('#saveBreadcrumb'));
 
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'get_file_list';
-    rpcRequest['params'] = HuConApp.Folder;
+    rpcRequest.method = 'get_file_list';
+    rpcRequest.params = HuConApp.Folder;
 
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
+        success: function (rpcResponse) {
             HuConApp.configureLoadSaveModal(rpcResponse, $('#saveFileList'), 'saveFileModal', 'save');
-
             $('#saveModal').modal('show');
         },
-        error: function(request, status, error) {
+        error: function (request, status, _error2) {
             HuConApp.Folder = '';
-            HuConApp.appendErrorLog(request, status, error);
+            HuConApp.appendErrorLog(request, status, _error2);
         }
     });
-}
+};
 
 // Save the file on the device and hide the file save modal.
-HuConApp.saveFileOnDevice = function() {
+HuConApp.saveFileOnDevice = function () {
     $('#saveModal').modal('hide');
-
     $('#consoleLog').html('');
 
     // Abort on write within the example folder
@@ -487,66 +482,64 @@ HuConApp.saveFileOnDevice = function() {
     if (filename.substr(-HuConApp.FileExt.length) == HuConApp.FileExt) {
         filename = filename.slice(0, -HuConApp.FileExt.length);
     }
+
     $('#saveFilename').val(filename + HuConApp.FileExt);
-
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'save_file';
-    rpcRequest['params'] = {};
+    rpcRequest.method = 'save_file';
+    rpcRequest.params = {}; // Store the blockly code if needed
 
-    // Store the blockly code if needed
     if (HuConApp.FileExt == '.xml') {
-        rpcRequest['params']['filename'] = HuConApp.Folder + '/' + filename + '.xml';
-        rpcRequest['params']['data'] = getBlocklyCode();
+        rpcRequest.params.filename = HuConApp.Folder + '/' + filename + '.xml';
+        rpcRequest.params.data = getBlocklyCode();
         $.ajax('/API', {
             method: 'POST',
             data: JSON.stringify(rpcRequest),
             dataType: 'json',
             success: function (rpcResponse) {
                 if (HuConApp.isResponseError(rpcResponse)) {
-                    return
+                  return;
                 }
-
-                HuConApp.appendConsoleLog(rpcResponse['result']);
+                HuConApp.appendConsoleLog(rpcResponse.result);
             },
             error: HuConApp.appendErrorLog
         });
     }
 
     // Store the python code
-    rpcRequest['params']['filename'] = HuConApp.Folder + '/' + filename + '.py';
-    rpcRequest['params']['data'] = getPythonCode();
+    rpcRequest.params.filename = HuConApp.Folder + '/' + filename + '.py';
+    rpcRequest.params.data = getPythonCode();
+
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
         success: function (rpcResponse) {
             if (HuConApp.isResponseError(rpcResponse)) {
-                return
+              return;
             }
-
-            HuConApp.appendConsoleLog(rpcResponse['result']);
+            HuConApp.appendConsoleLog(rpcResponse.result);
         },
         error: HuConApp.appendErrorLog
     });
 
     HuConApp.UnsavedContent = false;
-}
+};
 
 // Configure the load or save modal correctly.
-HuConApp.configureLoadSaveModal = function(rpcResponse, modal, folderCallback, state) {
+HuConApp.configureLoadSaveModal = function (rpcResponse, modal, folderCallback, state) {
     // clear the list
     modal.html('');
 
     if (HuConApp.isResponseError(rpcResponse)) {
-        return
+        return;
     }
 
-    folderHtml = `
-    <div onclick="HuConApp.{1}(\'{2}\')" class="item ok">
-        <i class="folder icon"></i>
-        <div class="content header">{3}</div>
-    </div>
-    `;
+    folderHtml = [
+        '<div onclick="HuConApp.{1}(\'{2}\')" class="item ok">',
+        '    <i class="folder icon"></i>',
+        '    <div class="content header">{3}</div>',
+        '</div>',
+    ].join('\n');
 
     // Append the folder up if needed.
     if (HuConApp.Folder != '') {
@@ -556,13 +549,14 @@ HuConApp.configureLoadSaveModal = function(rpcResponse, modal, folderCallback, s
     }
 
     // Add the folder to the empty list
-    for (i=0; i<rpcResponse['result'].length; i++) {
-        var filename = rpcResponse['result'][i];
+    for (i = 0; i < rpcResponse.result.length; i++) {
+        var filename = rpcResponse.result[i];
+
         if (filename.indexOf('.') === -1) {
             var newFolder = HuConApp.Folder + '/' + filename;
 
             // Do not show the examples folder as possible folder.
-            if ((state == 'save') && (newFolder == '/examples')) {
+            if (state == 'save' && newFolder == '/examples') {
                 continue;
             }
 
@@ -571,41 +565,43 @@ HuConApp.configureLoadSaveModal = function(rpcResponse, modal, folderCallback, s
     }
 
     fileHtml = '';
+
     if (state == 'open') {
-        fileHtml = `
-        <div onclick="HuConApp.loadFileFromDevice(\'{1}\');" class="item ok">
-            <i class="file icon"></i>
-            <div class="content header">{1}</div>
-        </div>
-        `;
-    } else if(state == 'save') {
-        fileHtml = `
-        <div onclick="$(\'#saveFilename\').val(\'{1}\');" class="item ok">
-            <i class="file icon"></i>
-            <div class="content header">{1}</div>
-        </div>
-        `;
+        fileHtml = [
+            '<div onclick="HuConApp.loadFileFromDevice(\'{1}\');" class="item ok">',
+            '    <i class="file icon"></i>',
+            '    <div class="content header">{1}</div>',
+            '</div>'
+        ].join('\n');
+
+    } else if (state == 'save') {
+        fileHtml = [
+            '<div onclick="$("#saveFilename").val(\'{1}\');" class="item ok">',
+            '    <i class="file icon"></i>',
+            '    <div class="content header">{1}</div>',
+            '</div>',
+        ].join('\n');
     } else {
-        fileHtml = `
-        <div onclick="HuConApp.setFileFromDevice(\'{1}\');" class="item ok">
-            <i class="file icon"></i>
-            <div class="content header">{1}</div>
-        </div>
-        `;
+        fileHtml = [
+            '<div onclick="HuConApp.setFileFromDevice(\'{1}\');" class="item ok">',
+            '    <i class="file icon"></i>',
+            '    <div class="content header">{1}</div>',
+            '</div>',
+        ].join('\n');
     }
 
     // Add the files to the empty list
-    for (i=0; i<rpcResponse['result'].length; i++) {
-        var filename = rpcResponse['result'][i];
+    for (i = 0; i < rpcResponse.result.length; i++) {
+        var filename = rpcResponse.result[i];
+
         if (filename.substr(-HuConApp.FileExt.length) === HuConApp.FileExt) {
             modal.append(HuConApp.formatVarString(fileHtml, filename));
         }
     }
-}
+};
 
 // Show the choose file modal and load the file list from the device.
-HuConApp.chooseFileModal = function(newFolder) {
-
+HuConApp.chooseFileModal = function (newFolder) {
     // Set the new Folder
     if (newFolder != undefined) {
         HuConApp.Folder = newFolder;
@@ -614,39 +610,39 @@ HuConApp.chooseFileModal = function(newFolder) {
     HuConApp.setBreadcrumb($('#chooseBreadcrumb'));
 
     var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest['method'] = 'get_file_list';
-    rpcRequest['params'] = HuConApp.Folder;
+    rpcRequest.method = 'get_file_list';
+    rpcRequest.params = HuConApp.Folder;
 
     $.ajax('/API', {
         method: 'POST',
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
-        success: function(rpcResponse) {
+        success: function (rpcResponse) {
             HuConApp.configureLoadSaveModal(rpcResponse, $('#chooseFileList'), 'chooseFileModal', 'choose');
-
             $('#chooseModal').modal('show');
         },
-        error: function(request, status, error) {
+        error: function (request, status, _error3) {
             HuConApp.Folder = '';
-            HuConApp.appendErrorLog(request, status, error);
+            HuConApp.appendErrorLog(request, status, _error3);
         }
     });
-}
+};
 
 // Set the file to run it on the mobile page.
-HuConApp.setFileFromDevice = function(filename) {
-
+HuConApp.setFileFromDevice = function (filename) {
     $('#chooseFilename').val(filename);
     $('#chooseModal').modal('hide');
-}
+};
 
-HuConApp.formatVarString = function() {
+HuConApp.formatVarString = function () {
     var args = [].slice.call(arguments);
-    if(this.toString() != '[object Object]')
-    {
+
+    if (this.toString() != '[object Object]') {
         args.unshift(this.toString());
     }
 
-    var pattern = new RegExp('{([1-' + args.length + '])}','g');
-    return String(args[0]).replace(pattern, function(match, index) { return args[index]; });
-}
+    var pattern = new RegExp('{([1-' + args.length + '])}', 'g');
+    return String(args[0]).replace(pattern, function (match, index) {
+        return args[index];
+    });
+};

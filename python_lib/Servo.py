@@ -6,7 +6,7 @@ Driver module for leds, with PCA9685
 Author: Sascha.MuellerzumHagen@baslerweb.com
 """
 
-import PCA9685
+from .PCA9685 import PCA9685
 
 class Servo(object):
     """ Servo driver class.
@@ -24,12 +24,12 @@ class Servo(object):
         """ Init a servo on specific channel
         """
         if channel not in range(16):
-            raise ValueError("Servo channel \"{0}\" is not in (0, 15).".format(channel))
+            raise ValueError('Servo channel "{0}" is not in (0, 15).'.format(channel))
 
         self._channel = channel
         self._offset = offset
         self._lock = lock
-        self._pwm = PCA9685.PCA9685(address)
+        self._pwm = PCA9685(address)
 
         self.set_angle(90)
 
@@ -60,7 +60,8 @@ class Servo(object):
             angle = max(min(angle, 180), 0)
         else:
             if angle not in range(181):
-                raise ValueError("Servo \"{0}\" turn angle \"{1}\" is not in range (0, 180).".format(self._channel, angle))
+                message = 'Servo "{0}" turn angle "{1}" is not in range (0, 180).'.format(self._channel, angle)
+                raise ValueError(message)
         angle += self.offset
         val = self._angle_to_pwm(angle)
         self._pwm.set_channel(self._channel, val)

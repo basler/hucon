@@ -49,12 +49,22 @@ div.container {
     overflow-y: scroll;
 }
 
+#indexButton {
+    height: 42px;
+    margin-left: -1px;
+    margin-top: -1px;
+}
+
+#chooseInput {
+    margin-left: 2px;
+}
+
 .center {
-    width: 300px;
+    max-width:800px;
     margin-top: 50px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .spaceRight {
@@ -74,11 +84,13 @@ div.container {
 }
 
 .shortHeight {
-    height: calc(100% - 434px);
+    /* 100% - menuArea - logArea */
+    height: calc(100% - 42px - 250px);
 }
 
 .fullHeight {
-    height: calc(100% - 436px + 250px);
+    /* 100% - menuArea */
+    height: calc(100% - 42px);
 }
 
 .spaced {
@@ -89,6 +101,15 @@ div.container {
     margin-bottom: 0.75em;
 }
 
+.card .image img {
+    min-height: 100px;
+    padding: 20px;
+}
+
+.licenseBottom {
+    margin-top: 50px !important;
+    margin-bottom: 10px !important;
+}
 /* semantic changes */
 .orange, .ui.orange.button, .ui.orange.buttons.button {
     background-color: #F99D33;

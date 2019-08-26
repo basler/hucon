@@ -6,7 +6,7 @@ Driver module for leds, with PCA9685
 Author: Sascha.MuellerzumHagen@baslerweb.com
 """
 
-import PCA9685
+from .PCA9685 import PCA9685
 
 class Eye(object):
     """ Eye driver class.
@@ -23,17 +23,20 @@ class Eye(object):
     green = 0
     blue = 0
 
-    def __init__(self, position, color_coding=RGB, lock=True, address=0x4A):
+    def __init__(self, position, color_coding=None, lock=True, address=0x4A):
         """Init an eye on specific position
         """
         if position not in range(1, 5):
             raise ValueError("Eye position \"{0}\" is not in (1, 4).".format(position))
 
         self._position = position
-        self._color_coding = color_coding
+        if color_coding is None:
+            self._color_coding = Eye.RGB
+        else:
+            self._color_coding = color_coding
         self._lock = lock
 
-        self._pwm = PCA9685.PCA9685(address)
+        self._pwm = PCA9685(address)
         self.set_color(self.red, self.green, self.blue)
 
     def _get_rgb_channel(self, position):
@@ -78,7 +81,8 @@ class Eye(object):
             self.blue = max(min(blue, 255), 0)
         else:
             if red not in range(256) or green not in range(256) or blue not in range(256):
-                raise ValueError("Eye \"{0}\" RGB({1}, {2}, {3}) is not in range of (0, 255).".format(self._position, red, green, blue))
+                message = 'Eye "%d" RGB(%d, %d, %d) is not in range of (0, 255).' % (self._position, red, green, blue)
+                raise ValueError(message)
 
         (cha_r, cha_g, cha_b) = self._get_rgb_channel(self._position)
 
@@ -96,7 +100,7 @@ class Eye(object):
             blue = max(min(blue, 255), 0)
         else:
             if red not in range(256) or green not in range(256) or blue not in range(256):
-                raise ValueError("All eyes RGB({0}, {1}, {2}) is not in range of (0, 255).".format(red, green, blue))
+                raise ValueError("All eyes RGB({0}, {1}, {2}) are not in range of (0, 255).".format(red, green, blue))
 
         for position in range(1, 5):
             (cha_r, cha_g, cha_b) = self._get_rgb_channel(position)
