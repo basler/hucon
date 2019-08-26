@@ -12,10 +12,10 @@ def set_led(red, green, blue):
     try:
         from hucon import Eye
 
-        Eye(1, Eye.GRB).set_color(red, green, blue)
-        Eye(2, Eye.GRB).set_color(red, green, blue)
-        Eye(3, Eye.GRB).set_color(red, green, blue)
-        Eye(4, Eye.GRB).set_color(red, green, blue)
+        Eye(1, Eye.RGB).set_color(red, green, blue)
+        Eye(2, Eye.RGB).set_color(red, green, blue)
+        Eye(3, Eye.RGB).set_color(red, green, blue)
+        Eye(4, Eye.RGB).set_color(red, green, blue)
 
     except Exception as ex:
         print(ex)
