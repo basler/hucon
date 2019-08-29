@@ -9,23 +9,41 @@ START=99
 APP=hucon_server
 
 SERVICE_WRITE_PID=1
-SERVICE_DAEMONIZE=1
+SERVICE_DAEMONIZE=0
+
 PROG=/opt/hucon/start_server.sh
+PID_FILE=/var/run/hucon.pid
+
 
 start_service() {
-	if [ ! -z ${IPKG_INSTROOT+x} ];
-		then echo "In build environment - doing nothing."; 
-	else
-		procd_open_instance 
-		procd_set_param command "$PROG"
-		procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-5}
-		procd_close_instance
-	fi
+        if [ ! -z ${IPKG_INSTROOT+x} ];
+                then echo "In build environment - doing nothing.";
+        else
+                procd_open_instance
+                procd_set_param command "$PROG"
+                procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-5}
+                procd_set_param stdout 1 # forward stdout of the command to logd
+                procd_set_param stderr 1 # same for stderr
+                procd_close_instance
+        fi
 }
- 
+
+stop_service() {
+        # as the service does not care about the pid from the python interpreter
+        # and it keeps running when the overlying shell process is killed
+        # kill it directly with the pid file that was created in the shell script
+        # but only do it when the pid-file exists
+        if [ -f $PID_FILE ]
+        then
+                kill `cat $PID_FILE`
+                # delete pid file afterwards to make sure we don't try to kill the process twice
+                rm $PID_FILE
+        fi
+}
+
 reload_service()
 {
-	echo "Explicitly restarting service, are you sure you need this?"
-	stop
-	start
+        echo "Explicitly restarting service, are you sure you need this?"
+        stop
+        start
 }

@@ -7,8 +7,26 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+EXECUTABLE=webserver.py
+PARAMETERS=""
+INTERPRETER=python
+
+DEBUG=0
+
+if [ $DEBUG != 0 ];
+then
+        PARAMETERS=$PARAMETERS + " 2>/var/log/hucon_err.log >/var/log/hucon.log"
+fi
+
 # change directory
 cd $SCRIPT_DIR/webserver
 
-# start the server
-python webserver.py
+# start the server in background
+$INTERPRETER $EXECUTABLE $PARAMETERS &
+
+HUCON_PID=$!
+
+echo $HUCON_PID > /var/run/hucon.pid
+
+# wait for server to stop (needed for procd-service)
+wait $HUCON_PID

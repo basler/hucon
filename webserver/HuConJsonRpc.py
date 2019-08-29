@@ -7,6 +7,7 @@ Author: Sascha.MuellerzumHagen@baslerweb.com
 """
 
 import os
+from os.path import expanduser
 import json
 import subprocess
 import time
@@ -24,7 +25,10 @@ class HuConJsonRpc():
     _SERVER_NAME = 'HuConRobot'
 
     # Folder where all custom code files are stored.
-    _CODE_ROOT = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'code')
+    _CODE_ROOT = os.path.join(expanduser("~"), 'hucon', 'code')
+
+    # Folder where all custom code files are stored.
+    _EXAMPLE_ROOT = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'code')
 
     # Path to the version file.
     _VERSION_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), '__version__')
@@ -63,8 +67,12 @@ class HuConJsonRpc():
             with open(self._VERSION_FILE, 'r') as file:
                 self._version = file.readline()
 
+        if not os.path.exists(self._CODE_ROOT):
+            os.makedirs(self._CODE_ROOT)
+
         print('%s v. %s' % (self._SERVER_NAME, self._version))
-        print('Code path: \'%s\'' % self._CODE_ROOT)
+        print('Custom code path: \'%s\'' % self._CODE_ROOT)
+        print('Example code path: \'%s\'' % self._EXAMPLE_ROOT)
 
     def handle_control(self, rpc_request):
         """ Handle the JSON RPC request.
@@ -165,9 +173,9 @@ class HuConJsonRpc():
             time.sleep(0.1)
             timeout = timeout + 1
 
-# ----------------------------------------------------------------------------------------------------------------------
-# JSON RPC API Methods
-# ----------------------------------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------------------------------
+    # JSON RPC API Methods
+    # ----------------------------------------------------------------------------------------------------------------------
 
     def _get_version(self, rpc_request):
         """ Get the version of this project.
@@ -199,13 +207,21 @@ class HuConJsonRpc():
         """
         try:
             code_folder = os.path.join(self._CODE_ROOT, rpc_request['params'].strip('/\\'))
+            example_folder = os.path.join(self._EXAMPLE_ROOT, rpc_request['params'].strip('/\\'))
 
+            files_usercode = []
             rpc_response = self._get_rpc_response(rpc_request['id'])
-            rpc_response['result'] = os.listdir(code_folder)
+            if os.path.exists(code_folder):
+                files_usercode = os.listdir(code_folder)
+                files_usercode.sort()
+            files_examples = os.listdir(example_folder)
+            files_examples.sort()
+            rpc_response['result'] = files_examples + files_usercode
             rpc_response['result'].sort()
             json_dump = json.dumps(rpc_response)
-        except Exception as ex:
-            return self._return_error(rpc_request['id'], 'Could not get a file list for the folder. (%s)' % str(ex))
+
+        except Exception as e:
+            return self._return_error(rpc_request['id'], 'Could not get a file list for the folder. (%s)' % str(e))
         else:
             return json_dump
 
@@ -229,7 +245,10 @@ class HuConJsonRpc():
         """ Return the content of the file back to the browser.
         """
         try:
+            # TODO: Extract file base path (examples/user code) from rpc call and remove this hack
             filename = os.path.join(self._CODE_ROOT, rpc_request['params'].strip('/\\'))
+            if not os.path.exists(filename):
+                filename = os.path.join(self._EXAMPLE_ROOT, rpc_request['params'].strip('/\\'))
 
             rpc_response = self._get_rpc_response(rpc_request['id'])
             f = open(filename, 'r')
@@ -265,7 +284,8 @@ class HuConJsonRpc():
             rpc_response['result'] = self._is_running
             json_dump = json.dumps(rpc_response)
         except Exception as ex:
-            return self._return_error(rpc_request['id'], 'Could not determine if there is a program running. (%s)' % str(ex))
+            return self._return_error(rpc_request['id'],
+                                      'Could not determine if there is a program running. (%s)' % str(ex))
         else:
             return json_dump
 
@@ -354,7 +374,8 @@ class HuConJsonRpc():
                 rpc_response['result'] = json.load(file)
             file.close()
         except Exception as ex:
-            return self._return_error(rpc_request['id'], 'Could not retrieve the list of possible events. (%s)' % str(ex), 500)
+            return self._return_error(rpc_request['id'],
+                                      'Could not retrieve the list of possible events. (%s)' % str(ex), 500)
         else:
             return json.dumps(rpc_response)
 
@@ -380,7 +401,8 @@ class HuConJsonRpc():
         """ Check if there is an update available.
         """
         try:
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
 
             while True:
                 output = proc.stdout.readline()
@@ -406,7 +428,8 @@ class HuConJsonRpc():
         try:
             # Update the system first.
             self._log.put('The system will be updated and needs a few seconds.\n')
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
 
             while True:
                 output = proc.stdout.readline()
@@ -417,7 +440,8 @@ class HuConJsonRpc():
             proc.poll()
 
             # Do a restart.
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
 
             while True:
                 output = proc.stdout.readline()
@@ -438,7 +462,8 @@ class HuConJsonRpc():
         """
         try:
             self._log.put('The system will be shutdown.\n')
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-s'], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-s'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
 
             while True:
                 output = proc.stdout.readline()

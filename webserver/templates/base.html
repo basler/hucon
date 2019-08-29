@@ -39,7 +39,7 @@
         <div id="menuArea" class="ui top attached menu">
             <div id="indexButton">
                 <a href="index.html">
-                    <img src="{{ url_for('.static', filename='images/icon.svg') }}" alt="Icon" width="42" height="42" style="border-top-left-radius: 4px;">
+                    <img src="{{ url_for('.static', filename='images/Icon.svg') }}" alt="Icon" width="42" height="42" style="border-top-left-radius: 4px;">
                 </a>
             </div>
             <div id="fileButton" class="ui simple dropdown item">
@@ -132,7 +132,7 @@
         <div class="header">
             Save file</br>
             <div id="saveBreadcrumb" class="ui breadcrumb"></div>
-            <div id="newFolderButton" class="ui blue right floated button">
+            <div id="newFolderButton" class="ui blue right floated button" onclick="$('#newFolderModal').modal('show')" >
                 New Folder
             </div>
         </div>
