@@ -23,11 +23,10 @@ printf "#!/bin/bash
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 
 path=/opt/hucon
-if [ \$1 ]; then
-    path=\"\$1\"hucon
-fi
 
 mkdir -p \$path | tail -n+\$PAYLOAD_LINE \$0 | tar -xvzC \$path
+
+sh \$path/install.sh
 
 exit 0
 __PAYLOAD_BELOW__\n" > "$tmp"
