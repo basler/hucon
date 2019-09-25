@@ -15,7 +15,7 @@ DEBUG=0
 
 if [ $DEBUG != 0 ];
 then
-        PARAMETERS=$PARAMETERS + " 2>/var/log/hucon_err.log >/var/log/hucon.log"
+        PARAMETERS="$PARAMETERS --debug 2>/var/log/hucon_err.log >/var/log/hucon.log"
 fi
 
 # change directory
