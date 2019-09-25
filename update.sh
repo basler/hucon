@@ -26,7 +26,7 @@ done
 
 # Get the latest/current version from the website.
 latestVersion=$(curl -k https://github.com/$UPDATE_SOURCE_REPO/releases/latest 2>/dev/null | sed "s/[a-zA-Z<> \"\/=:]//g" | sed "s/^\.//g" | sed "s/\.$//g")
-currentVersion="unknown"
+currentVersion="0.0.0"
 
 if [ -f $SCRIPT_DIR/__version__ ]; then
     currentVersion=$(cat $SCRIPT_DIR/__version__)
@@ -35,10 +35,30 @@ fi
 # Print the latest version.
 if [ $do_check ]; then
     if [ "$latestVersion" != "" ]; then
+
+        IFS='.' read -r -a lastestVersionArray <<< "$latestVersion"
+        IFS='.' read -r -a currentVersionArray <<< "$currentVersion"
+
+        echo "Your version is: $currentVersion"
         echo "The latest version is: $latestVersion"
-        if [ "$latestVersion" != "$currentVersion" ]; then
-            echo "There is an update available."
+
+        if [ ${lastestVersionArray[0]} -gt ${currentVersionArray[0]} ]; then
+            echo "There is a major update available."
             exit 1
+        elif [ ${lastestVersionArray[0]} -eq ${currentVersionArray[0]} ]; then
+            if [ ${lastestVersionArray[1]} -gt ${currentVersionArray[1]} ]; then
+                echo "There is a minor update available."
+                exit 1
+            elif [ ${lastestVersionArray[1]} -eq ${currentVersionArray[1]} ]; then
+                if [ ${lastestVersionArray[2]} -gt ${currentVersionArray[2]} ]; then
+                    echo "There is a bugfix update available."
+                    exit 1
+                else
+                    echo "You are using the up to date version."
+                fi
+            else
+                echo "You are using the up to date version."
+            fi
         else
             echo "You are using the up to date version."
         fi
