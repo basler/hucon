@@ -64,12 +64,12 @@ if [ $do_update ]; then
         wget $downloadUrl -o hucon.run
 
         echo "Check if existing code can be moved to /root/hucon/code..."
-        if [[ ! (-e /root/hucon/code) ]]; then
+        if [[ ! -e /root/hucon/code ]]; then
             echo "Copying existing code to /root/hucon/code..."
             cp -r ./code /root/hucon/
         fi
 
-        if [[ (-e /root/hucon/code/examples) ]]; then
+        if [[ -e /root/hucon/code/examples ]]; then
             echo "Removing old examples - new ones will be sourced from the /opt/hucon/code/examples folder..."
             rm -rf /root/hucon/code/examples
         fi
