@@ -7,6 +7,8 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+UPDATE_SOURCE_REPO=basler/hucon
+
 while :; do
     case $1 in
         -c|--check) do_check=1
@@ -23,7 +25,7 @@ while :; do
 done
 
 # Get the latest/current version from the website.
-latestVersion=$(curl -k https://github.com/juwis/hackerschool/releases/latest 2>/dev/null | sed "s/[a-zA-Z<> \"\/=:]//g" | sed "s/^\.//g" | sed "s/\.$//g")
+latestVersion=$(curl -k https://github.com/$UPDATE_SOURCE_REPO/releases/latest 2>/dev/null | sed "s/[a-zA-Z<> \"\/=:]//g" | sed "s/^\.//g" | sed "s/\.$//g")
 currentVersion="unknown"
 
 if [ -f $SCRIPT_DIR/__version__ ]; then
@@ -56,7 +58,7 @@ if [ $do_update ]; then
         fi
 
         # download the new package
-        downloadUrl="https://github.com/juwis/hackerschool/releases/download/$latestVersion/hucon-$latestVersion.run"
+        downloadUrl="https://github.com/$UPDATE_SOURCE_REPO/releases/download/$latestVersion/hucon-$latestVersion.run"
 
         # Download the new package
         wget $downloadUrl -o hucon.run
