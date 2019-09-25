@@ -19,7 +19,7 @@ tar -czvf "$TMP_FILENAME" __version__ README.md code/ init.d/ python_lib/ webser
 # generate a self extracting tar image
 tmp=__extract__$RANDOM
 
-printf "#!/bin/bash
+printf "#!/bin/sh
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 
 path=/opt/hucon
