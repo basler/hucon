@@ -61,7 +61,7 @@ if [ $do_update ]; then
         downloadUrl="https://github.com/$UPDATE_SOURCE_REPO/releases/download/$latestVersion/hucon-$latestVersion.run"
 
         # Download the new package
-        wget $downloadUrl -o hucon.run
+        wget $downloadUrl -O hucon.run
 
         echo "Check if existing code can be moved to /root/hucon/code..."
         if [[ ! -e /root/hucon/code ]]; then
