@@ -29,7 +29,7 @@ fi
 
 mkdir -p \$path | tail -n+\$PAYLOAD_LINE \$0 | tar -xvzC \$path
 
-if [ \$2 -ne \"--unpack\" ]; then
+if [ -z $2 ] || [ $2 != unpack ]; then
     sh \$path/install.sh
 fi
 
