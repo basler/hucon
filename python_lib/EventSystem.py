@@ -14,7 +14,7 @@ import json
 GLOB_EVENT_CALLBACK_DICT = None
 
 
-class EventBase(object):
+class ControlBase(object):
     """ Base class for all event based objects.
     """
     callback = None
@@ -31,7 +31,7 @@ class EventBase(object):
         self.height = height
 
 
-class ButtonEvent(EventBase):
+class ButtonEvent(ControlBase):
     """ Button event object. Can be assigned to one event per instance.
     """
 
