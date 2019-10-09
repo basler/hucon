@@ -13,6 +13,8 @@ while :; do
     case $1 in
         -c|--check) do_check=1
         ;;
+        -b|--beta) use_beta=1
+        ;;
         -u|--update) do_update=1
         ;;
         -r|--reboot) do_reboot=1
@@ -24,9 +26,28 @@ while :; do
     shift
 done
 
-# Get the latest/current version from the website.
-latestVersion=$(curl -k https://github.com/$UPDATE_SOURCE_REPO/releases/latest 2>/dev/null | sed "s/[a-zA-Z<> \"\/=:]//g" | sed "s/^\.//g" | sed "s/\.$//g")
-currentVersion="0.0.0"
+# get the list of all available versions and sort the list
+versions=$(curl --silent "https://api.github.com/repos/$UPDATE_SOURCE_REPO/releases" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sort -r)
+
+# determine the latest version based on the settings from the command line
+for version in $versions
+do
+
+    if [[ $version =~ "b" ]]; then
+        if [ $use_beta ]; then
+            echo "The latest version is a beta version."
+            latestVersion=$version
+            break
+        else
+            continue
+        fi
+    fi
+
+    latestVersion=$version
+    break
+done
+
+currentVersion="0.0.0-b"
 
 if [ -f $SCRIPT_DIR/__version__ ]; then
     currentVersion=$(cat $SCRIPT_DIR/__version__)
@@ -36,26 +57,33 @@ fi
 if [ $do_check ]; then
     if [ "$latestVersion" != "" ]; then
 
-        IFS='.' read -r -a lastestVersionArray <<< "$latestVersion"
-        IFS='.' read -r -a currentVersionArray <<< "$currentVersion"
-
         echo "Your version is: $currentVersion"
         echo "The latest version is: $latestVersion"
 
-        if [ ${lastestVersionArray[0]} -gt ${currentVersionArray[0]} ]; then
+        currentMajor="$(cut -d'.' -f1 <<<"$currentVersion")"
+        currentMinor="$(cut -d'.' -f2 <<<"$currentVersion")"
+        currentBugfix="$(cut -d'.' -f3 <<<"$currentVersion")"
+
+        latestMajor="$(cut -d'.' -f1 <<<"$latestVersion")"
+        latestMinor="$(cut -d'.' -f2 <<<"$latestVersion")"
+        latestBugfix="$(cut -d'.' -f3 <<<"$latestVersion")"
+
+        if [ ${latestMajor} -gt ${currentMajor} ]; then
             echo "There is a major update available."
             exit 1
-        elif [ ${lastestVersionArray[0]} -eq ${currentVersionArray[0]} ]; then
-            if [ ${lastestVersionArray[1]} -gt ${currentVersionArray[1]} ]; then
+        elif [ ${latestMajor} -eq ${currentMajor} ]; then
+            if [ ${latestMinor} -gt ${currentMinor} ]; then
                 echo "There is a minor update available."
                 exit 1
-            elif [ ${lastestVersionArray[1]} -eq ${currentVersionArray[1]} ]; then
-                if [ ${lastestVersionArray[2]} -gt ${currentVersionArray[2]} ]; then
+            elif [ ${latestMinor} -eq ${currentMinor} ]; then
+
+                if [ $(expr ${latestBugfix} \> ${currentBugfix}) -eq 1 ]; then
                     echo "There is a bugfix update available."
                     exit 1
                 else
                     echo "You are using the up to date version."
                 fi
+
             else
                 echo "You are using the up to date version."
             fi
