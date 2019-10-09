@@ -8,7 +8,7 @@
 {% block title %} - Settings{% endblock %}
 {% block head %}
     {{ super() }}
-
+    <link href="static/css/form.css" rel="stylesheet">
     <script type="text/javascript">
 
         // On document ready this function will be called and initialize the complete website.
@@ -71,6 +71,34 @@
             $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
         };
 
+        function editWiFiSettings() {
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'get_wifi_settings';
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        alert(rpcResponse[error]);
+                    }
+                    if (rpcResponse['result']) {
+                        $('#updateButton').removeClass('disabled');
+                    }
+                },
+                error: HuConApp.appendErrorLog
+            });
+
+            $('#wifiModal').modal('show');
+            $('.ui.checkbox')
+              .checkbox()
+            ;
+        }
+
+        function saveWiFiSettings() {
+            console.log("Save Wifi Settings")
+        }
+
     </script>
 
 {% endblock %}
@@ -83,6 +111,11 @@
             <button onclick="checkUpdate()" class="fluid ui orange button">
                 <i class="icon cloud download"></i>
                 Update
+            </button>
+            <p></p>
+            <button onclick="editWiFiSettings()" class="fluid ui orange button">
+                <i class="icon wi-fi"></i>
+                WiFi
             </button>
             <p></p>
             <button onclick="location.href='index.html'" class="fluid ui blue button">
@@ -108,4 +141,65 @@
         </div>
     </div>
 
+    <div id="wifiModal" class="ui modal">
+        <div class="header">
+            <i class="icon wi-fi"></i>
+            WiFi
+        </div>
+
+        <div class="content">
+            <div class="ui form">
+                <div class="field">
+                    <label>SSID</label>
+                    <div class="ui input"><input id="id_ap_ssid" name="ap_ssid" type="text"></div>
+                </div>
+                <div class="field">
+                    <label>WiFi Password</label>
+                    <div class="ui input"><input id="id_ap_key" name="ap_key" type="password"></div>
+                </div>
+                <div class="field">
+                    <label>Encryption Mode</label>
+                    <select class="ui dropdown" id="id_ap_encryption" name="encryption" size="1">
+                        <option value="psk">WPA (PSK)</option>
+                        <option value="psk2">WPA2 (PSK)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Use DHCP</label>
+                    <div class="inline field">
+                        <div class="ui toggle checkbox">
+                          <input type="checkbox" tabindex="0" class="hidden">
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>IP</label>
+                    <div class="ui input"><input id="id_ap_ssid" name="ap_ssid" type="text"></div>
+                </div>
+                <div class="field">
+                    <label>WiFi Password</label>
+                    <div class="ui input"><input id="id_ap_key" name="ap_key" type="password"></div>
+                </div>
+                <div class="field">
+                    <label>WiFi Password</label>
+                    <div class="ui input"><input id="id_ap_key" name="ap_key" type="password"></div>
+                </div>
+                <div class="field">
+                    <label>Enable Station Mode</label>
+                    <div class="inline field">
+                        <div class="ui toggle checkbox">
+                          <input type="checkbox" tabindex="0" class="hidden">
+                        </div>
+                    </div>
+                </div>
+                <button onclick="saveWiFiSettings()" id="saveButton" class="ui blue button">Save</button>
+            </div>
+
+{#            <div class="row">#}
+{#                <button onclick="$('#wifiModal').modal('hide')" class="ui orange button">Cancel</button>#}
+{#                <button onclick="saveWiFiSettings()" id="saveButton" class="ui blue button disabled">Save</button>#}
+{#            </div>#}
+        </div>
+
+    </div>
 {% endblock %}
