@@ -113,8 +113,8 @@ class HuConJsonRpc():
             return self._update(rpc_request)
         elif rpc_request['method'] == 'shutdown':
             return self._shutdown(rpc_request)
-        elif rpc_request['method'] == 'get_wifi_settings':
-            return self._get_wifi_settings(rpc_request)
+        elif rpc_request['method'] == 'get_saved_wifi_networks':
+            return self._get_saved_wifi_networks(rpc_request)
         else:
             return self._return_error(rpc_request['id'], 'Command not known.')
 
@@ -505,7 +505,7 @@ class HuConJsonRpc():
             # This should never be reached in term of the system shutdown.
             return self._return_error(rpc_request['id'], 'Could not shutdown the system.', 500)
 
-    def _get_wifi_settings(self, rpc_request):
+    def _old_get_wifi_settings(self, rpc_request):
         try:
             self._log.put('Read WiFi Settings.\n')
             wifi_output = subprocess.check_output(['uci', 'show', 'wireless'])
@@ -518,6 +518,17 @@ class HuConJsonRpc():
             rpc_response = self._get_rpc_response(rpc_request['id'])
             rpc_response['result']['settings'] = wifi_settings_dict
             rpc_response['result']['scanned_wifi'] = wifi_scan_output['results']
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not read WiFi settings. (%s)' % str(ex), 500)
+        else:
+            return json.dumps(rpc_response)
+
+    def _get_saved_wifi_networks(self, rpc_request):
+        try:
+            self._log.put('Read WiFi Settings.\n')
+            wifi_output_list = subprocess.check_output(['wifisetup', 'list'])
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            rpc_response['result'] = wifi_output_list['results']
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not read WiFi settings. (%s)' % str(ex), 500)
         else:

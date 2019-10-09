@@ -8,7 +8,6 @@
 {% block title %} - Settings{% endblock %}
 {% block head %}
     {{ super() }}
-    <link href="static/css/form.css" rel="stylesheet">
     <script type="text/javascript">
 
         // On document ready this function will be called and initialize the complete website.
@@ -73,7 +72,7 @@
 
         function editWiFiSettings() {
             var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'get_wifi_settings';
+            rpcRequest['method'] = 'get_saved_wifi_networks';
             $.ajax('/API', {
                 method: 'POST',
                 data: JSON.stringify(rpcRequest),
@@ -83,13 +82,16 @@
                         alert(rpcResponse[error]);
                     }
                     if (rpcResponse['result']) {
+                        for (const x of rpcResponse['result']) {
+                            console.log(x);
+                        }
                         $('#updateButton').removeClass('disabled');
                     }
                 },
                 error: HuConApp.appendErrorLog
             });
 
-            $('#wifiModal').modal('show');
+            $('#id_wifi_list').modal('show');
             $('.ui.checkbox')
               .checkbox()
             ;
@@ -140,7 +142,36 @@
             <button onclick="updateSystem()" id="updateButton" class="ui blue button disabled">Update</button>
         </div>
     </div>
-
+    <div id="id_wifi_list" class="ui modal">
+        <div class="header">
+            <i class="icon wi-fi"></i>
+            WiFi
+        </div>
+        <div class="content">
+            <div class="row">
+                <div id="wifi_list" class="ui middle aligned divided list">
+                    <div id="item_1" class="item">
+                        <div class="right floated content">
+                              <i class="plus circle icon"></i>
+                        </div>
+                        <div class="right floated content">
+                              <i class="arrow circle down icon"></i>
+                        </div>
+                        <div class="right floated content">
+                              <i class="arrow circle up icon"></i>
+                        </div>
+                        <div class="right floated content">
+                              <i class="minus circle icon"></i>
+                        </div>
+                        <i class="wifi icon"></i>
+                        <div class="content">
+                          Lena
+                        </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="wifiModal" class="ui modal">
         <div class="header">
             <i class="icon wi-fi"></i>
