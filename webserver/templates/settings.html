@@ -70,7 +70,7 @@
             $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
         };
 
-        function editWiFiSettings() {
+        function listWiFiNetworks() {
             var rpcRequest = HuConApp.getRpcRequest();
             rpcRequest['method'] = 'get_saved_wifi_networks';
             $.ajax('/API', {
@@ -82,23 +82,104 @@
                         alert(rpcResponse[error]);
                     }
                     if (rpcResponse['result']) {
+                        var i = 0;
                         for (const x of rpcResponse['result']) {
                             console.log(x);
+                            var list_item = $("<div class='item' id='id_item_" + i + "'</div>");
+                            list_item.append("<div class='right floated content'><i class='minus circle icon'></i></div>");
+                            list_item.append("<div class='right floated content'><i class='arrow circle down icon'></i></div>");
+                            list_item.append("<div class='right floated content'><i class='arrow circle up icon'></i></div>");
+                            if (x.enabled){
+                                list_item.append("<i class='wifi big violet icon'></i><div class='content'>" + x.ssid + "</div>");
+                            }else{
+                                list_item.append("<div class='right floated content'><i class='check circle icon'></i></div>");
+                                list_item.append("<i class='wifi big grey icon'></i><div class='content'>" + x.ssid + "</div>");
+                            }
+
+                            $('#id_wifi_list').append(list_item);
+
+                            console.log("list_item_test: " + list_item.html());
+                            i++;
                         }
-                        $('#updateButton').removeClass('disabled');
+                        $('#id_wifi_list_modal').modal({
+                            onHide: function(){
+                                console.log('hidden');
+                            },
+                            onShow: function(){
+                                console.log('shown');
+                            },
+                            onApprove: function() {
+                                console.log('Approve');
+                            }
+                        }).modal('show');
                     }
                 },
                 error: HuConApp.appendErrorLog
             });
 
-            $('#id_wifi_list').modal('show');
-            $('.ui.checkbox')
-              .checkbox()
-            ;
         }
 
-        function saveWiFiSettings() {
+        function wifiSearch() {
             console.log("Save Wifi Settings")
+            $('#id_wifi_list_modal').modal('approve');
+
+            $('#id_wifi_search_modal').modal({
+                onHide: function(){
+                    console.log('hidden');
+
+                },
+                onShow: function(){
+                    console.log('shown');
+                },
+                onApprove: function() {
+                    console.log('Approve');
+                }
+            }).modal('show');
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'get_wifi_found';
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    if (HuConApp.isResponseError(rpcResponse)) {
+                        alert(rpcResponse[error]);
+                    }
+                    if (rpcResponse['result']) {
+                        var i = 0;
+                        for (const x of rpcResponse['result']) {
+                            console.log(x);
+                            // filter hidden networks
+                            if (x.ssid != "") {
+                                $('#id_search_wifi_menu').append("<option id='id_search_menu_item_" + i + "'value='" + x.ssid + "' encr='" + x.encryption + "'>" + x.ssid + "</option>");
+                                // first item, ssid empty
+                                if ($('#id_ssid').val() == "") {
+                                    console.log(x.encryption);
+                                    $('#id_encryption option[value="' + x.encryption + '"]').prop('selected', true);
+                                    $('#id_ssid').val(x.ssid);
+                                }
+                            }
+                            i++;
+                        }
+
+                        $('#id_loader').removeClass('active').addClass('disabled');
+
+
+                        $("#id_search_wifi_menu").on('change', function(){
+                            console.log("select changed");
+                            var selected_item_id = $('#id_search_wifi_menu option:selected').attr('id');
+                            var encryption = $('#'+selected_item_id).attr('encr');
+                            var ssid = $('#'+selected_item_id).val();
+                            $('#id_encryption option[value="' + encryption + '"]').prop('selected', true);
+                            $('#id_ssid').val(ssid);
+                        });
+                    }
+                },
+                error: HuConApp.appendErrorLog
+            });
+
+
         }
 
     </script>
@@ -109,22 +190,22 @@
 {% block log %}{% endblock %}
 
 {% block main %}
-        <div class="center">
-            <button onclick="checkUpdate()" class="fluid ui orange button">
-                <i class="icon cloud download"></i>
-                Update
-            </button>
-            <p></p>
-            <button onclick="editWiFiSettings()" class="fluid ui orange button">
-                <i class="icon wi-fi"></i>
-                WiFi
-            </button>
-            <p></p>
-            <button onclick="location.href='index.html'" class="fluid ui blue button">
-                <i class="icon home"></i>
-                Home
-            </button>
-        </div>
+    <div class="center">
+        <button onclick="checkUpdate()" class="fluid ui orange button">
+            <i class="icon cloud download"></i>
+            Update
+        </button>
+        <p></p>
+        <button onclick="listWiFiNetworks()" class="fluid ui orange button">
+            <i class="icon wi-fi"></i>
+            WiFi
+        </button>
+        <p></p>
+        <button onclick="location.href='index.html'" class="fluid ui blue button">
+            <i class="icon home"></i>
+            Home
+        </button>
+    </div>
 {% endblock %}
 
 {% block modal %}
@@ -142,90 +223,56 @@
             <button onclick="updateSystem()" id="updateButton" class="ui blue button disabled">Update</button>
         </div>
     </div>
-    <div id="id_wifi_list" class="ui modal">
+    <div id="id_wifi_list_modal" class="ui modal">
         <div class="header">
             <i class="icon wi-fi"></i>
-            WiFi
+            WiFi List
         </div>
         <div class="content">
             <div class="row">
-                <div id="wifi_list" class="ui middle aligned divided list">
-                    <div id="item_1" class="item">
-                        <div class="right floated content">
-                              <i class="plus circle icon"></i>
-                        </div>
-                        <div class="right floated content">
-                              <i class="arrow circle down icon"></i>
-                        </div>
-                        <div class="right floated content">
-                              <i class="arrow circle up icon"></i>
-                        </div>
-                        <div class="right floated content">
-                              <i class="minus circle icon"></i>
-                        </div>
-                        <i class="wifi icon"></i>
-                        <div class="content">
-                          Lena
-                        </div>
-                  </div>
-                </div>
+                <div id="id_wifi_list" class="ui middle aligned divided list"></div>
+            </div>
+            <div class="ui divider"></div>
+            <div class="row actions">
+                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui fluid blue button approve">Add WiFi Network</button>
             </div>
         </div>
     </div>
-    <div id="wifiModal" class="ui modal">
+    <div id="id_wifi_search_modal" class="ui modal">
         <div class="header">
             <i class="icon wi-fi"></i>
-            WiFi
+            Add new WiFi
+            <div id="id_loader" class="ui medium workaround active right floated inline loader"></div>
         </div>
 
         <div class="content">
             <div class="ui form">
                 <div class="field">
-                    <label>SSID</label>
-                    <div class="ui input"><input id="id_ap_ssid" name="ap_ssid" type="text"></div>
+                    <label>WiFi Network</label>
+                    <select class="ui search dropdown" id="id_search_wifi_menu"></select>
                 </div>
                 <div class="field">
+                    <label>SSID</label>
+                    <div class="ui input"><input id="id_ssid" name="ssid" type="text"></div>
+                </div>
+{#                <div id="id_loader" class="ui massive workaround active centered inline loader"></div>#}
+                <div class="field">
                     <label>WiFi Password</label>
-                    <div class="ui input"><input id="id_ap_key" name="ap_key" type="password"></div>
+                    <div class="ui input"><input id="id_password" name="password" type="password"></div>
                 </div>
                 <div class="field">
                     <label>Encryption Mode</label>
-                    <select class="ui dropdown" id="id_ap_encryption" name="encryption" size="1">
+                    <select class="ui dropdown" id="id_encryption" name="encryption" size="1">
                         <option value="psk">WPA (PSK)</option>
                         <option value="psk2">WPA2 (PSK)</option>
+                        <option value="wep">WEP</option>
+                        <option value="none">Not secured</option>
                     </select>
                 </div>
-                <div class="field">
-                    <label>Use DHCP</label>
-                    <div class="inline field">
-                        <div class="ui toggle checkbox">
-                          <input type="checkbox" tabindex="0" class="hidden">
-                        </div>
-                    </div>
-                </div>
-                <div class="field">
-                    <label>IP</label>
-                    <div class="ui input"><input id="id_ap_ssid" name="ap_ssid" type="text"></div>
-                </div>
-                <div class="field">
-                    <label>WiFi Password</label>
-                    <div class="ui input"><input id="id_ap_key" name="ap_key" type="password"></div>
-                </div>
-                <div class="field">
-                    <label>WiFi Password</label>
-                    <div class="ui input"><input id="id_ap_key" name="ap_key" type="password"></div>
-                </div>
-                <div class="field">
-                    <label>Enable Station Mode</label>
-                    <div class="inline field">
-                        <div class="ui toggle checkbox">
-                          <input type="checkbox" tabindex="0" class="hidden">
-                        </div>
-                    </div>
-                </div>
-                <button onclick="saveWiFiSettings()" id="saveButton" class="ui blue button">Save</button>
             </div>
-
+            <div class="row actions">
+                <button onclick="saveWiFiSettings()" id="saveButton" class="ui blue button approve">Save</button>
+            </div>
 {#            <div class="row">#}
 {#                <button onclick="$('#wifiModal').modal('hide')" class="ui orange button">Cancel</button>#}
 {#                <button onclick="saveWiFiSettings()" id="saveButton" class="ui blue button disabled">Save</button>#}
