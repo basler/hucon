@@ -513,7 +513,8 @@ class HuConJsonRpc():
             for line in wifi_output.split('\n'):
                 key, value = line.strip().split('=')
                 wifi_settings_dict.update({key, value})
-            wifi_scan_output = subprocess.check_output(['ubus', 'call', 'onion', 'wifi - scan', '{"device":"ra0"}'])
+            device = json.dumps({"device": "ra0"})
+            wifi_scan_output = subprocess.check_output(['ubus', 'call', 'onion', 'wifi-scan', device])
             rpc_response = self._get_rpc_response(rpc_request['id'])
             rpc_response['result']['settings'] = wifi_settings_dict
             rpc_response['result']['scanned_wifi'] = wifi_scan_output['results']
