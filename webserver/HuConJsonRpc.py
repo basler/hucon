@@ -117,6 +117,16 @@ class HuConJsonRpc():
             return self._get_saved_wifi_networks(rpc_request)
         elif rpc_request['method'] == 'get_wifi_found':
             return self._get_wifi_found(rpc_request)
+        elif rpc_request['method'] == 'add_wifi':
+            return self._add_wifi(rpc_request)
+        elif rpc_request['method'] == 'move_wifi_up':
+            return self._move_wifi_up(rpc_request)
+        elif rpc_request['method'] == 'move_wifi_down':
+            return self._move_wifi_down(rpc_request)
+        elif rpc_request['method'] == 'remove_wifi':
+            return self._remove_wifi(rpc_request)
+        elif rpc_request['method'] == 'connect_wifi':
+            return self._connect_wifi(rpc_request)
         else:
             return self._return_error(rpc_request['id'], 'Command not known.')
 
@@ -529,3 +539,112 @@ class HuConJsonRpc():
             return self._return_error(rpc_request['id'], 'Could not read WiFi settings. (%s)' % str(ex), 500)
         else:
             return json.dumps(rpc_response)
+
+    def _add_wifi(self, rpc_request):
+        try:
+            self._log.put('Add new WiFi.\n')
+            action = 'add'
+            for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']))['results']:
+                if wifi['ssid'] == rpc_request['params'][0]:
+                    action = 'edit'
+                    break
+            cmd = ['wifisetup', action,
+                   '-ssid', rpc_request['params'][0],
+                   '-encr', rpc_request['params'][2],
+                   '-password', rpc_request['params'][1]]
+
+            proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
+            while True:
+                output = proc.stdout.readline()
+                if output == '' and proc.poll() is not None:
+                    break
+                if output:
+                    self._log.put(output.strip())
+            proc.poll()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not add new WiFi network. (%s)' % str(ex), 500)
+        else:
+            # This should never be reached in term of the system shutdown.
+            return self._return_error(rpc_request['id'], 'Could not add new WiFi network.', 500)
+
+    def _move_wifi_up(self, rpc_request):
+        try:
+            self._log.put('Move WiFi up.\n')
+            proc = subprocess.Popen(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'up'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
+            while True:
+                output = proc.stdout.readline()
+                if output == '' and proc.poll() is not None:
+                    break
+                if output:
+                    self._log.put(output.strip())
+            proc.poll()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not move WiFi network up. (%s)' % str(ex), 500)
+        else:
+            # This should never be reached in term of the system shutdown.
+            return self._return_error(rpc_request['id'], 'Could not move  WiFi network up.', 500)
+
+    def _move_wifi_down(self, rpc_request):
+        try:
+            self._log.put('Move WiFi down.\n')
+            proc = subprocess.Popen(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'down'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
+            while True:
+                output = proc.stdout.readline()
+                if output == '' and proc.poll() is not None:
+                    break
+                if output:
+                    self._log.put(output.strip())
+            proc.poll()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not move WiFi network down. (%s)' % str(ex), 500)
+        else:
+            # This should never be reached in term of the system shutdown.
+            return self._return_error(rpc_request['id'], 'Could not move  WiFi network down.', 500)
+
+    def _remove_wifi(self, rpc_request):
+        try:
+            self._log.put('Remove WiFi down.\n')
+            proc = subprocess.Popen(['wifisetup', 'remove', '-ssid', rpc_request['params'][0]], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
+            while True:
+                output = proc.stdout.readline()
+                if output == '' and proc.poll() is not None:
+                    break
+                if output:
+                    self._log.put(output.strip())
+            proc.poll()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
+        else:
+            # This should never be reached in term of the system shutdown.
+            return self._return_error(rpc_request['id'], 'Could not remove  WiFi network.', 500)
+
+    def _connect_wifi(self, rpc_request):
+        try:
+            self._log.put('Connect WiFi.\n')
+            for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']))['results']:
+                if wifi['ssid'] == rpc_request['params'][0]:
+
+                    cmd = ['wifisetup', 'edit',
+                           '-ssid', wifi['ssid'],
+                           '-encr', wifi['encryption'],
+                           '-password', wifi['password']]
+
+                    proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+                    while True:
+                        output = proc.stdout.readline()
+                        if output == '' and proc.poll() is not None:
+                            break
+                        if output:
+                            self._log.put(output.strip())
+                    proc.poll()
+                    break
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
+        else:
+            # This should never be reached in term of the system shutdown.
+            return self._return_error(rpc_request['id'], 'Could not remove  WiFi network.', 500)

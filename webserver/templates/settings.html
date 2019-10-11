@@ -70,6 +70,62 @@
             $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
         };
 
+        function moveWiFiUp(element_id){
+            console.log("move up called: "+$('#'+element_id).find('.content').text());
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'move_wifi_up';
+            rpcRequest['params'] = [$('#'+element_id).find('.content').text()];
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    listWiFiNetworks();
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        function moveWiFiDown(element_id){
+            console.log("move down called: "+$('#'+element_id).find('.content').text());
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'move_wifi_down';
+            rpcRequest['params'] = [$('#'+element_id).find('.content').text()];
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    listWiFiNetworks();
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        function removeWiFi(element_id){
+            console.log("drop called: "+$('#'+element_id).find('.content').text());
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'remove_wifi';
+            rpcRequest['params'] = [$('#'+element_id).find('.content').text()];
+
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    listWiFiNetworks();
+                },
+                error: HuConApp.appendErrorLog
+            });
+        }
+
+        function connectWiFi(element_id){
+            console.log("connect called: "+$('#'+element_id).find('.content').text());
+        }
+
         function listWiFiNetworks() {
             var rpcRequest = HuConApp.getRpcRequest();
             rpcRequest['method'] = 'get_saved_wifi_networks';
@@ -82,17 +138,19 @@
                         alert(rpcResponse[error]);
                     }
                     if (rpcResponse['result']) {
+                        var modal_init_state = $('#id_wifi_list_modal').html();
                         var i = 0;
                         for (const x of rpcResponse['result']) {
                             console.log(x);
-                            var list_item = $("<div class='item' id='id_item_" + i + "'</div>");
-                            list_item.append("<div class='right floated content'><i class='minus circle icon'></i></div>");
-                            list_item.append("<div class='right floated content'><i class='arrow circle down icon'></i></div>");
-                            list_item.append("<div class='right floated content'><i class='arrow circle up icon'></i></div>");
+                            var item_id = "id_item_"+i;
+                            var list_item = $("<div class='item' id='" + item_id + "'</div>");
+                            list_item.append("<div class='right floated content'><button onclick='removeWiFi(\""+item_id+"\");' class='circular ui icon button'><i class='minus circle icon'></i></button></div>");
+                            list_item.append("<div class='right floated content'><button onclick='moveWiFiDown(\""+item_id+"\");' class='circular ui icon button'><i class='arrow circle down icon'></i></button></div>");
+                            list_item.append("<div class='right floated content'><button onclick='moveWiFiUp(\""+item_id+"\");' class='circular ui icon button'><i class='arrow circle up icon'></i></button></div>");
                             if (x.enabled){
                                 list_item.append("<i class='wifi big violet icon'></i><div class='content'>" + x.ssid + "</div>");
                             }else{
-                                list_item.append("<div class='right floated content'><i class='check circle icon'></i></div>");
+                                list_item.append("<div class='right floated content'><button onclick='connectWiFi(\""+item_id+"\");' class='circular ui icon button'><i class='check circle icon'></i></button></div>");
                                 list_item.append("<i class='wifi big grey icon'></i><div class='content'>" + x.ssid + "</div>");
                             }
 
@@ -101,38 +159,41 @@
                             console.log("list_item_test: " + list_item.html());
                             i++;
                         }
+
                         $('#id_wifi_list_modal').modal({
                             onHide: function(){
                                 console.log('hidden');
+                                $('#id_wifi_list_modal').html(modal_init_state);
                             },
                             onShow: function(){
                                 console.log('shown');
                             },
                             onApprove: function() {
                                 console.log('Approve');
+                                listWiFiNetworks();
                             }
                         }).modal('show');
                     }
                 },
                 error: HuConApp.appendErrorLog
             });
-
         }
 
         function wifiSearch() {
-            console.log("Save Wifi Settings")
+            console.log("Search Wifi")
             $('#id_wifi_list_modal').modal('approve');
-
+            var modal_init_state = $('#id_wifi_search_modal').html();
             $('#id_wifi_search_modal').modal({
                 onHide: function(){
-                    console.log('hidden');
-
+                    console.log('hidden wifi search');
+                    $('#id_wifi_search_modal').html(modal_init_state);
+                    listWiFiNetworks();
                 },
                 onShow: function(){
-                    console.log('shown');
+                    console.log('shown wifi search');
                 },
                 onApprove: function() {
-                    console.log('Approve');
+                    console.log('Approve wifi add');
                 }
             }).modal('show');
 
@@ -178,10 +239,34 @@
                 },
                 error: HuConApp.appendErrorLog
             });
-
-
         }
 
+        function addWiFi() {
+            console.log("add wifi");
+
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'add_wifi';
+            rpcRequest['params'] = [$('#id_ssid').val(), $('#id_password').val(), $('#id_encryption').val()];
+
+            $('#id_wifi_search_modal').modal('hide');
+
+            console.log(JSON.stringify(rpcRequest));
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    listWiFiNetworks();
+                },
+                error: function (rpcResponse) {
+                    console.log(rpcResponse);
+                }
+            });
+        }
+
+        function showWiFiAPsettings() {
+            $('#id_combined_wifi_modal').modal('show');
+        }
     </script>
 
 {% endblock %}
@@ -199,6 +284,11 @@
         <button onclick="listWiFiNetworks()" class="fluid ui orange button">
             <i class="icon wi-fi"></i>
             WiFi
+        </button>
+        <p></p>
+        <button onclick="showWiFiAPsettings()" class="fluid ui orange button">
+            <i class="icon wi-fi"></i>
+            WiFi AP Settings
         </button>
         <p></p>
         <button onclick="location.href='index.html'" class="fluid ui blue button">
@@ -234,7 +324,7 @@
             </div>
             <div class="ui divider"></div>
             <div class="row actions">
-                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui fluid blue button approve">Add WiFi Network</button>
+                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui fluid blue button approve">Scan WiFi</button>
             </div>
         </div>
     </div>
@@ -246,38 +336,42 @@
         </div>
 
         <div class="content">
-            <div class="ui form">
+            <form class="ui form">
                 <div class="field">
                     <label>WiFi Network</label>
-                    <select class="ui search dropdown" id="id_search_wifi_menu"></select>
+                    <select class="ui search fluid dropdown" id="id_search_wifi_menu"></select>
                 </div>
                 <div class="field">
                     <label>SSID</label>
-                    <div class="ui input"><input id="id_ssid" name="ssid" type="text"></div>
+                    <div class="ui input fluid"><input id="id_ssid" name="ssid" type="text"></div>
                 </div>
-{#                <div id="id_loader" class="ui massive workaround active centered inline loader"></div>#}
                 <div class="field">
                     <label>WiFi Password</label>
-                    <div class="ui input"><input id="id_password" name="password" type="password"></div>
+                    <div class="ui input fluid"><input id="id_password" name="password" type="password"></div>
                 </div>
                 <div class="field">
                     <label>Encryption Mode</label>
-                    <select class="ui dropdown" id="id_encryption" name="encryption" size="1">
+                    <select class="ui dropdown fluid" id="id_encryption">
                         <option value="psk">WPA (PSK)</option>
                         <option value="psk2">WPA2 (PSK)</option>
                         <option value="wep">WEP</option>
                         <option value="none">Not secured</option>
                     </select>
                 </div>
+            </form>
+            <div class="ui divider"></div>
+            <div class="row action">
+                <button onclick="addWiFi()" id="addWiFiButton" class="ui blue fluid button approve">Connect WiFi</button>
             </div>
-            <div class="row actions">
-                <button onclick="saveWiFiSettings()" id="saveButton" class="ui blue button approve">Save</button>
-            </div>
-{#            <div class="row">#}
-{#                <button onclick="$('#wifiModal').modal('hide')" class="ui orange button">Cancel</button>#}
-{#                <button onclick="saveWiFiSettings()" id="saveButton" class="ui blue button disabled">Save</button>#}
-{#            </div>#}
         </div>
+    </div>
+    <div id="id_combined_wifi_modal" class="ui modal">
+        <div class="header">
+            <i class="icon wi-fi"></i>
+            Add new WiFi
+        </div>
+        <div class="content">
 
+        </div>
     </div>
 {% endblock %}
