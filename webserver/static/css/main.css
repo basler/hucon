@@ -59,6 +59,14 @@ div.container {
     margin-left: 2px;
 }
 
+#buttonModal {
+    width: 517px;
+}
+
+#buttonEmbed {
+    height: 517px;
+}
+
 .center {
     max-width:800px;
     margin-top: 50px;
@@ -110,6 +118,16 @@ div.container {
     margin-top: 50px !important;
     margin-bottom: 10px !important;
 }
+
+.remoteSquare {
+    padding: 0;
+}
+
+.remoteButton {
+    width: 100%;
+    height: 100%;
+}
+
 /* semantic changes */
 .orange, .ui.orange.button, .ui.orange.buttons.button {
     background-color: #F99D33;

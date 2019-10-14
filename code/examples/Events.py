@@ -8,7 +8,7 @@ Author: Sascha.MuellerzumHagen@baslerweb.com
 """
 
 from hucon import Eye
-from hucon import EventSystem, Button
+from hucon import EventSystem, ButtonEvent
 
 eye = None
 
@@ -58,11 +58,11 @@ def call_stop():
 
 # Map event name to callback.
 events_dict = {
-  "Name A": Button(register_callback=call_a),
-  "Name B": Button(register_callback=call_b),
-  "Name C": Button(register_callback=call_c),
-  "Name D": Button(register_callback=call_d),
-  "Name Stop": Button(call_stop)
+  "Name A": ButtonEvent(register_callback=call_a, x=0, y=0, width=1, height=1),
+  "Name B": ButtonEvent(register_callback=call_b, x=7, y=0, width=1, height=1),
+  "Name C": ButtonEvent(register_callback=call_c, x=0, y=7, width=1, height=1),
+  "Name D": ButtonEvent(register_callback=call_d, x=7, y=7, width=1, height=1),
+  "Name Stop": ButtonEvent(register_callback=call_stop, x=3, y=3, width=2, height=2)
 }
 
 # Setup event system.

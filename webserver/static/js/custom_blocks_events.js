@@ -11,9 +11,9 @@ var eventDict = null;
 // This function will crate the dictionary for the Event object.
 // There is a hack insisde this function to detect that there is a redraw of the blockly engine.
 // It should be rewritten when I understand the system a little bit more.
-function appendEvent(eventName, funcName) {
+function appendEvent(eventName, funcName, x, y, width, height) {
     // add the nedded include
-    Blockly.Python.definitions_.import_event = 'from hucon import EventSystem, Button';
+    Blockly.Python.definitions_.import_event = 'from hucon import EventSystem, ButtonEvent';
 
     // Create or append the event to the list
     if (Blockly.Python.definitions_['eventDict'] == undefined) {
@@ -21,7 +21,7 @@ function appendEvent(eventName, funcName) {
         eventDict = [
             '# Map event name to callback.',
             'events_dict = {',
-            '  "{1}": Button(register_callback={2})',
+            '  "{1}": ButtonEvent(register_callback={2}, x={3}, y={4}, width={5}, height={6})',
             '}',
             '',
             '# Setup event system.',
@@ -29,10 +29,10 @@ function appendEvent(eventName, funcName) {
             ''
         ].join('\n');
     } else {
-        eventDict = eventDict.replace('\n}', ',\n  "{1}": Button(register_callback={2})\n}');
+        eventDict = eventDict.replace('\n}', ',\n  "{1}": ButtonEvent(register_callback={2}, x={3}, y={4}, width={5}, height={6})\n}');
     }
 
-    eventDict = HuConApp.formatVarString(eventDict, eventName, funcName);
+    eventDict = HuConApp.formatVarString(eventDict, eventName, funcName, x, y, width, height);
 }
 
 Blockly.Blocks.event_init = {
@@ -82,6 +82,19 @@ Blockly.Blocks.event_button_object = {
     init: function () {
         this.appendDummyInput()
             .appendField('Button Event');
+        this.appendValueInput('X')
+            .setCheck('Number')
+            .appendField('X');
+        this.appendValueInput('Y')
+            .setCheck('Number')
+            .appendField('Y');
+        this.appendValueInput('Width')
+            .setCheck('Number')
+            .appendField('Width');
+        this.appendValueInput('Height')
+            .setCheck('Number')
+            .appendField('Height');
+        this.setInputsInline(true);
         this.appendStatementInput('function')
             .setCheck(null)
             .appendField(new Blockly.FieldTextInput('EventName'), 'EventName');
@@ -107,6 +120,10 @@ Blockly.Python.event_button_object = function(block) {
 
     var eventName = block.getFieldValue('EventName');
     var funcName = Blockly.Python.variableDB_.getName(eventName, Blockly.Procedures.NAME_TYPE);
+    var x = Blockly.Python.valueToCode(block, 'X', Blockly.Python.ORDER_ATOMIC) || '0';
+    var y = Blockly.Python.valueToCode(block, 'Y', Blockly.Python.ORDER_ATOMIC) || '0';
+    var width = Blockly.Python.valueToCode(block, 'Width', Blockly.Python.ORDER_ATOMIC) || '1';
+    var height = Blockly.Python.valueToCode(block, 'Height', Blockly.Python.ORDER_ATOMIC) || '1';
 
     if (statementsFunc == '') {
         statementsFunc = Blockly.Python.PASS;
@@ -124,6 +141,6 @@ Blockly.Python.event_button_object = function(block) {
     code = Blockly.Python.scrub_(block, code);
     Blockly.Python.definitions_['%' + funcName] = code;
 
-    appendEvent(eventName, funcName);
+    appendEvent(eventName, funcName, x, y, width, height);
     return null;
 };

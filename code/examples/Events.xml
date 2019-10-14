@@ -26,8 +26,28 @@
       </block>
     </next>
   </block>
-  <block type="event_button_object" id="{9Rp6n/|KMNs:me|bKY." x="238" y="-88">
+  <block type="event_button_object" id="1f@L+@.*}?@~GvaK9Nre" x="238" y="-88">
     <field name="EventName">A</field>
+    <value name="X">
+      <shadow type="math_number" id="5HA9ifDkog0XK9`=vRF[">
+        <field name="NUM">0</field>
+      </shadow>
+    </value>
+    <value name="Y">
+      <shadow type="math_number" id="4eQo#B!!#)hr@9eivpM8">
+        <field name="NUM">0</field>
+      </shadow>
+    </value>
+    <value name="Width">
+      <shadow type="math_number" id="LuA_XX)[e9+h`);CI?::">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <value name="Height">
+      <shadow type="math_number" id="]Xj)ejUPz#)+H._BLe_*">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
     <statement name="function">
       <block type="text_print" id="BmNiFp-Hr|uSMV{%~fc;">
         <value name="TEXT">
@@ -59,8 +79,28 @@
       </block>
     </statement>
   </block>
-  <block type="event_button_object" id="V)=JDbJY6jd(K,Ca^,Gq" x="238" y="38">
+  <block type="event_button_object" id="A7OxF~uD:L2yu0fS2sv0" x="238" y="38">
     <field name="EventName">B</field>
+    <value name="X">
+      <shadow type="math_number" id="O1bdC(ngOb@wIP1MkM?1">
+        <field name="NUM">7</field>
+      </shadow>
+    </value>
+    <value name="Y">
+      <shadow type="math_number" id="}jz_Ig,@`Z[I2!1@tA6V">
+        <field name="NUM">0</field>
+      </shadow>
+    </value>
+    <value name="Width">
+      <shadow type="math_number" id="0qlRJ3zy3Z(C*wRpL]x{">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <value name="Height">
+      <shadow type="math_number" id="DuN{T],92Ix-d1t3BlZ}">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
     <statement name="function">
       <block type="text_print" id="BC%%JQ#?9]qk@3qpiX76">
         <value name="TEXT">
@@ -92,8 +132,28 @@
       </block>
     </statement>
   </block>
-  <block type="event_button_object" id="eIyDpv%K$$1USrUn^GX*" x="237" y="162">
+  <block type="event_button_object" id="yI~+s@^vD!p5GJ-}4(b0" x="238" y="163">
     <field name="EventName">C</field>
+    <value name="X">
+      <shadow type="math_number" id="cZRJe2Lfb@gZI{ozuC!?">
+        <field name="NUM">0</field>
+      </shadow>
+    </value>
+    <value name="Y">
+      <shadow type="math_number" id="(Ee,A@IbM^iL!dl1YN`R">
+        <field name="NUM">7</field>
+      </shadow>
+    </value>
+    <value name="Width">
+      <shadow type="math_number" id="}?^byg=brDf8~tc,`y7+">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <value name="Height">
+      <shadow type="math_number" id="||Ty};[yja1-9YXhV5%]">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
     <statement name="function">
       <block type="text_print" id="v3Bjg1m63toQUwyg%T,U">
         <value name="TEXT">
@@ -125,8 +185,28 @@
       </block>
     </statement>
   </block>
-  <block type="event_button_object" id="$2?caB_vioxZ@_|LPe^P" x="238" y="287">
+  <block type="event_button_object" id="TlYW4kqy4;Fq;)`owGR7" x="238" y="288">
     <field name="EventName">D</field>
+    <value name="X">
+      <shadow type="math_number" id="jkS=NJ)SMR;)Zc^nOX]j">
+        <field name="NUM">7</field>
+      </shadow>
+    </value>
+    <value name="Y">
+      <shadow type="math_number" id="bc+.Z~$]9QY{r6u:kyH1">
+        <field name="NUM">7</field>
+      </shadow>
+    </value>
+    <value name="Width">
+      <shadow type="math_number" id="pG_{K]eMY`JE](yghuq{">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <value name="Height">
+      <shadow type="math_number" id="0Pf@to|#i7wv4tlJid%`">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
     <statement name="function">
       <block type="text_print" id="yD+TI:$^.RWkYsh7Xtme">
         <value name="TEXT">
@@ -158,8 +238,28 @@
       </block>
     </statement>
   </block>
-  <block type="event_button_object" id="rBuV]Q:dB2-q);Yg)obk" x="237" y="413">
+  <block type="event_button_object" id=")o-Gb!$$pU2@[a8z!4Pg" x="238" y="413">
     <field name="EventName">Stop</field>
+    <value name="X">
+      <shadow type="math_number" id="0c0YT:g,ok7XS8k4f#s0">
+        <field name="NUM">3</field>
+      </shadow>
+    </value>
+    <value name="Y">
+      <shadow type="math_number" id="m1Guo%*3[+l3It0Mr@7S">
+        <field name="NUM">3</field>
+      </shadow>
+    </value>
+    <value name="Width">
+      <shadow type="math_number" id="U=AP,}CIqd6_OrUUt}Lm">
+        <field name="NUM">2</field>
+      </shadow>
+    </value>
+    <value name="Height">
+      <shadow type="math_number" id="8v*JiGDF}S*C:VupUrwz">
+        <field name="NUM">2</field>
+      </shadow>
+    </value>
     <statement name="function">
       <block type="text_print" id="+-aQ,YDG{e$}(6%kq00{">
         <value name="TEXT">

@@ -5,3 +5,4 @@ webserver/exec_file.txt
 password
 webserver/www/exec_file.txt
 *.pyc
+.DS_Store

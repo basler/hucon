@@ -3,8 +3,41 @@
 {% block head %}
     {{ super() }}
 
+    <style type="text/css">
+        /* CSS Document */
+
+        body {
+            font:0.9em/1.3 Georgia, "Times New Roman", Times, serif;
+            color: #FFF;
+        }
+
+        .square {
+            background:rgba(255, 255, 255, 0.1);
+        }
+        .inner {
+            padding:5px;
+            border:2px solid #000;
+        }
+            .inner h2 {
+                font-weight:bold;
+            }
+
+        @media screen and (max-width: 640px) {
+            .square {
+                font-size: 3.5vw;
+            }
+        }
+
+        .far {
+            font-size: 45px;
+        }
+    </style>
+
+    <script src="{{ url_for('.static', filename='jquery/jquery.square.min.js') }}"></script>
+
     <script type="text/javascript">
         var buttonNeedUpdate = true
+        var square = null;
 
         // On document ready this function will be called and initialize the complete website.
         $(document).ready(function () {
@@ -57,16 +90,50 @@
                             return;
                         }
 
-                        $('#buttonArea').empty();
+                        $('#gridArea').empty();
 
-                        for (var index in rpcResponse['result']['Button']) {
-                            var name = rpcResponse['result']['Button'][index]['Name']
-                            var eventNumber = rpcResponse['result']['Button'][index]['Event']
+                        for (var y = 0; y < 8; y++) {
+                            for (var x = 0; x < 8; x++) {
 
-                            var btn = $('<div class="column"><button onclick="setEvent(' + eventNumber + ')" class="ui orange button">' + name + '</button></div>')
-                            $('#buttonArea').append(btn);
+                                console.log(y + '/' + x)
+
+                                // insert an emtpy square if there is nothing
+                                if (rpcResponse['result']['Y'][y]['X'][x] == null) {
+                                    var btn = $('<div class="square"></div>')
+                                    $('#gridArea').append(btn);
+                                    continue;
+                                }
+
+                                var obj = rpcResponse['result']['Y'][y]['X'][x];
+
+                                // Insert nothin when there is a place holder (empty element)
+                                if (obj['Type'] == 'PlaceHolder') {
+                                    continue;
+                                }
+
+                                // Instert a button
+                                if (obj['Type'] == 'Button') {
+                                    var name = obj['Name']
+                                    var eventNumber = obj['Event']
+                                    var width = obj['Width']
+                                    var height = obj['Height']
+
+                                    var btn = $('<div class="square _' + width + '_' + height + '"><button class="fluid ui orange remoteButton" onclick="setEvent(' + eventNumber + ')">' + name + '</div></div>')
+                                    $('#gridArea').append(btn);
+                                }
+
+                            }
                         }
+
                         buttonNeedUpdate = false;
+
+
+                        if(square) {
+                            square.destroy();
+                            square = null;
+                        }
+                        square = $("#gridArea").square( { width:60, height: 60, space:2, speed:0, duration: 0, ease:"easeOutExpo" } );
+
                     }
                 });
             }
@@ -97,12 +164,13 @@
 {% endblock %}
 
 {% block container %}
-        <div class="ui segment" style="background: none">
-            <div id="buttonArea" class="ui stackable eight column grid"></div>
-            <div id="spinner" class="ui active dimmer">
-                <div class="ui loader"></div>
-            </div>
-        </div>
+
+    <div style="width: 500px"><div id="gridArea"></div></div>
+
+    <div id="spinner" class="ui active dimmer">
+        <div class="ui text loader">Loading</div>
+    </div>
+
 {% endblock %}
 
 {% block modal %}{% endblock %}
