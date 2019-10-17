@@ -13,6 +13,8 @@ while :; do
     case $1 in
         -c|--check) do_check=1
         ;;
+        -b|--beta) use_beta=1
+        ;;
         -u|--update) do_update=1
         ;;
         -r|--reboot) do_reboot=1
@@ -24,9 +26,32 @@ while :; do
     shift
 done
 
-# Get the latest/current version from the website.
-latestVersion=$(curl -k https://github.com/$UPDATE_SOURCE_REPO/releases/latest 2>/dev/null | sed "s/[a-zA-Z<> \"\/=:]//g" | sed "s/^\.//g" | sed "s/\.$//g")
-currentVersion="unknown"
+# get the list of all available versions and sort the list
+versions=$(curl --silent "https://api.github.com/repos/$UPDATE_SOURCE_REPO/releases" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sort -r)
+
+# determine the latest version based on the settings from the command line
+# Go through the list and check the version string for a 'b'-char which marks a beta version.
+# Stop if the version is marked as beta and the user will also see the beta version.
+# Otherwise go to the next string to find a released version.
+for version in $versions
+do
+
+    case "$version" in
+        *b*)
+            if [ $use_beta ]; then
+                echo "The latest version is a beta version."
+                latestVersion=$version
+                break
+            else
+                continue
+            fi
+    esac
+
+    latestVersion=$version
+    break
+done
+
+currentVersion="0.0.0"
 
 if [ -f $SCRIPT_DIR/__version__ ]; then
     currentVersion=$(cat $SCRIPT_DIR/__version__)
@@ -35,10 +60,37 @@ fi
 # Print the latest version.
 if [ $do_check ]; then
     if [ "$latestVersion" != "" ]; then
+
+        echo "Your version is: $currentVersion"
         echo "The latest version is: $latestVersion"
-        if [ "$latestVersion" != "$currentVersion" ]; then
-            echo "There is an update available."
+
+        currentMajor=$(echo $currentVersion| cut -d'.' -f1)
+        currentMinor=$(echo $currentVersion| cut -d'.' -f2)
+        currentBugfix=$(echo $currentVersion| cut -d'.' -f3)
+
+        latestMajor=$(echo $latestVersion| cut -d'.' -f1)
+        latestMinor=$(echo $latestVersion| cut -d'.' -f2)
+        latestBugfix=$(echo $latestVersion| cut -d'.' -f3)
+
+        if [ ${latestMajor} -gt ${currentMajor} ]; then
+            echo "There is a major update available."
             exit 1
+        elif [ ${latestMajor} -eq ${currentMajor} ]; then
+            if [ ${latestMinor} -gt ${currentMinor} ]; then
+                echo "There is a minor update available."
+                exit 1
+            elif [ ${latestMinor} -eq ${currentMinor} ]; then
+
+                if [ "$latestBugfix" > "$currentBugfix" ]; then
+                    echo "There is a bugfix update available."
+                    exit 1
+                else
+                    echo "You are using the up to date version."
+                fi
+
+            else
+                echo "You are using the up to date version."
+            fi
         else
             echo "You are using the up to date version."
         fi
