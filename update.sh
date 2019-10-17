@@ -30,6 +30,9 @@ done
 versions=$(curl --silent "https://api.github.com/repos/$UPDATE_SOURCE_REPO/releases" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sort -r)
 
 # determine the latest version based on the settings from the command line
+# Go through the list and check the version string for a 'b'-char which marks a beta version.
+# Stop if the version is marked as beta and the user will also see the beta version.
+# Otherwise go to the next string to find a released version.
 for version in $versions
 do
 
