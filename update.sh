@@ -33,21 +33,22 @@ versions=$(curl --silent "https://api.github.com/repos/$UPDATE_SOURCE_REPO/relea
 for version in $versions
 do
 
-    if [[ $version =~ "b" ]]; then
-        if [ $use_beta ]; then
-            echo "The latest version is a beta version."
-            latestVersion=$version
-            break
-        else
-            continue
-        fi
-    fi
+    case "$version" in
+        *b*)
+            if [ $use_beta ]; then
+                echo "The latest version is a beta version."
+                latestVersion=$version
+                break
+            else
+                continue
+            fi
+    esac
 
     latestVersion=$version
     break
 done
 
-currentVersion="0.0.0-b"
+currentVersion="0.0.0"
 
 if [ -f $SCRIPT_DIR/__version__ ]; then
     currentVersion=$(cat $SCRIPT_DIR/__version__)
@@ -60,13 +61,13 @@ if [ $do_check ]; then
         echo "Your version is: $currentVersion"
         echo "The latest version is: $latestVersion"
 
-        currentMajor="$(cut -d'.' -f1 <<<"$currentVersion")"
-        currentMinor="$(cut -d'.' -f2 <<<"$currentVersion")"
-        currentBugfix="$(cut -d'.' -f3 <<<"$currentVersion")"
+        currentMajor=$(echo $currentVersion| cut -d'.' -f1)
+        currentMinor=$(echo $currentVersion| cut -d'.' -f2)
+        currentBugfix=$(echo $currentVersion| cut -d'.' -f3)
 
-        latestMajor="$(cut -d'.' -f1 <<<"$latestVersion")"
-        latestMinor="$(cut -d'.' -f2 <<<"$latestVersion")"
-        latestBugfix="$(cut -d'.' -f3 <<<"$latestVersion")"
+        latestMajor=$(echo $latestVersion| cut -d'.' -f1)
+        latestMinor=$(echo $latestVersion| cut -d'.' -f2)
+        latestBugfix=$(echo $latestVersion| cut -d'.' -f3)
 
         if [ ${latestMajor} -gt ${currentMajor} ]; then
             echo "There is a major update available."
@@ -77,7 +78,7 @@ if [ $do_check ]; then
                 exit 1
             elif [ ${latestMinor} -eq ${currentMinor} ]; then
 
-                if [ $(expr ${latestBugfix} \> ${currentBugfix}) -eq 1 ]; then
+                if [ "$latestBugfix" > "$currentBugfix" ]; then
                     echo "There is a bugfix update available."
                     exit 1
                 else
