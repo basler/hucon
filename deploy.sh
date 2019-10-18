@@ -27,8 +27,10 @@ if [ \$1 ]; then
     path=\"\$1\"hucon
 fi
 
-echo \"Remove old installation from \$path\"
-rm -rf \$path
+if [ -d \$path ]; then
+    echo \"Remove old installation from \$path\"
+    rm -rf \$path
+fi
 
 echo \"Unpack new files to \$path\"
 echo \"This will take some time.\"
