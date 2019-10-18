@@ -709,3 +709,18 @@ HuConApp.formatVarString = function () {
         return args[index];
     });
 };
+
+//Show Alert box for error message
+HuConApp.showAlertBox = function (request, status, error) {
+    rpcResponse = JSON.parse(request.responseText);
+    $.uiAlert({
+                        textHead: 'Internal server error!', // header
+                        text: rpcResponse.error, // Text
+                        bgcolor: '#DB2828', // background-color
+                        textcolor: '#fff', // color
+                        position: 'top-center',// position . top And bottom ||  left / center / right
+                        icon: 'remove circle', // icon in semantic-UI
+                        time: 3, // time
+                    })
+}
+}

@@ -30,19 +30,29 @@ import argparse
 import logging
 import time
 import threading
-import httplib
+try:
+    import httplib
+except:
+    import http.client as httplib
 from flask import Flask
 from flask import abort
 from flask import request
 from flask import Response
 from flask import render_template
 from functools import wraps
+from flask_socketio import SocketIO
+
 
 from HuConJsonRpc import HuConJsonRpc
 
 json_rpc = HuConJsonRpc()
 
+COLLECT_STATIC_ROOT = "/opt/hucon/webserver/static"
+COLLECT_STORAGE = 'flask_collect.storage.file'
+
 app = Flask(json_rpc._SERVER_NAME)
+app.config["SECRET_KEY"] = "SECRET_KEY"
+socketio = SocketIO(app, logger=True, async_mode='eventlet')
 
 
 @app.route('/')
@@ -138,13 +148,13 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if not args.debug:
-        # Reduce the log messages.
-        log = logging.getLogger('werkzeug')
-        log.setLevel(logging.ERROR)
+    # if not args.debug:
+    #     # Reduce the log messages.
+    #     log = logging.getLogger('werkzeug')
+    #     log.setLevel(logging.ERROR)
+    #
+    # # Run a thread to check the flask service.
+    # thread = threading.Thread(target=check_service)
+    # thread.start()
 
-    # Run a thread to check the flask service.
-    thread = threading.Thread(target=check_service)
-    thread.start()
-
-    app.run(host='0.0.0.0', port=json_rpc._LISTENING_PORT, debug=args.debug)
+    socketio.run(app, host='0.0.0.0', port=json_rpc._LISTENING_PORT, debug=args.debug)

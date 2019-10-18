@@ -15,11 +15,15 @@
     <title>HuCon Robot :) {% block title %}{% endblock %}</title>
 
     <!-- Custom CSS -->
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('.static', filename='images/favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('.static', filename='semantic/semantic.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='semantic_alert/Semantic-UI-Alert.css') }}">
     <link rel="stylesheet" href="{{ url_for('.static', filename='css/main.css') }}">
 
     <script src="{{ url_for('.static', filename='jquery/jquery-3.4.1.min.js') }}"></script>
     <script src="{{ url_for('.static', filename='semantic/semantic.min.js') }}"></script>
+    <script src="{{ url_for('.static', filename='semantic_alert/Semantic-UI-Alert.js') }}"></script>
+    <script src="{{ url_for('.static', filename='socketio/socket.io.js') }}"></script>
 
     <script type="text/javascript" src="{{ url_for('.static', filename='js/webserver.js') }}"></script>
 

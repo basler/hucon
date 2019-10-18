@@ -127,6 +127,10 @@ class HuConJsonRpc():
             return self._remove_wifi(rpc_request)
         elif rpc_request['method'] == 'connect_wifi':
             return self._connect_wifi(rpc_request)
+        elif rpc_request['method'] == 'enable_sta_wifi':
+            return self._enable_sta_wifi(rpc_request)
+        elif rpc_request['method'] == 'disable_sta_wifi':
+            return self._disable_sta_wifi(rpc_request)
         else:
             return self._return_error(rpc_request['id'], 'Command not known.')
 
@@ -170,7 +174,7 @@ class HuConJsonRpc():
                                               stderr=subprocess.STDOUT)
 
         while True:
-            output = self._current_proc.stdout.readline()
+            output = self._current_proc.stdout.readline().decode()
             if output == '' and self._current_proc.poll() is not None:
                 break
             if output:
@@ -521,7 +525,7 @@ class HuConJsonRpc():
         try:
             self._log.put('Search for WiFi.\n')
             device = json.dumps({"device": "ra0"})
-            wifi_scan_output = json.loads(subprocess.check_output(['ubus', 'call', 'onion', 'wifi-scan', device]))
+            wifi_scan_output = json.loads(subprocess.check_output(['ubus', 'call', 'onion', 'wifi-scan', device]).decode())
             rpc_response = self._get_rpc_response(rpc_request['id'])
             rpc_response['result'] = wifi_scan_output['results']
         except Exception as ex:
@@ -532,9 +536,16 @@ class HuConJsonRpc():
     def _get_saved_wifi_networks(self, rpc_request):
         try:
             self._log.put('Read WiFi Settings.\n')
-            wifi_output_list = json.loads(subprocess.check_output(['wifisetup', 'list']))
+            uci_output_list = [l for l in subprocess.check_output(['uci', 'show', 'wireless']).decode().strip().split('\n')]
+            uci_dict = {}
+            for line in uci_output_list:
+                key, value = line.split('=')
+                uci_dict.update({key.strip(): value.strip().replace("'", "")})
+            wifi_disabled = bool(int(uci_dict['wireless.sta.disabled']))
+            wifi_output_list = json.loads(subprocess.check_output(['wifisetup', 'list']).decode())
             rpc_response = self._get_rpc_response(rpc_request['id'])
-            rpc_response['result'] = wifi_output_list['results']
+            result = {"wifi_list": wifi_output_list['results'], "wifi_disabled": wifi_disabled}
+            rpc_response['result'] = result
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not read WiFi settings. (%s)' % str(ex), 500)
         else:
@@ -544,7 +555,7 @@ class HuConJsonRpc():
         try:
             self._log.put('Add new WiFi.\n')
             action = 'add'
-            for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']))['results']:
+            for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']).decode())['results']:
                 if wifi['ssid'] == rpc_request['params'][0]:
                     action = 'edit'
                     break
@@ -552,99 +563,97 @@ class HuConJsonRpc():
                    '-ssid', rpc_request['params'][0],
                    '-encr', rpc_request['params'][2],
                    '-password', rpc_request['params'][1]]
-
-            proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
-            while True:
-                output = proc.stdout.readline()
-                if output == '' and proc.poll() is not None:
-                    break
-                if output:
-                    self._log.put(output.strip())
-            proc.poll()
+            self.__run_command(cmd)
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not add new WiFi network. (%s)' % str(ex), 500)
         else:
-            # This should never be reached in term of the system shutdown.
-            return self._return_error(rpc_request['id'], 'Could not add new WiFi network.', 500)
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
 
     def _move_wifi_up(self, rpc_request):
         try:
             self._log.put('Move WiFi up.\n')
-            proc = subprocess.Popen(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'up'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
-            while True:
-                output = proc.stdout.readline()
-                if output == '' and proc.poll() is not None:
-                    break
-                if output:
-                    self._log.put(output.strip())
-            proc.poll()
+            self.__run_command(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'up'])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not move WiFi network up. (%s)' % str(ex), 500)
         else:
-            # This should never be reached in term of the system shutdown.
-            return self._return_error(rpc_request['id'], 'Could not move  WiFi network up.', 500)
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
 
     def _move_wifi_down(self, rpc_request):
         try:
             self._log.put('Move WiFi down.\n')
-            proc = subprocess.Popen(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'down'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
-            while True:
-                output = proc.stdout.readline()
-                if output == '' and proc.poll() is not None:
-                    break
-                if output:
-                    self._log.put(output.strip())
-            proc.poll()
+            self.__run_command(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'down'])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not move WiFi network down. (%s)' % str(ex), 500)
         else:
-            # This should never be reached in term of the system shutdown.
-            return self._return_error(rpc_request['id'], 'Could not move  WiFi network down.', 500)
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
 
     def _remove_wifi(self, rpc_request):
         try:
             self._log.put('Remove WiFi down.\n')
-            proc = subprocess.Popen(['wifisetup', 'remove', '-ssid', rpc_request['params'][0]], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
-            while True:
-                output = proc.stdout.readline()
-                if output == '' and proc.poll() is not None:
-                    break
-                if output:
-                    self._log.put(output.strip())
-            proc.poll()
+            self.__run_command(['wifisetup', 'remove', '-ssid', rpc_request['params'][0]])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
         else:
-            # This should never be reached in term of the system shutdown.
-            return self._return_error(rpc_request['id'], 'Could not remove  WiFi network.', 500)
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
 
     def _connect_wifi(self, rpc_request):
         try:
             self._log.put('Connect WiFi.\n')
-            for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']))['results']:
+            for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']).decode())['results']:
                 if wifi['ssid'] == rpc_request['params'][0]:
-
+                    self.__run_command(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'top'])
                     cmd = ['wifisetup', 'edit',
                            '-ssid', wifi['ssid'],
                            '-encr', wifi['encryption'],
                            '-password', wifi['password']]
 
-                    proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-                    while True:
-                        output = proc.stdout.readline()
-                        if output == '' and proc.poll() is not None:
-                            break
-                        if output:
-                            self._log.put(output.strip())
-                    proc.poll()
+                    self.__run_command(cmd)
                     break
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
         else:
-            # This should never be reached in term of the system shutdown.
-            return self._return_error(rpc_request['id'], 'Could not remove  WiFi network.', 500)
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _enable_sta_wifi(self, rpc_request):
+        try:
+            self._log.put('Enable WiFi.\n')
+            self.__set_wifi(True)
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not enable WiFi. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _disable_sta_wifi(self, rpc_request):
+        try:
+            self._log.put('Disable WiFi.\n')
+            self.__set_wifi(False)
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not disable WiFi. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def __run_command(self, cmd):
+        proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        while True:
+            output = proc.stdout.readline()
+            if output == '' and proc.poll() is not None:
+                break
+            if output:
+                self._log.put(output.strip())
+        proc.poll()
+
+    def __set_wifi(self, enabled):
+        if enabled:
+            cmd = ["uci", "set", "wireless.sta.disabled=0"]
+        else:
+            cmd = ["uci", "set", "wireless.sta.disabled=1"]
+        self.__run_command(cmd)
+        self.__run_command(['uci', 'commit'])
+        self.__run_command(['wifi'])

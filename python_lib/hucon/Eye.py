@@ -117,25 +117,25 @@ def test():
     import time
 
     for position in range(1, 5):
-        print 'Position: ', position
+        print ('Position: ', position)
         eye = Eye(position)
 
         for i in range(0, 256, 5):
-            print 'R: ', i
+            print ('R: ', i)
             eye.red = i
             eye.set_color()
             time.sleep(0.02)
 
         eye.set_color(0, 0, 0)
         for i in range(0, 256, 5):
-            print 'G: ', i
+            print ('G: ', i)
             eye.green = i
             eye.set_color()
             time.sleep(0.02)
 
         eye.set_color(0, 0, 0)
         for i in range(0, 256, 5):
-            print 'B: ', i
+            print('B: ', i)
             eye.blue = i
             eye.set_color()
             time.sleep(0.02)
@@ -147,13 +147,13 @@ def install():
     """
     import time
 
-    print 'Create objects'
+    print ('Create objects')
     eye1 = Eye(1)
     eye2 = Eye(2)
     eye3 = Eye(3)
     eye4 = Eye(4)
 
-    print 'Set eye color'
+    print ('Set eye color')
     eye1.set_color(255, 0, 0)
     eye2.set_color(0, 255, 0)
     eye3.set_color(0, 0, 255)
