@@ -10,4 +10,4 @@ from .Servo import Servo
 from .Motor import Motor
 from .Eye import Eye
 from .MPU6050 import Mpu6050
-from .EventSystem import EventSystem, Button
+from .EventSystem import EventSystem, ButtonEvent
