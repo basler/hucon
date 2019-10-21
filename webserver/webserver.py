@@ -148,10 +148,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # if not args.debug:
-    #     # Reduce the log messages.
-    #     log = logging.getLogger('werkzeug')
-    #     log.setLevel(logging.ERROR)
+    if not args.debug:
+        # Reduce the log messages.
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
     #
     # # Run a thread to check the flask service.
     # thread = threading.Thread(target=check_service)

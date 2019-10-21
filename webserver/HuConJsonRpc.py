@@ -19,6 +19,7 @@ import socket
 
 from HuConLogMessage import HuConLogMessage
 import HuConMAC
+from py_uci import WirelessHelper
 
 
 class HuConJsonRpc():
@@ -63,6 +64,9 @@ class HuConJsonRpc():
 
     # Queue for all log messages
     _log = HuConLogMessage()
+
+    # Wireless Helper object for handle wireless settings
+    _wifi = WirelessHelper(_log)
 
     def __init__(self):
         """ Initialize the RPC server.
@@ -521,6 +525,7 @@ class HuConJsonRpc():
             # This should never be reached in term of the system shutdown.
             return self._return_error(rpc_request['id'], 'Could not shutdown the system.', 500)
 
+    # Wireless settings section
     def _get_wifi_found(self, rpc_request):
         try:
             self._log.put('Search for WiFi.\n')
@@ -536,16 +541,19 @@ class HuConJsonRpc():
     def _get_saved_wifi_networks(self, rpc_request):
         try:
             self._log.put('Read WiFi Settings.\n')
-            uci_output_list = [l for l in subprocess.check_output(['uci', 'show', 'wireless']).decode().strip().split('\n')]
-            uci_dict = {}
-            for line in uci_output_list:
-                key, value = line.split('=')
-                uci_dict.update({key.strip(): value.strip().replace("'", "")})
-            wifi_disabled = bool(int(uci_dict['wireless.sta.disabled']))
-            wifi_output_list = json.loads(subprocess.check_output(['wifisetup', 'list']).decode())
+            # uci_output_list = [l for l in subprocess.check_output(['uci', 'show', 'wireless']).decode().strip().split('\n')]
+            # uci_dict = {}
+            # for line in uci_output_list:
+            #     key, value = line.split('=')
+            #     uci_dict.update({key.strip(): value.strip().replace("'", "")})
+            # wifi_disabled = bool(int(uci_dict['wireless.sta.disabled']))
+            wifi_disabled = self._wifi.is_wifi_enabled()
+            # wifi_output_list = json.loads(subprocess.check_output(['wifisetup', 'list']).decode())
+            wifi_output_list = self._wifi.get_saved_wifi_networks()
             rpc_response = self._get_rpc_response(rpc_request['id'])
-            result = {"wifi_list": wifi_output_list['results'], "wifi_disabled": wifi_disabled}
+            result = {"wifi_list": wifi_output_list, "wifi_disabled": wifi_disabled}
             rpc_response['result'] = result
+            # app.logger.debug(result)
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not read WiFi settings. (%s)' % str(ex), 500)
         else:
@@ -554,16 +562,17 @@ class HuConJsonRpc():
     def _add_wifi(self, rpc_request):
         try:
             self._log.put('Add new WiFi.\n')
-            action = 'add'
-            for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']).decode())['results']:
-                if wifi['ssid'] == rpc_request['params'][0]:
-                    action = 'edit'
-                    break
-            cmd = ['wifisetup', action,
-                   '-ssid', rpc_request['params'][0],
-                   '-encr', rpc_request['params'][2],
-                   '-password', rpc_request['params'][1]]
-            self.__run_command(cmd)
+            # action = 'add'
+            # for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']).decode())['results']:
+            #     if wifi['ssid'] == rpc_request['params'][0]:
+            #         action = 'edit'
+            #         break
+            # cmd = ['wifisetup', action,
+            #        '-ssid', rpc_request['params'][0],
+            #        '-encr', rpc_request['params'][2],
+            #        '-password', rpc_request['params'][1]]
+            # self.__run_command(cmd)
+            self._wifi.add_wifi(rpc_request['params'][0], rpc_request['params'][2], rpc_request['params'][1])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not add new WiFi network. (%s)' % str(ex), 500)
         else:
@@ -573,7 +582,8 @@ class HuConJsonRpc():
     def _move_wifi_up(self, rpc_request):
         try:
             self._log.put('Move WiFi up.\n')
-            self.__run_command(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'up'])
+            # self.__run_command(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'up'])
+            self._wifi.move_wifi_up(rpc_request['params'][0])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not move WiFi network up. (%s)' % str(ex), 500)
         else:
@@ -583,7 +593,8 @@ class HuConJsonRpc():
     def _move_wifi_down(self, rpc_request):
         try:
             self._log.put('Move WiFi down.\n')
-            self.__run_command(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'down'])
+            # self.__run_command(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'down'])
+            self._wifi.move_wifi_down(rpc_request['params'][0])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not move WiFi network down. (%s)' % str(ex), 500)
         else:
@@ -593,7 +604,8 @@ class HuConJsonRpc():
     def _remove_wifi(self, rpc_request):
         try:
             self._log.put('Remove WiFi down.\n')
-            self.__run_command(['wifisetup', 'remove', '-ssid', rpc_request['params'][0]])
+            # self.__run_command(['wifisetup', 'remove', '-ssid', rpc_request['params'][0]])
+            self._wifi.remove_wifi(rpc_request['params'][0])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
         else:
@@ -603,16 +615,18 @@ class HuConJsonRpc():
     def _connect_wifi(self, rpc_request):
         try:
             self._log.put('Connect WiFi.\n')
-            for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']).decode())['results']:
-                if wifi['ssid'] == rpc_request['params'][0]:
-                    self.__run_command(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'top'])
-                    cmd = ['wifisetup', 'edit',
-                           '-ssid', wifi['ssid'],
-                           '-encr', wifi['encryption'],
-                           '-password', wifi['password']]
-
-                    self.__run_command(cmd)
-                    break
+            # for wifi in json.loads(subprocess.check_output(['wifisetup', 'list']).decode())['results']:
+            #     if wifi['ssid'] == rpc_request['params'][0]:
+            #         self.__run_command(['wifisetup', 'priority', '-ssid', rpc_request['params'][0], '-move', 'top'])
+            #         cmd = ['wifisetup', 'edit',
+            #                '-ssid', wifi['ssid'],
+            #                '-encr', wifi['encryption'],
+            #                '-password', wifi['password']]
+            #
+            #         self.__run_command(cmd)
+            #         break
+            self._wifi.connect_wifi(rpc_request['params'][0])
+            self._wifi.restart_wifi()
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
         else:
@@ -622,7 +636,8 @@ class HuConJsonRpc():
     def _enable_sta_wifi(self, rpc_request):
         try:
             self._log.put('Enable WiFi.\n')
-            self.__set_wifi(True)
+            # self.__set_wifi(True)
+            self._wifi.enable_sta_wifi()
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not enable WiFi. (%s)' % str(ex), 500)
         else:
@@ -632,28 +647,29 @@ class HuConJsonRpc():
     def _disable_sta_wifi(self, rpc_request):
         try:
             self._log.put('Disable WiFi.\n')
-            self.__set_wifi(False)
+            # self.__set_wifi(False)
+            self._wifi.disable_sta_wifi()
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not disable WiFi. (%s)' % str(ex), 500)
         else:
             rpc_response = self._get_rpc_response(rpc_request['id'])
             return json.dumps(rpc_response)
 
-    def __run_command(self, cmd):
-        proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        while True:
-            output = proc.stdout.readline()
-            if output == '' and proc.poll() is not None:
-                break
-            if output:
-                self._log.put(output.strip())
-        proc.poll()
-
-    def __set_wifi(self, enabled):
-        if enabled:
-            cmd = ["uci", "set", "wireless.sta.disabled=0"]
-        else:
-            cmd = ["uci", "set", "wireless.sta.disabled=1"]
-        self.__run_command(cmd)
-        self.__run_command(['uci', 'commit'])
-        self.__run_command(['wifi'])
+    # def __run_command(self, cmd):
+    #     proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    #     while True:
+    #         output = proc.stdout.readline()
+    #         if output == '' and proc.poll() is not None:
+    #             break
+    #         if output:
+    #             self._log.put(output.strip())
+    #     proc.poll()
+    #
+    # def __set_wifi(self, enabled):
+    #     if enabled:
+    #         cmd = ["uci", "set", "wireless.sta.disabled=0"]
+    #     else:
+    #         cmd = ["uci", "set", "wireless.sta.disabled=1"]
+    #     self.__run_command(cmd)
+    #     self.__run_command(['uci', 'commit'])
+    #     self.__run_command(['wifi'])
