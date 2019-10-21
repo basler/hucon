@@ -367,7 +367,67 @@
         }
 
         function showWiFiAPsettings() {
-            $('#id_combined_wifi_modal').modal('show');
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'get_ap_settings';
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    console.log(rpcResponse['result']);
+                    console.log(!!+rpcResponse['result']['disabled']);
+                    if (!!+rpcResponse['result']['disabled']){
+                         $("#id_enable_ap_mode").checkbox('set unchecked');
+                    }else{
+                         $("#id_enable_ap_mode").checkbox('set checked');
+                    }
+                    $('#id_ap_encryption option[value="' + rpcResponse['result']['encryption'] + '"]').prop('selected', true);
+                    $('#id_ap_ssid').val(rpcResponse['result']['ssid']);
+                    $('#id_ap_password').val(rpcResponse['result']['key']);
+                    $('#id_ap_ip').val(rpcResponse['result']['ap_ip_addr']);
+                    $('#id_ap_wifi_modal').modal('show');
+
+                    $("#id_show_ap_password").checkbox({
+                        onChecked: function() {
+                          $('#id_ap_password').attr('type', 'text');
+                        },
+                        onUnchecked: function() {
+                          $('#id_ap_password').attr('type', 'password');
+                        }
+                    });
+
+                    $("#id_enable_ap_mode").checkbox({
+                        onChecked: function() {
+                            var rpcRequest = HuConApp.getRpcRequest();
+                            rpcRequest['method'] = 'enable_sta_wifi';
+                            $.ajax('/API', {
+                            method: 'POST',
+                            data: JSON.stringify(rpcRequest),
+                            dataType: 'json',
+                            success: function (rpcResponse) {
+                                console.log();
+                            },
+                            error: HuConApp.showAlertBox
+                        });
+                    },
+                        onUnchecked: function() {
+                            var rpcRequest = HuConApp.getRpcRequest();
+                            rpcRequest['method'] = 'disable_sta_wifi';
+                            $.ajax('/API', {
+                            method: 'POST',
+                            data: JSON.stringify(rpcRequest),
+                            dataType: 'json',
+                            success: function (rpcResponse) {
+                                $('#id_wifi_list_modal').modal('hide');
+                                listWiFiNetworks();
+                            },
+                            error: HuConApp.showAlertBox
+                        });
+                    }
+                  });
+                },
+                error: HuConApp.showAlertBox
+            });
         }
     </script>
 
@@ -470,8 +530,6 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
                 <div class="field">
                     <label>Encryption Mode</label>
@@ -485,17 +543,64 @@
             </form>
             <div class="ui divider"></div>
             <div class="row action">
-                <button onclick="addWiFi()" id="addWiFiButton" class="ui blue fluid button approve">Connect WiFi</button>
+                <button onclick="addWiFi()" id="addWiFiButton" class="ui blue fluid button approve">Add WiFi</button>
             </div>
         </div>
     </div>
-    <div id="id_combined_wifi_modal" class="ui modal">
+    <div id="id_ap_wifi_modal" class="ui modal">
         <div class="header">
-            <i class="icon wi-fi"></i>
-            Add new WiFi
+           <div class="ui grid">
+                <div class="thirteen wide column">
+                    <i class="icon wi-fi"></i>
+                    WiFi Access Point Setup
+                </div>
+                <div class="three wide column">
+                    <div class="ui toggle checkbox" id="id_enable_ap_mode">
+                      <input type="checkbox" name="enable_ap_moed">
+                      <label>Enable AP Mode</label>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="content">
-
+            <form class="ui form">
+                <div class="field">
+                    <label>AP Network SSID</label>
+                    <div class="ui input fluid"><input id="id_ap_ssid" name="ssid" type="text"></div>
+                </div>
+                <div class="field">
+                    <label>AP Password</label>
+                    <div class="ui grid">
+                        <div class="fourteen wide column">
+                            <div class="ui input fluid"><input id="id_ap_password" name="password" type="password"></div>
+                        </div>
+                        <div class="two wide column">
+                            <div class="ui checkbox" id="id_show_ap_password">
+                                <input type="checkbox" name="show_ap_password">
+                                <label>Show</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Security</label>
+                    <select class="ui dropdown fluid" id="id_ap_encryption">
+                        <option value="psk">WPA (PSK)</option>
+                        <option value="psk2">WPA2 (PSK)</option>
+                        <option value="wep">WEP</option>
+                        <option value="none">Not secured</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>IP Address</label>
+                    <div class="ui input fluid"><input id="id_ap_ip" name="ip" type="text"></div>
+                </div>
+            </form>
+            <div class="ui divider"></div>
+            <div class="row action">
+                <button onclick="configureAP()" id="id_configure_ap_button" class="ui blue fluid button approve">Configure AP</button>
+            </div>
+        </div>
         </div>
     </div>
 {% endblock %}

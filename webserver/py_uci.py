@@ -29,12 +29,13 @@ class ConfigObject(object):
     def __getitem__(self, k):
         return self.__option_dict.__getitem__(k)
 
+
 class ConfigPackage(object):
     def __init__(self, type):
         self.type = type
         self._config_objects = {}
 
-    def addconfig_object(self, config_object):
+    def add_config_object(self, config_object):
         co = self._config_objects.get(config_object.type, None)
         if co is None:
             self._config_objects.update({config_object.type: config_object})
@@ -81,7 +82,7 @@ class UciHelperBase(object):
         for line in settings.split('\n'):
             if 'config' in line:
                 if conf_obj is not None:
-                    conf_pack.addconfig_object(deepcopy(conf_obj))
+                    conf_pack.add_config_object(deepcopy(conf_obj))
                     conf_obj = None
                 line = line.strip().split(' ')
                 type = line[1]
@@ -106,7 +107,7 @@ class UciHelperBase(object):
             else:
                 pass
         # last addings before ends
-        conf_pack.addconfig_object(deepcopy(conf_obj))
+        conf_pack.add_config_object(deepcopy(conf_obj))
         config.update({conf_pack.type: deepcopy(conf_pack)})
         return config
 
@@ -120,7 +121,10 @@ class WirelessHelper(UciHelperBase):
         super(WirelessHelper, self).__init__('wireless')
 
     def get_saved_wifi_networks(self):
-        return self.config['wireless']['wifi-config']
+        if isinstance(self.config['wireless']['wifi-config'], list):
+            return self.config['wireless']['wifi-config']
+        else:
+            return [self.config['wireless']['wifi-config']]
 
     def add_wifi(self, ssid, encryption, key):
         cmd = ['uci', 'add', 'wireless', 'wifi-config']
@@ -233,6 +237,12 @@ class WirelessHelper(UciHelperBase):
     def is_wifi_disabled(self):
         return bool(int(self.config['wireless']['wifi-iface.sta']['disabled']))
 
+    def get_ap_settings(self):
+        ret_dict = self.config['wireless']['wifi-iface.ap']
+        ip_addr = subprocess.check_output(['uci', 'show', 'network.wlan.ipaddr']).replace("'", '').decode().strip().split('=')[-1]
+        ret_dict.update({'ap_ip_addr': ip_addr})
+        return ret_dict
+
     def __set_wifi_on_index(self, ssid, encryption, key, index):
         cmd = ['uci', 'set', 'wireless.@wifi-config[%d].ssid=%s' % (index, ssid)]
         self.__run_command(cmd)
@@ -267,8 +277,10 @@ if __name__ == '__main__':
     from HuConLogMessage import HuConLogMessage
     _log = HuConLogMessage()
     uh = WirelessHelper(_log)
-    print(json.dumps(uh.config['wireless']['wifi-config'][0]))
+    # print(json.dumps(uh.config['wireless']['wifi-config.ap']))
     # uh.add_wifi('test2', 'psk2', 'test')
     # print(uh.config['wireless']['wifi-config'])
     # uh.move_wifi_up('test2')
-    print(uh.is_wifi_enabled())
+    print(json.dumps(uh.get_ap_settings()))
+    bh = UciHelperBase('network')
+    # print(bh.config['network']['interface'])

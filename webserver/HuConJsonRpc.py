@@ -135,6 +135,8 @@ class HuConJsonRpc():
             return self._enable_sta_wifi(rpc_request)
         elif rpc_request['method'] == 'disable_sta_wifi':
             return self._disable_sta_wifi(rpc_request)
+        elif rpc_request['method'] == 'get_ap_settings':
+            return self._get_ap_settings(rpc_request)
         else:
             return self._return_error(rpc_request['id'], 'Command not known.')
 
@@ -550,12 +552,9 @@ class HuConJsonRpc():
             wifi_disabled = self._wifi.is_wifi_disabled()
             # wifi_output_list = json.loads(subprocess.check_output(['wifisetup', 'list']).decode())
             wifi_output_list = self._wifi.get_saved_wifi_networks()
-            print(type(wifi_output_list))
             rpc_response = self._get_rpc_response(rpc_request['id'])
             result = {"wifi_list": wifi_output_list, "wifi_disabled": wifi_disabled}
             rpc_response['result'] = result
-            print(rpc_response)
-            # app.logger.debug(result)
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not read WiFi settings. (%s)' % str(ex), 500)
         else:
@@ -675,3 +674,13 @@ class HuConJsonRpc():
     #     self.__run_command(cmd)
     #     self.__run_command(['uci', 'commit'])
     #     self.__run_command(['wifi'])
+    def _get_ap_settings(self, rpc_request):
+        try:
+            self._log.put('Get AP Settings.\n')
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            rpc_response['result'] = self._wifi.get_ap_settings()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not get AP settings. (%s)' % str(ex), 500)
+        else:
+            return json.dumps(rpc_response)
+            return json.dumps(rpc_response)
