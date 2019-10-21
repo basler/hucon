@@ -113,6 +113,7 @@
                 data: JSON.stringify(rpcRequest),
                 dataType: 'json',
                 success: function (rpcResponse) {
+                    $('#id_wifi_list_modal').modal('hide');
                     listWiFiNetworks();
                 },
                 error: HuConApp.showAlertBox
@@ -130,6 +131,7 @@
                 data: JSON.stringify(rpcRequest),
                 dataType: 'json',
                 success: function (rpcResponse) {
+                    $('#id_wifi_list_modal').modal('hide');
                     listWiFiNetworks();
                 },
                 error: HuConApp.showAlertBox
@@ -147,6 +149,7 @@
                 data: JSON.stringify(rpcRequest),
                 dataType: 'json',
                 success: function (rpcResponse) {
+                    $('#id_wifi_list_modal').modal('hide');
                     listWiFiNetworks();
                 },
                 error: HuConApp.showAlertBox
@@ -163,6 +166,7 @@
                 data: JSON.stringify(rpcRequest),
                 dataType: 'json',
                 success: function (rpcResponse) {
+                    $('#id_wifi_list_modal').modal('hide');
                     listWiFiNetworks();
                 },
                 error: HuConApp.showAlertBox
@@ -222,6 +226,7 @@
                                     data: JSON.stringify(rpcRequest),
                                     dataType: 'json',
                                     success: function (rpcResponse) {
+                                        $('#id_wifi_list_modal').modal('hide');
                                         listWiFiNetworks();
                                     },
                                     error: HuConApp.showAlertBox
@@ -235,6 +240,7 @@
                                     data: JSON.stringify(rpcRequest),
                                     dataType: 'json',
                                     success: function (rpcResponse) {
+                                        $('#id_wifi_list_modal').modal('hide');
                                         listWiFiNetworks();
                                     },
                                     error: HuConApp.showAlertBox
@@ -252,6 +258,7 @@
                             },
                             onApprove: function() {
                                 console.log('On Approve Modal WiFi List triggered');
+                                $('#id_wifi_list_modal').modal('hide');
                                 listWiFiNetworks();
                             }
                         }).modal('show');
@@ -269,6 +276,7 @@
                 onHide: function(){
                     console.log('OnHide Wifi Serach Modal triggered');
                     $('#id_wifi_search_modal').html(modal_init_state);
+                    $('#id_wifi_list_modal').modal('hide');
                     listWiFiNetworks();
                 },
                 onShow: function(){
@@ -351,6 +359,7 @@
                 data: JSON.stringify(rpcRequest),
                 dataType: 'json',
                 success: function (rpcResponse) {
+                    $('#id_wifi_list_modal').modal('hide');
                     listWiFiNetworks();
                 },
                 error: HuConApp.showAlertBox

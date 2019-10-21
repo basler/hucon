@@ -547,12 +547,14 @@ class HuConJsonRpc():
             #     key, value = line.split('=')
             #     uci_dict.update({key.strip(): value.strip().replace("'", "")})
             # wifi_disabled = bool(int(uci_dict['wireless.sta.disabled']))
-            wifi_disabled = self._wifi.is_wifi_enabled()
+            wifi_disabled = self._wifi.is_wifi_disabled()
             # wifi_output_list = json.loads(subprocess.check_output(['wifisetup', 'list']).decode())
             wifi_output_list = self._wifi.get_saved_wifi_networks()
+            print(type(wifi_output_list))
             rpc_response = self._get_rpc_response(rpc_request['id'])
             result = {"wifi_list": wifi_output_list, "wifi_disabled": wifi_disabled}
             rpc_response['result'] = result
+            print(rpc_response)
             # app.logger.debug(result)
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not read WiFi settings. (%s)' % str(ex), 500)

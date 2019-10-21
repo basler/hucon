@@ -1,5 +1,6 @@
 import subprocess
 from copy import deepcopy
+import json
 
 
 class ConfigObject(object):
@@ -23,14 +24,10 @@ class ConfigObject(object):
         return self.__option_dict.get(key, None)
 
     def __repr__(self):
-        return str(self.__option_dict)
+        return json.dumps(self.__option_dict)
 
     def __getitem__(self, k):
-        print(k)
-        # if k == self.name:
-        #     print(k)
-        #     print(self.__option_dict)
-        # return self.__option_dict.__getitem__(k)
+        return self.__option_dict.__getitem__(k)
 
 class ConfigPackage(object):
     def __init__(self, type):
@@ -49,16 +46,26 @@ class ConfigPackage(object):
                 self._config_objects.update({config_object.type: deepcopy(co)})
 
     def __repr__(self):
-        return str(self._config_objects)
+        return json.dumps(self._config_objects)
 
     def __getitem__(self, k):
+        name = None
         if '.' in k:
             k, name = k.split('.')
-            if isinstance(self._config_objects.__getitem__(k), list):
+
+        config_item = self._config_objects.__getitem__(k)
+
+        if isinstance(config_item, list):
+            if name is not None:
                 for i in self._config_objects.__getitem__(k):
                     if i.name == name:
                         return i.get_option_dict()
-        return self._config_objects.__getitem__(k)
+            else:
+                return [item.get_option_dict() for item in self._config_objects.__getitem__(k)]
+        if isinstance(config_item, ConfigObject) :
+            return config_item.get_option_dict()
+        else:
+            return config_item
 
 
 class UciHelperBase(object):
@@ -223,6 +230,9 @@ class WirelessHelper(UciHelperBase):
     def is_wifi_enabled(self):
         return not bool(int(self.config['wireless']['wifi-iface.sta']['disabled']))
 
+    def is_wifi_disabled(self):
+        return bool(int(self.config['wireless']['wifi-iface.sta']['disabled']))
+
     def __set_wifi_on_index(self, ssid, encryption, key, index):
         cmd = ['uci', 'set', 'wireless.@wifi-config[%d].ssid=%s' % (index, ssid)]
         self.__run_command(cmd)
@@ -257,7 +267,7 @@ if __name__ == '__main__':
     from HuConLogMessage import HuConLogMessage
     _log = HuConLogMessage()
     uh = WirelessHelper(_log)
-    # print(uh.config['wireless']['wifi-config'])
+    print(json.dumps(uh.config['wireless']['wifi-config'][0]))
     # uh.add_wifi('test2', 'psk2', 'test')
     # print(uh.config['wireless']['wifi-config'])
     # uh.move_wifi_up('test2')
