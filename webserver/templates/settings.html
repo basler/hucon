@@ -399,32 +399,49 @@
                     $("#id_enable_ap_mode").checkbox({
                         onChecked: function() {
                             var rpcRequest = HuConApp.getRpcRequest();
-                            rpcRequest['method'] = 'enable_sta_wifi';
+                            rpcRequest['method'] = 'enable_ap_wifi';
                             $.ajax('/API', {
                             method: 'POST',
                             data: JSON.stringify(rpcRequest),
                             dataType: 'json',
                             success: function (rpcResponse) {
-                                console.log();
+                                $('#id_ap_wifi_modal').modal('hide');
+                                showWiFiAPsettings();
                             },
                             error: HuConApp.showAlertBox
                         });
                     },
                         onUnchecked: function() {
                             var rpcRequest = HuConApp.getRpcRequest();
-                            rpcRequest['method'] = 'disable_sta_wifi';
+                            rpcRequest['method'] = 'disable_ap_wifi';
                             $.ajax('/API', {
                             method: 'POST',
                             data: JSON.stringify(rpcRequest),
                             dataType: 'json',
                             success: function (rpcResponse) {
-                                $('#id_wifi_list_modal').modal('hide');
+                                $('#id_ap_wifi_modal').modal('hide');
                                 listWiFiNetworks();
+                                showWiFiAPsettings();
                             },
                             error: HuConApp.showAlertBox
                         });
                     }
                   });
+                },
+                error: HuConApp.showAlertBox
+            });
+        }
+
+        function setWiFiAPsettings() {
+            var rpcRequest = HuConApp.getRpcRequest();
+            rpcRequest['method'] = 'set_ap_settings';
+            rpcRequest['params'] = [$('#id_ap_ssid').val(), $('#id_password').val(), $('#id_ap_encryption').val(), $('#id_ap_ip').val()];
+            $.ajax('/API', {
+                method: 'POST',
+                data: JSON.stringify(rpcRequest),
+                dataType: 'json',
+                success: function (rpcResponse) {
+                    console.log("Set AP settings");
                 },
                 error: HuConApp.showAlertBox
             });

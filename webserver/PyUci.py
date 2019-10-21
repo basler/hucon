@@ -126,7 +126,7 @@ class WirelessHelper(UciHelperBase):
         else:
             return [self.config['wireless']['wifi-config']]
 
-    def add_wifi(self, ssid, encryption, key):
+    def add_wifi(self, ssid, key, encryption):
         cmd = ['uci', 'add', 'wireless', 'wifi-config']
         self.__run_command(cmd)
         try:
@@ -271,6 +271,37 @@ class WirelessHelper(UciHelperBase):
             if output:
                 self._log.put(output.strip())
         proc.poll()
+
+    def enable_ap_wifi(self):
+        try:
+            cmd = ['uci', 'set', 'wireless.ap.disabled=%d' % 0]
+            self.__run_command(cmd)
+            self.__uci_commit()
+        except Exception:
+            self.__uci_revert()
+
+    def disable_ap_wifi(self):
+        try:
+            cmd = ['uci', 'set', 'wireless.ap.disabled=%d' % 1]
+            self.__run_command(cmd)
+            self.__uci_commit()
+        except Exception:
+            self.__uci_revert()
+
+    def set_ap_settings(self, ssid, key, encryption, ip):
+        # ToDo improve implementation here
+        try:
+            cmd = ['uci', 'set', 'wireless.@wifi-iface[0].ssid=%s' % ssid]
+            self.__run_command(cmd)
+            cmd = ['uci', 'set', 'wireless.@wifi-iface[0].key=%s' % key]
+            self.__run_command(cmd)
+            cmd = ['uci', 'set', 'wireless.@wifi-iface[0].encryption=%s' % encryption]
+            self.__run_command(cmd)
+            cmd = ['uci', 'set', 'network.ap.ip=%s' % ip]
+            self.__run_command(cmd)
+            self.__uci_commit()
+        except Exception:
+            self.__uci_revert()
 
 
 if __name__ == '__main__':
