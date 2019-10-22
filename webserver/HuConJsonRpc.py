@@ -740,4 +740,3 @@ class HuConJsonRpc():
         else:
             rpc_response = self._get_rpc_response(rpc_request['id'])
             return json.dumps(rpc_response)
-            return json.dumps(rpc_response)

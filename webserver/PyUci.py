@@ -68,6 +68,9 @@ class ConfigPackage(object):
         else:
             return config_item
 
+    def get(self, key):
+        return self._config_objects.get(key, None)
+
 
 class UciHelperBase(object):
     def __init__(self, package=None):
@@ -121,10 +124,14 @@ class WirelessHelper(UciHelperBase):
         super(WirelessHelper, self).__init__('wireless')
 
     def get_saved_wifi_networks(self):
-        if isinstance(self.config['wireless']['wifi-config'], list):
-            return self.config['wireless']['wifi-config']
+        conf_obj = self.config['wireless'].get('wifi-config')
+        print(conf_obj)
+        if conf_obj is None:
+            return []
+        if isinstance(conf_obj, list):
+            return conf_obj
         else:
-            return [self.config['wireless']['wifi-config']]
+            return [conf_obj]
 
     def add_wifi(self, ssid, key, encryption):
         cmd = ['uci', 'add', 'wireless', 'wifi-config']
@@ -132,8 +139,9 @@ class WirelessHelper(UciHelperBase):
         try:
             self.__set_wifi_on_index(ssid, encryption, key, -1)
             self.__uci_commit()
-        except Exception:
+        except Exception as exc:
             self.__uci_revert()
+            raise exc
 
     def move_wifi_up(self, ssid):
         if isinstance(self.config['wireless']['wifi-config'], list):
@@ -148,8 +156,9 @@ class WirelessHelper(UciHelperBase):
                             self.__set_wifi_on_index(wifi['ssid'], wifi['encryption'], wifi['key'], i-1)
                             self.__uci_commit()
                             break
-                        except Exception:
+                        except Exception as exc:
                             self.__uci_revert()
+                            raise exc
 
     def move_wifi_down(self, ssid):
         if isinstance(self.config['wireless']['wifi-config'], list):
@@ -164,8 +173,9 @@ class WirelessHelper(UciHelperBase):
                             self.__set_wifi_on_index(wifi['ssid'], wifi['encryption'], wifi['key'], i+1)
                             self.__uci_commit()
                             break
-                        except Exception:
+                        except Exception as exc:
                             self.__uci_revert()
+                            raise exc
 
     def remove_wifi(self, ssid):
         if isinstance(self.config['wireless']['wifi-config'], list):
@@ -175,8 +185,9 @@ class WirelessHelper(UciHelperBase):
                     try:
                         self.__run_command(cmd)
                         self.__uci_commit()
-                    except Exception:
+                    except Exception as exc:
                         self.__uci_revert()
+                        raise exc
                     break
         else:
             if self.config['wireless']['wifi-config']['ssid'] == ssid:
@@ -184,8 +195,9 @@ class WirelessHelper(UciHelperBase):
                 try:
                     self.__run_command(cmd)
                     self.__uci_commit()
-                except Exception:
+                except Exception as exc:
                     self.__uci_revert()
+                    raise exc
 
     def connect_wifi(self, ssid):
         ssid, key, encryption = None, None, None
@@ -209,24 +221,29 @@ class WirelessHelper(UciHelperBase):
                 cmd = ['uci', 'set', 'wireless.sta.encryption=%s' % encryption]
                 self.__run_command(cmd)
                 self.__run_command()
-            except Exception:
+            except Exception as exc:
                 self.__uci_revert()
+                raise exc
 
     def enable_sta_wifi(self):
         try:
             cmd = ['uci', 'set', 'wireless.sta.disabled=%d' % 0]
             self.__run_command(cmd)
             self.__uci_commit()
-        except Exception:
+            self.__restart_wifi()
+        except Exception as exc:
             self.__uci_revert()
+            raise exc
 
     def disable_sta_wifi(self):
         try:
             cmd = ['uci', 'set', 'wireless.sta.disabled=%d' % 1]
             self.__run_command(cmd)
             self.__uci_commit()
-        except Exception:
+            self.__restart_wifi()
+        except Exception as exc:
             self.__uci_revert()
+            raise exc
 
     def restart_wifi(self):
         self.__run_command(['wifi'])
@@ -261,6 +278,11 @@ class WirelessHelper(UciHelperBase):
         self.__run_command(cmd)
         self.config = self._readconfig('wireless')
 
+    def __restart_wifi(self):
+        cmd = ['wifi']
+        self.__run_command(cmd)
+        self.config = self._readconfig('wireless')
+
     def __run_command(self, cmd):
         # print cmd
         proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -277,6 +299,7 @@ class WirelessHelper(UciHelperBase):
             cmd = ['uci', 'set', 'wireless.ap.disabled=%d' % 0]
             self.__run_command(cmd)
             self.__uci_commit()
+            self.__restart_wifi()
         except Exception:
             self.__uci_revert()
 
@@ -285,23 +308,27 @@ class WirelessHelper(UciHelperBase):
             cmd = ['uci', 'set', 'wireless.ap.disabled=%d' % 1]
             self.__run_command(cmd)
             self.__uci_commit()
-        except Exception:
+            self.__restart_wifi()
+        except Exception as exc:
             self.__uci_revert()
+            raise exc
 
     def set_ap_settings(self, ssid, key, encryption, ip):
         # ToDo improve implementation here
         try:
-            cmd = ['uci', 'set', 'wireless.@wifi-iface[0].ssid=%s' % ssid]
+            cmd = ['uci', 'set', 'wireless.ap.ssid=%s' % ssid]
             self.__run_command(cmd)
-            cmd = ['uci', 'set', 'wireless.@wifi-iface[0].key=%s' % key]
+            cmd = ['uci', 'set', 'wireless.ap.key=%s' % key]
             self.__run_command(cmd)
-            cmd = ['uci', 'set', 'wireless.@wifi-iface[0].encryption=%s' % encryption]
+            cmd = ['uci', 'set', 'wireless.ap.encryption=%s' % encryption]
             self.__run_command(cmd)
-            cmd = ['uci', 'set', 'network.ap.ip=%s' % ip]
+            cmd = ['uci', 'set', 'network.wlan.ipaddr=%s' % ip]
             self.__run_command(cmd)
             self.__uci_commit()
-        except Exception:
+            self.__restart_wifi()
+        except Exception as exc:
             self.__uci_revert()
+            raise exc
 
 
 if __name__ == '__main__':
@@ -312,6 +339,4 @@ if __name__ == '__main__':
     # uh.add_wifi('test2', 'psk2', 'test')
     # print(uh.config['wireless']['wifi-config'])
     # uh.move_wifi_up('test2')
-    print(json.dumps(uh.get_ap_settings()))
-    bh = UciHelperBase('network')
-    # print(bh.config['network']['interface'])
+    print(uh.get_saved_wifi_networks())

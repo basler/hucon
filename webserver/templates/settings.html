@@ -435,7 +435,8 @@
         function setWiFiAPsettings() {
             var rpcRequest = HuConApp.getRpcRequest();
             rpcRequest['method'] = 'set_ap_settings';
-            rpcRequest['params'] = [$('#id_ap_ssid').val(), $('#id_password').val(), $('#id_ap_encryption').val(), $('#id_ap_ip').val()];
+            rpcRequest['params'] = [$('#id_ap_ssid').val(), $('#id_ap_password').val(), $('#id_ap_encryption').val(), $('#id_ap_ip').val()];
+            console.log(JSON.stringify(rpcRequest));
             $.ajax('/API', {
                 method: 'POST',
                 data: JSON.stringify(rpcRequest),
@@ -615,7 +616,7 @@
             </form>
             <div class="ui divider"></div>
             <div class="row action">
-                <button onclick="configureAP()" id="id_configure_ap_button" class="ui blue fluid button approve">Configure AP</button>
+                <button onclick="setWiFiAPsettings()" id="id_configure_ap_button" class="ui blue fluid button approve">Configure AP</button>
             </div>
         </div>
         </div>
