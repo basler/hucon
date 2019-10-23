@@ -4,6 +4,7 @@ copyright: 'Basler AG 2019'
 
 nav:
     - Home: index.md
+    - Inital setup: initial_setup.md
 
 theme:
   name: 'material'
