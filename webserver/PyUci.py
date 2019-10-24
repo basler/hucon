@@ -1,9 +1,11 @@
 import subprocess
 
+
 class UciHelperBase(object):
     """
     Base helper class for handling configurations
     """
+
     def __init__(self, package=None):
         """
         Constructor
@@ -42,7 +44,12 @@ class UciHelperBase(object):
                     config_name = line[2].replace("'", "")
                 # if the name is available: named list will be interpreted as dictionary
                 if config_name:
-                    self.config[package_name].update({config_type: {config_name: {}}})
+                    if self.config[package_name].get(config_type, False):
+                        # config_type already in dictionary, so use it
+                        self.config[package_name][config_type].update({config_name: {}})
+                    else:
+                        # config_type is not in dictionary create new one
+                        self.config[package_name].update({config_type: {config_name: {}}})
                 # name not available: it is a list of configuration items
                 else:
                     # Initialize new config list only if not already created
@@ -70,7 +77,12 @@ class UciHelperBase(object):
                     # Append value dictionary only if it is not empty
                     if config_name is not None:
                         # Add value dictionary to named list (dict)
-                        self.config[package_name].update({config_type: {config_name: value_dict}})
+                        if self.config[package_name].get(config_type, False):
+                            # check if config_type already exists in the dictionary and use it
+                            self.config[package_name][config_type].update({config_name: value_dict})
+                        else:
+                            # should normally not be, will override existing config_type item
+                            self.config[package_name].update({config_type: {config_name: value_dict}})
                         # clear current name, may be the next config is a list not a dict
                         config_name = None
                     else:
@@ -94,6 +106,7 @@ class WirelessHelper(UciHelperBase):
     """
     Helper class for handling wireless configuration of onion omega
     """
+
     def __init__(self, log):
         """
         Initialize super constructor with reading wireless configuration
@@ -146,13 +159,13 @@ class WirelessHelper(UciHelperBase):
                 if i > 0:
                     # and can be moved up
                     # temporarily save information of previous wifi network
-                    temp_ssid = self.config['wireless']['wifi-config'][i-1]['ssid']
-                    temp_encryption = self.config['wireless']['wifi-config'][i-1]['encryption']
-                    temp_key = self.config['wireless']['wifi-config'][i-1]['key']
+                    temp_ssid = self.config['wireless']['wifi-config'][i - 1]['ssid']
+                    temp_encryption = self.config['wireless']['wifi-config'][i - 1]['encryption']
+                    temp_key = self.config['wireless']['wifi-config'][i - 1]['key']
                     try:
                         # swap previous wifi network withe actual one
                         self.__set_wifi_on_index(temp_ssid, temp_encryption, temp_key, i)
-                        self.__set_wifi_on_index(wifi['ssid'], wifi['encryption'], wifi['key'], i-1)
+                        self.__set_wifi_on_index(wifi['ssid'], wifi['encryption'], wifi['key'], i - 1)
                         self.__uci_commit()
                         break
                     except Exception as exc:
@@ -169,16 +182,16 @@ class WirelessHelper(UciHelperBase):
         for i, wifi in enumerate(self.config['wireless']['wifi-config']):
             if wifi['ssid'] == ssid:
                 # if wifi network was found
-                if i < len(self.config['wireless']['wifi-config'])-1:
+                if i < len(self.config['wireless']['wifi-config']) - 1:
                     # and can be moved down
                     # temporarily save information of following wifi network
-                    temp_ssid = self.config['wireless']['wifi-config'][i+1]['ssid']
-                    temp_encryption = self.config['wireless']['wifi-config'][i+1]['encryption']
-                    temp_key = self.config['wireless']['wifi-config'][i+1]['key']
+                    temp_ssid = self.config['wireless']['wifi-config'][i + 1]['ssid']
+                    temp_encryption = self.config['wireless']['wifi-config'][i + 1]['encryption']
+                    temp_key = self.config['wireless']['wifi-config'][i + 1]['key']
                     try:
                         # swap following wifi network withe actual one
                         self.__set_wifi_on_index(temp_ssid, temp_encryption, temp_key, i)
-                        self.__set_wifi_on_index(wifi['ssid'], wifi['encryption'], wifi['key'], i+1)
+                        self.__set_wifi_on_index(wifi['ssid'], wifi['encryption'], wifi['key'], i + 1)
                         self.__uci_commit()
                         break
                     except Exception as exc:
@@ -224,7 +237,8 @@ class WirelessHelper(UciHelperBase):
                 self.__run_command(cmd)
                 cmd = ['uci', 'set', 'wireless.sta.encryption=%s' % encryption]
                 self.__run_command(cmd)
-                self.__run_command()
+                self.__uci_commit()
+                self.__restart_wifi()
             except Exception as exc:
                 self.__uci_revert()
                 raise exc
@@ -257,7 +271,6 @@ class WirelessHelper(UciHelperBase):
             self.__uci_revert()
             raise exc
 
-
     def is_wifi_enabled(self):
         """
         Check if wifi sta mode is enabled
@@ -278,7 +291,9 @@ class WirelessHelper(UciHelperBase):
         :return: dict Access Point Mode Settings
         """
         ret_dict = self.config['wireless']['wifi-iface']['ap']
-        ip_addr = subprocess.check_output(['uci', 'show', 'network.wlan.ipaddr']).replace("'", '').decode().strip().split('=')[-1]
+        ip_addr = \
+            subprocess.check_output(['uci', 'show', 'network.wlan.ipaddr']).replace("'", '').decode().strip().split(
+                '=')[-1]
         ret_dict.update({'ap_ip_addr': ip_addr})
         return ret_dict
 
@@ -390,11 +405,3 @@ class WirelessHelper(UciHelperBase):
         except Exception as exc:
             self.__uci_revert()
             raise exc
-
-
-if __name__ == '__main__':
-    from pprint import pprint
-    from HuConLogMessage import HuConLogMessage
-    _log = HuConLogMessage()
-    wh = WirelessHelper(_log)
-    pprint(wh.get_saved_wifi_networks())
