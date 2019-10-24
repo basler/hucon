@@ -641,7 +641,6 @@ class HuConJsonRpc():
         try:
             self._log.put('Connect WiFi.\n')
             self._wifi.connect_wifi(rpc_request['params'][0])
-            self._wifi.restart_wifi()
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
         else:
