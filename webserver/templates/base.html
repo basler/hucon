@@ -7,7 +7,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="de">
 
-    {% block head %}
+{% block head %}
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="cache-control" content="no-cache">
@@ -27,13 +27,13 @@
 
     <script type="text/javascript" src="{{ url_for('.static', filename='js/webserver.js') }}"></script>
 
-    {% endblock %}
+{% endblock %}
 <head>
 </head>
 <body>
 
-    <div class="container">
-        {% block container %}
+<div class="container">
+    {% block container %}
         {% block headerArea %}
         <div id="headerArea">
             <button onclick="window.open('https://github.com/basler/hucon')" class="circular ui icon button" style="position: relative;">
@@ -45,20 +45,34 @@
         </div>
         {% endblock %}
         {% block menu %}
-        <div id="menuArea" class="ui top attached menu">
-            <div id="indexButton">
-                <a href="index.html">
-                    <img src="{{ url_for('.static', filename='images/Icon.svg') }}" alt="Icon" width="42" height="42" style="border-top-left-radius: 4px;">
-                </a>
-            </div>
-            <div id="fileButton" class="ui simple dropdown item">
-                <i class="folder outline icon"></i>
-                File
-                <i class="dropdown icon"></i>
-                <div class="menu">
-                    <a id="newButton" class="item"><i class="file icon"></i>New</a>
-                    <a id="openButton" class="item"><i class="folder open icon"></i> Open</a>
-                    <a id="saveButton" class="item"><i class="save icon"></i> Save</a>
+            <div id="menuArea" class="ui top attached menu">
+                <div id="indexButton">
+                    <a href="index.html">
+                        <img src="{{ url_for('.static', filename='images/Icon.svg') }}" alt="Icon" width="42"
+                             height="42" style="border-top-left-radius: 4px;">
+                    </a>
+                </div>
+                <div id="fileButton" class="ui simple dropdown item">
+                    <i class="folder outline icon"></i>
+                    File
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <a id="newButton" class="item"><i class="file icon"></i>New</a>
+                        <a id="openButton" class="item"><i class="folder open icon"></i> Open</a>
+                        <a id="saveButton" class="item"><i class="save icon"></i> Save</a>
+                    </div>
+                </div>
+                <div id="chooseInput" class="ui icon input">
+                    <input id="chooseFilename" class="prompt readonly" type="text" placeholder="Choose ...">
+                    <i class="search link icon"></i>
+                </div>
+                <a id="runButton" class="item"><i class="play icon"></i>Run</a>
+                <a id="stopButton" class="item disabled"><i class="stop icon"></i>Stop</a>
+                <a id="consoleButton" class="item"><i class="terminal icon"></i>Console</a>
+                <a id="codeButton" class="item"><i class="code icon"></i>Code</a>
+                <a id="buttonModalButton" class="item"><i class="grid layout icon"></i> Buttons</a>
+                <div class="right menu">
+                    <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
                 </div>
             </div>
             <div id="chooseInput" class="ui icon input">
@@ -79,24 +93,24 @@
         </div>
         {% endblock %}
         {% block main %}
-        <div id="mainArea" class="ui attached segment">
-            {% block content %}{% endblock %}
-        </div>
+            <div id="mainArea" class="ui attached segment">
+                {% block content %}{% endblock %}
+            </div>
         {% endblock %}
         {% block log %}
-        <div id="logArea" class="ui bottom attached">
-            <div class="ui form warning">
-                <div class="field">
-                    <h3>Console Log</h3>
-                    <div id="consoleLog" class="codeText"></div>
+            <div id="logArea" class="ui bottom attached">
+                <div class="ui form warning">
+                    <div class="field">
+                        <h3>Console Log</h3>
+                        <div id="consoleLog" class="codeText"></div>
+                    </div>
                 </div>
             </div>
-        </div>
         {% endblock %}
-        {% endblock %}
-    </div>
+    {% endblock %}
+</div>
 
-    {% block modal %}
+{% block modal %}
     <div id="chooseModal" class="ui modal">
         <div class="header">
             Choose file<br>
@@ -144,7 +158,7 @@
         <div class="header">
             Save file</br>
             <div id="saveBreadcrumb" class="ui breadcrumb"></div>
-            <div id="newFolderButton" class="ui blue right floated button" onclick="$('#newFolderModal').modal('show')" >
+            <div id="newFolderButton" class="ui blue right floated button" onclick="$('#newFolderModal').modal('show')">
                 New Folder
             </div>
         </div>
@@ -167,7 +181,7 @@
         </div>
         <div id="buttonEmbed" class="ui embed" data-url="remote_control.html"></div>
     </div>
-    {% endblock %}
+{% endblock %}
 
 </body>
 </html>

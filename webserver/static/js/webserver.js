@@ -481,7 +481,7 @@ HuConApp.loadFileFromDevice = function (filename) {
             }
         },
         error: HuConApp.appendErrorLog
-      });
+    });
 };
 
 // Show the save file modal and load the file list from the device.
@@ -550,7 +550,7 @@ HuConApp.saveFileOnDevice = function () {
             dataType: 'json',
             success: function (rpcResponse) {
                 if (HuConApp.isResponseError(rpcResponse)) {
-                  return;
+                    return;
                 }
                 HuConApp.appendConsoleLog(rpcResponse.result);
             },
@@ -571,7 +571,7 @@ HuConApp.saveFileOnDevice = function () {
         dataType: 'json',
         success: function (rpcResponse) {
             if (HuConApp.isResponseError(rpcResponse)) {
-              return;
+                return;
             }
             if (HuConApp.FileSavedCallback !== undefined) {
                 HuConApp.FileSavedCallback();
@@ -714,13 +714,13 @@ HuConApp.formatVarString = function () {
 HuConApp.showAlertBox = function (request, status, error) {
     rpcResponse = JSON.parse(request.responseText);
     $.uiAlert({
-                        textHead: 'Internal server error!', // header
-                        text: rpcResponse.error, // Text
-                        bgcolor: '#DB2828', // background-color
-                        textcolor: '#fff', // color
-                        position: 'top-center',// position . top And bottom ||  left / center / right
-                        icon: 'remove circle', // icon in semantic-UI
-                        time: 3, // time
-                    })
-}
-}
+        textHead: 'Internal server error!', // header
+        text: rpcResponse.error, // Text
+        bgcolor: '#DB2828', // background-color
+        textcolor: '#fff', // color
+        position: 'top-center',// position . top And bottom ||  left / center / right
+        icon: 'remove circle', // icon in semantic-UI
+        time: 3, // time
+    })
+};
+};
