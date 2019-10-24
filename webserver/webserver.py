@@ -8,6 +8,7 @@
     of the BSD license.  See the LICENSE file for details.
 """
 
+
 def set_led(red, green, blue):
     """ Use the hucon eye driver to set the eye color.
     """
@@ -28,20 +29,17 @@ set_led(249, 166, 2)
 
 import argparse
 import logging
+# import threading
 import time
-import threading
+
 try:
     import httplib
 except:
     import http.client as httplib
 from flask import Flask
-from flask import abort
 from flask import request
-from flask import Response
 from flask import render_template
-from functools import wraps
 from flask_socketio import SocketIO
-
 
 from HuConJsonRpc import HuConJsonRpc
 
@@ -152,7 +150,7 @@ if __name__ == '__main__':
         # Reduce the log messages.
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
-    #
+
     # # Run a thread to check the flask service.
     # thread = threading.Thread(target=check_service)
     # thread.start()
