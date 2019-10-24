@@ -8,447 +8,7 @@
 {% block title %} - Settings{% endblock %}
 {% block head %}
     {{ super() }}
-    <script type="text/javascript">
-
-        // On document ready this function will be called and initialize the complete website.
-        $(document).ready(function () {
-            var socket = io();
-            var was_disconnected = false;
-            socket.on('connect', function() {
-                console.log('I m connected!');
-                {#if (was_disconnected){#}
-                {#    listWiFiNetworks();#}
-                {#    was_disconnected=false;#}
-                {#}#}
-                $.uiAlert({
-                        textHead: 'Server connection', // header
-                        text: "Server was connected!", // Text
-                        bgcolor: '#006AB3', // background-color
-                        textcolor: '#fff', // color
-                        position: 'top-center',// position . top And bottom ||  left / center / right
-                        icon: 'info circle', // icon in semantic-UI
-                        time: 3, // time
-                    })
-            });
-            socket.on('disconnect', function() {
-                console.log('I m disconnected!');
-                $.uiAlert({
-                        textHead: 'Server connection', // header
-                        text: "Server was disconnected! Please check your WiFi connection!", // Text
-                        bgcolor: '#F99D33', // background-color
-                        textcolor: '#fff', // color
-                        position: 'top-center',// position . top And bottom ||  left / center / right
-                        icon: 'warning  sign', // icon in semantic-UI
-                        time: 15, // time
-                    })
-                was_disconnected = true;
-            });
-            // poll for new messages
-            HuConApp.poll();
-        }());
-
-        // Check for updates.
-        function checkUpdate() {
-            $('#updateModal').modal('show');
-            $('#consoleLog').html('');
-            $('#updateButton').addClass('disabled');
-
-            HuConApp.appendConsoleLog('Check for updates ...', 'green');
-
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'check_update';
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    if (HuConApp.isResponseError(rpcResponse)) {
-                        alert(rpcResponse[error]);
-                    }
-
-                    if (rpcResponse['result']) {
-                        $('#updateButton').removeClass('disabled');
-                    }
-                },
-                error: HuConApp.appendErrorLog
-            });
-        }
-
-        // Call the update script.
-        function updateSystem() {
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'update';
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                error: HuConApp.appendErrorLog
-            });
-        }
-
-        // Overwrite the default appenConsoleLogMessage function.
-        // Append the message, which can be a an array, to the console output.
-        HuConApp.appendConsoleLogMessage = function(message, colour) {
-            if (colour === undefined) {
-                colour = 'black';
-            }
-
-            if (message.includes('Error:')) {
-                colour = 'red';
-            }
-
-            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'));
-            $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
-        };
-
-        function moveWiFiUp(element_id){
-            console.log("move up called: "+$('#'+element_id).find('.content').text());
-
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'move_wifi_up';
-            rpcRequest['params'] = [$('#'+element_id).find('.content').text()];
-
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    $('#id_wifi_list_modal').modal('hide');
-                    listWiFiNetworks();
-                },
-                error: HuConApp.showAlertBox
-            });
-        }
-
-        function moveWiFiDown(element_id){
-            console.log("move down called: "+$('#'+element_id).find('.content').text());
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'move_wifi_down';
-            rpcRequest['params'] = [$('#'+element_id).find('.content').text()];
-
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    $('#id_wifi_list_modal').modal('hide');
-                    listWiFiNetworks();
-                },
-                error: HuConApp.showAlertBox
-            });
-        }
-
-        function removeWiFi(element_id){
-            console.log("drop called: "+$('#'+element_id).find('.content').text());
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'remove_wifi';
-            rpcRequest['params'] = [$('#'+element_id).find('.content').text()];
-
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    $('#id_wifi_list_modal').modal('hide');
-                    listWiFiNetworks();
-                },
-                error: HuConApp.showAlertBox
-            });
-        }
-
-        function connectWiFi(element_id){
-            console.log("connect called: "+$('#'+element_id).find('.content').text());
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'connect_wifi';
-            rpcRequest['params'] = [$('#'+element_id).find('.content').text()];
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    $('#id_wifi_list_modal').modal('hide');
-                    listWiFiNetworks();
-                },
-                error: HuConApp.showAlertBox
-            });
-        }
-
-        function listWiFiNetworks() {
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'get_saved_wifi_networks';
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    if (HuConApp.isResponseError(rpcResponse)) {
-                        alert(rpcResponse[error]);
-                    }
-                    if (rpcResponse['result']) {
-                        if (rpcResponse['result']['wifi_disabled']){
-                            $("#id_enable_wifi").checkbox('set unchecked');
-                            $("#id_wifi_search_button").addClass('disabled');
-                        }else{
-                            $("#id_enable_wifi").checkbox('set checked');
-                            $("#id_wifi_search_button").removeClass('disabled');
-                        }
-
-                        var modal_init_state = $('#id_wifi_list_modal').html();
-
-                        var i = 0;
-                        for (const x of rpcResponse['result']['wifi_list']) {
-                            console.log(x + ' : ' + i);
-                            var item_id = "id_item_"+i;
-                            var list_item = $("<div class='item' id='" + item_id + "'</div>");
-                            list_item.append("<div class='right floated content'><button onclick='removeWiFi(\""+item_id+"\");' class='circular ui icon button'><i class='minus circle icon'></i></button></div>");
-                            list_item.append("<div class='right floated content'><button onclick='moveWiFiDown(\""+item_id+"\");' class='circular ui icon button'><i class='arrow circle down icon'></i></button></div>");
-                            list_item.append("<div class='right floated content'><button onclick='moveWiFiUp(\""+item_id+"\");' class='circular ui icon button'><i class='arrow circle up icon'></i></button></div>");
-                            if (x.enabled){
-                                list_item.append("<i class='wifi big violet icon'></i><div class='content'>" + x.ssid + "</div>");
-                            }else{
-                                list_item.append("<div class='right floated content'><button onclick='connectWiFi(\""+item_id+"\");' class='circular ui icon button'><i class='check circle icon'></i></button></div>");
-                                list_item.append("<i class='wifi big grey icon'></i><div class='content'>" + x.ssid + "</div>");
-                            }
-                            //Append if not available
-                            if ($("#id_wifi_list .item[id="+item_id+"]").length == 0){
-                                $('#id_wifi_list').append(list_item);
-                                i++;
-                            }
-                        }
-
-                        $("#id_enable_wifi").checkbox({
-
-                                onChecked: function() {
-                                    var rpcRequest = HuConApp.getRpcRequest();
-                                    rpcRequest['method'] = 'enable_sta_wifi';
-                                    $.ajax('/API', {
-                                    method: 'POST',
-                                    data: JSON.stringify(rpcRequest),
-                                    dataType: 'json',
-                                    success: function (rpcResponse) {
-                                        $('#id_wifi_list_modal').modal('hide');
-                                        listWiFiNetworks();
-                                    },
-                                    error: HuConApp.showAlertBox
-                                });
-                            },
-                                onUnchecked: function() {
-                                    var rpcRequest = HuConApp.getRpcRequest();
-                                    rpcRequest['method'] = 'disable_sta_wifi';
-                                    $.ajax('/API', {
-                                    method: 'POST',
-                                    data: JSON.stringify(rpcRequest),
-                                    dataType: 'json',
-                                    success: function (rpcResponse) {
-                                        $('#id_wifi_list_modal').modal('hide');
-                                        listWiFiNetworks();
-                                    },
-                                    error: HuConApp.showAlertBox
-                                });
-                            }
-                          });
-
-                        $('#id_wifi_list_modal').modal({
-                            onHide: function(){
-                                console.log('On Hide Modal WiFi List triggered');
-                                $('#id_wifi_list_modal').html(modal_init_state);
-                            },
-                            onShow: function(){
-                                console.log('On Show Modal WiFi List triggered ');
-                            },
-                            onApprove: function() {
-                                console.log('On Approve Modal WiFi List triggered');
-                                $('#id_wifi_list_modal').modal('hide');
-                                listWiFiNetworks();
-                            }
-                        }).modal('show');
-                    }
-                },
-                error: HuConApp.showAlertBox
-            });
-        }
-
-        function wifiSearch() {
-            console.log("Search Wifi")
-            $('#id_wifi_list_modal').modal('approve');
-            var modal_init_state = $('#id_wifi_search_modal').html();
-            $('#id_wifi_search_modal').modal({
-                onHide: function(){
-                    console.log('OnHide Wifi Serach Modal triggered');
-                    $('#id_wifi_search_modal').html(modal_init_state);
-                    $('#id_wifi_list_modal').modal('hide');
-                    listWiFiNetworks();
-                },
-                onShow: function(){
-                    console.log('OnShow Wifi Serach Modal triggered');
-                },
-                onApprove: function() {
-                    console.log('OnApprove Wifi Serach Modal triggered');
-                    $('#id_wifi_search_modal').html(modal_init_state);
-                    {#listWiFiNetworks();#}
-                }
-            }).modal('show');
-
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'get_wifi_found';
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    if (HuConApp.isResponseError(rpcResponse)) {
-                        alert(rpcResponse[error]);
-                    }
-                    if (rpcResponse['result']) {
-                        var i = 0;
-                        for (const x of rpcResponse['result']) {
-                            console.log(x);
-                            // filter hidden networks
-                            if (x.ssid != "") {
-                                $('#id_search_wifi_menu').append("<option id='id_search_menu_item_" + i + "'value='" + x.ssid + "' encr='" + x.encryption + "'>" + x.ssid + "</option>");
-                                // first item, ssid empty
-                                if ($('#id_ssid').val() == "") {
-                                    console.log(x.encryption);
-                                    $('#id_encryption option[value="' + x.encryption + '"]').prop('selected', true);
-                                    $('#id_ssid').val(x.ssid);
-                                }
-                            }
-                            i++;
-                        }
-
-                        $('#id_loader').removeClass('active').addClass('disabled');
-
-
-                        $("#id_search_wifi_menu").on('change', function(){
-                            console.log("select changed");
-                            var selected_item_id = $('#id_search_wifi_menu option:selected').attr('id');
-                            var encryption = $('#'+selected_item_id).attr('encr');
-                            var ssid = $('#'+selected_item_id).val();
-                            $('#id_encryption option[value="' + encryption + '"]').prop('selected', true);
-                            $('#id_ssid').val(ssid);
-                        });
-
-                        $("#id_show_password").checkbox({
-                            onChecked: function() {
-                              console.log('onChecked called');
-                              $('#id_password').attr('type', 'text');
-                            },
-                            onUnchecked: function() {
-                              console.log('onUnchecked called');
-                              $('#id_password').attr('type', 'password');
-                            }
-                          });
-                    }
-                },
-                error: HuConApp.showAlertBox
-            });
-        }
-
-        function addWiFi() {
-            console.log("add wifi");
-
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'add_wifi';
-            rpcRequest['params'] = [$('#id_ssid').val(), $('#id_password').val(), $('#id_encryption').val()];
-
-            $('#id_wifi_search_modal').modal('approve');
-
-            console.log(JSON.stringify(rpcRequest));
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    $('#id_wifi_list_modal').modal('hide');
-                    listWiFiNetworks();
-                },
-                error: HuConApp.showAlertBox
-            });
-        }
-
-        function showWiFiAPsettings() {
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'get_ap_settings';
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    console.log(rpcResponse['result']);
-                    console.log(!!+rpcResponse['result']['disabled']);
-                    if (!!+rpcResponse['result']['disabled']){
-                         $("#id_enable_ap_mode").checkbox('set unchecked');
-                    }else{
-                         $("#id_enable_ap_mode").checkbox('set checked');
-                    }
-                    $('#id_ap_encryption option[value="' + rpcResponse['result']['encryption'] + '"]').prop('selected', true);
-                    $('#id_ap_ssid').val(rpcResponse['result']['ssid']);
-                    $('#id_ap_password').val(rpcResponse['result']['key']);
-                    $('#id_ap_ip').val(rpcResponse['result']['ap_ip_addr']);
-                    $('#id_ap_wifi_modal').modal('show');
-
-                    $("#id_show_ap_password").checkbox({
-                        onChecked: function() {
-                          $('#id_ap_password').attr('type', 'text');
-                        },
-                        onUnchecked: function() {
-                          $('#id_ap_password').attr('type', 'password');
-                        }
-                    });
-
-                    $("#id_enable_ap_mode").checkbox({
-                        onChecked: function() {
-                            var rpcRequest = HuConApp.getRpcRequest();
-                            rpcRequest['method'] = 'enable_ap_wifi';
-                            $.ajax('/API', {
-                            method: 'POST',
-                            data: JSON.stringify(rpcRequest),
-                            dataType: 'json',
-                            success: function (rpcResponse) {
-                                $('#id_ap_wifi_modal').modal('hide');
-                                showWiFiAPsettings();
-                            },
-                            error: HuConApp.showAlertBox
-                        });
-                    },
-                        onUnchecked: function() {
-                            var rpcRequest = HuConApp.getRpcRequest();
-                            rpcRequest['method'] = 'disable_ap_wifi';
-                            $.ajax('/API', {
-                            method: 'POST',
-                            data: JSON.stringify(rpcRequest),
-                            dataType: 'json',
-                            success: function (rpcResponse) {
-                                $('#id_ap_wifi_modal').modal('hide');
-                                listWiFiNetworks();
-                                showWiFiAPsettings();
-                            },
-                            error: HuConApp.showAlertBox
-                        });
-                    }
-                  });
-                },
-                error: HuConApp.showAlertBox
-            });
-        }
-
-        function setWiFiAPsettings() {
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'set_ap_settings';
-            rpcRequest['params'] = [$('#id_ap_ssid').val(), $('#id_ap_password').val(), $('#id_ap_encryption').val(), $('#id_ap_ip').val()];
-            console.log(JSON.stringify(rpcRequest));
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    console.log("Set AP settings");
-                },
-                error: HuConApp.showAlertBox
-            });
-        }
-    </script>
-
+    <script src="{{ url_for('.static', filename='js/settings.js') }}"></script>
 {% endblock %}
 
 {% block menu %}{% endblock %}
@@ -499,11 +59,13 @@
                 <div class="thirteen wide column">
                     <i class="icon wi-fi"></i>
                     WiFi List
+                    <div id="id_wifi_list_loader"
+                         class="ui medium workaround disabled right floated inline loader"></div>
                 </div>
                 <div class="three wide column">
                     <div class="ui toggle checkbox" id="id_enable_wifi">
-                      <input type="checkbox" name="enable_wifi">
-                      <label>Enable WiFi</label>
+                        <input type="checkbox" name="enable_wifi">
+                        <label>Enable WiFi</label>
                     </div>
                 </div>
             </div>
@@ -514,7 +76,9 @@
             </div>
             <div class="ui divider"></div>
             <div class="row actions">
-                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui fluid blue button approve">Scan WiFi</button>
+                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui fluid blue button approve">Scan
+                    WiFi
+                </button>
             </div>
         </div>
     </div>
@@ -567,15 +131,15 @@
     </div>
     <div id="id_ap_wifi_modal" class="ui modal">
         <div class="header">
-           <div class="ui grid">
+            <div class="ui grid">
                 <div class="thirteen wide column">
                     <i class="icon wi-fi"></i>
                     WiFi Access Point Setup
                 </div>
                 <div class="three wide column">
                     <div class="ui toggle checkbox" id="id_enable_ap_mode">
-                      <input type="checkbox" name="enable_ap_moed">
-                      <label>Enable AP Mode</label>
+                        <input type="checkbox" name="enable_ap_moed">
+                        <label>Enable AP Mode</label>
                     </div>
                 </div>
             </div>
@@ -590,7 +154,8 @@
                     <label>AP Password</label>
                     <div class="ui grid">
                         <div class="fourteen wide column">
-                            <div class="ui input fluid"><input id="id_ap_password" name="password" type="password"></div>
+                            <div class="ui input fluid"><input id="id_ap_password" name="password" type="password">
+                            </div>
                         </div>
                         <div class="two wide column">
                             <div class="ui checkbox" id="id_show_ap_password">
@@ -616,9 +181,11 @@
             </form>
             <div class="ui divider"></div>
             <div class="row action">
-                <button onclick="setWiFiAPsettings()" id="id_configure_ap_button" class="ui blue fluid button approve">Configure AP</button>
+                <button onclick="setWiFiAPsettings()" id="id_configure_ap_button" class="ui blue fluid button approve">
+                    Configure AP
+                </button>
             </div>
         </div>
-        </div>
+    </div>
     </div>
 {% endblock %}
