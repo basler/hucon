@@ -1,27 +1,9 @@
-![Hacker School](webserver/static/images/Logo.svg)
+![HuCon](webserver/static/images/Logo.svg)
 
-This project was created to teach children about programming on a self-built robot.
-The base is the Omega2+ from www.onion.io. In addition to WLAN and the integrated python, this offers a good basis.
+This project was created to teach children how to program a self-built robot.
+The basis is the Omega2+ from www.onion.io. Beside WLAN and the integrated Python this offers a good basis.
 
+The main module is the webserver, which provides a [Blockly](https://developers.google.com/blockly/) website with user-defined modules. The custom modules are used for the hardware to build your own robots.
+A Python web server provides the website to program and control the robot from there in Blockly or Python.
 
-This project was is using the Omega2+ microcontroller from onion.io with an integrated WiFi Module. This microcontroller is using the python and some python written modules.
-
-The main module is the web server, which provides a [Blockly](https://developers.google.com/blockly/) web page with custom modules. The Custom modules are used for the hardware to build your own robotic device. A python web server with a Blockly interface was installed on it.
-
-## Installation
-To install this project on your Omega2+, do the following steps on your console::
-
-    # get the sources and install it
-    curl -s https://api.github.com/repos/juwis/hackerschool/releases/latest \
-        | grep -oP '"browser_download_url": "\K(.*)(?=")' \
-        | wget -
-
-    wget https://github.com/juwis/hackerschool/releases/download/[ReleaseName]/hucon.run
-    sh hucon.run
-
-## Usage
-After restarting the system, the web server is started automatically. Visit http://Omega-ABCD.local:8080 with a browser. ABCD must be replaced with the last four characters of your device's MAC address.
-
-## TODO
-
-- [ ] The menu bar is to big for a smart phone device.
+Check out our [documentation](https://basler.github.io/hucon/) to learn how to install the HuCon software on your Omega2+.

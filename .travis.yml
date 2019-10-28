@@ -2,12 +2,29 @@ sudo: false
 dist: trusty
 jobs:
   include:
+  - stage: Documentation
+    language: python
+    python: 3.6
+    branches: master
+    install:
+      - pip install mkdocs mkdocs-material pygments
+    script: true
+    before_deploy:
+      - mkdocs build --verbose --clean --strict
+    deploy:
+      provider: pages
+      skip_cleanup: true
+      github_token: $GITHUB_TOKEN
+      local_dir: site
+      on:
+        branch: master
+
   - stage: GitHub Release
     script: sh deploy.sh $TRAVIS_TAG
     deploy:
       provider: releases
-      github_token: $GITHUB_TOKEN 
-      api_key: $GITHUB_TOKEN 
+      github_token: $GITHUB_TOKEN
+      api_key: $GITHUB_TOKEN
       file: hucon-$TRAVIS_TAG.run
       skip_cleanup: true
       on:

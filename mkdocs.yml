@@ -1,0 +1,22 @@
+site_name: HuCon
+site_description: 'HuCon documentation about the full featured robot'
+copyright: 'Basler AG 2019'
+
+nav:
+    - Home: index.md
+    - Inital setup: initial_setup.md
+
+theme:
+  name: 'material'
+  logo: 'images/icon.svg'
+  palette:
+    primary: 'blue'
+    accent: 'light blue'
+
+markdown_extensions:
+  - admonition
+  - codehilite:
+      guess_lang: false
+  - tables
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
