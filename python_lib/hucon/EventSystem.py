@@ -36,7 +36,7 @@ class ButtonEvent(ControlBase):
     """
 
     def __init__(self, register_callback, x=0, y=0, width=1, height=1):
-        super(Button, self).__init__(register_callback, x, y, width, height)
+        super(ButtonEvent, self).__init__(register_callback, x, y, width, height)
 
 
 class EventSystem(object):

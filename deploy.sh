@@ -27,7 +27,14 @@ if [ \$1 ]; then
     path=\"\$1\"hucon
 fi
 
-mkdir -p \$path | tail -n+\$PAYLOAD_LINE \$0 | tar -xvzC \$path
+if [ -d \$path ]; then
+    echo \"Remove old installation from \$path\"
+    rm -rf \$path
+fi
+
+echo \"Unpack new files to \$path\"
+echo \"This will take some time.\"
+mkdir -p \$path | tail -n+\$PAYLOAD_LINE \$0 | tar -xzC \$path
 
 if [ -z $2 ] || [ $2 != unpack ]; then
     sh \$path/install.sh
