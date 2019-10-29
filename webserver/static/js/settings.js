@@ -429,11 +429,11 @@ function showWiFiAPsettings() {
         dataType: 'json',
         success: function (rpcResponse) {
             // set enable switch to right position
-            if (!!+rpcResponse['result']['disabled']) {
-                $("#id_enable_ap_mode").checkbox('set unchecked');
-            } else {
-                $("#id_enable_ap_mode").checkbox('set checked');
-            }
+            // if (!!+rpcResponse['result']['disabled']) {
+            //     $("#id_enable_ap_mode").checkbox('set unchecked');
+            // } else {
+            //     $("#id_enable_ap_mode").checkbox('set checked');
+            // }
             // fill ui wth values get from server
             $('#id_ap_encryption option[value="' + rpcResponse['result']['encryption'] + '"]').prop('selected', true);
             $('#id_ap_ssid').val(rpcResponse['result']['ssid']);
@@ -454,44 +454,44 @@ function showWiFiAPsettings() {
             });
 
             // add event listener to enable ap network toggle switch
-            $("#id_enable_ap_mode").checkbox({
-                onChecked: function () {
-                    // if toggle switch is on, enable ap network
-                    var rpcRequest = HuConApp.getRpcRequest();
-                    rpcRequest['method'] = 'enable_ap_wifi';
-                    // trigger action on server
-                    $.ajax('/API', {
-                        method: 'POST',
-                        data: JSON.stringify(rpcRequest),
-                        dataType: 'json',
-                        success: function () {
-                            // hide ap settings modal dialog
-                            $('#id_ap_wifi_modal').modal('hide');
-                            // reload ap settings modal dialog
-                            showWiFiAPsettings();
-                        },
-                        error: HuConApp.showAlertBox
-                    });
-                },
-                onUnchecked: function () {
-                    // if toggle switch is off, disable ap network
-                    var rpcRequest = HuConApp.getRpcRequest();
-                    rpcRequest['method'] = 'disable_ap_wifi';
-                    // trigger action on server
-                    $.ajax('/API', {
-                        method: 'POST',
-                        data: JSON.stringify(rpcRequest),
-                        dataType: 'json',
-                        success: function () {
-                            // hide ap settings modal dialog
-                            $('#id_ap_wifi_modal').modal('hide');
-                            // reload ap settings modal dialog
-                            showWiFiAPsettings();
-                        },
-                        error: HuConApp.showAlertBox
-                    });
-                }
-            });
+            // $("#id_enable_ap_mode").checkbox({
+            //     onChecked: function () {
+            //         // if toggle switch is on, enable ap network
+            //         var rpcRequest = HuConApp.getRpcRequest();
+            //         rpcRequest['method'] = 'enable_ap_wifi';
+            //         // trigger action on server
+            //         $.ajax('/API', {
+            //             method: 'POST',
+            //             data: JSON.stringify(rpcRequest),
+            //             dataType: 'json',
+            //             success: function () {
+            //                 // hide ap settings modal dialog
+            //                 $('#id_ap_wifi_modal').modal('hide');
+            //                 // reload ap settings modal dialog
+            //                 showWiFiAPsettings();
+            //             },
+            //             error: HuConApp.showAlertBox
+            //         });
+            //     },
+            //     onUnchecked: function () {
+            //         // if toggle switch is off, disable ap network
+            //         var rpcRequest = HuConApp.getRpcRequest();
+            //         rpcRequest['method'] = 'disable_ap_wifi';
+            //         // trigger action on server
+            //         $.ajax('/API', {
+            //             method: 'POST',
+            //             data: JSON.stringify(rpcRequest),
+            //             dataType: 'json',
+            //             success: function () {
+            //                 // hide ap settings modal dialog
+            //                 $('#id_ap_wifi_modal').modal('hide');
+            //                 // reload ap settings modal dialog
+            //                 showWiFiAPsettings();
+            //             },
+            //             error: HuConApp.showAlertBox
+            //         });
+            //     }
+            // });
         },
         error: HuConApp.showAlertBox
     });
