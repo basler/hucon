@@ -122,10 +122,7 @@ class WirelessHelper(UciHelperBase):
         """
         ret_list = []
         for wifi in self.config['wireless'].get('wifi-config', []):
-            if wifi['ssid'] == self.config['wireless']['wifi-iface']['sta']['ssid']:
-                wifi['enabled'] = True
-            else:
-                wifi['enabled'] = False
+            wifi['enabled'] = self.is_ssid_connected(wifi['ssid'])
             ret_list.append(wifi)
         return ret_list
 
@@ -405,3 +402,20 @@ class WirelessHelper(UciHelperBase):
         except Exception as exc:
             self.__uci_revert()
             raise exc
+
+    @classmethod
+    def is_ssid_connected(cls, ssid):
+        """
+        Check if wifi with given ssid connected
+        :param ssid: str SSID to check
+        :return: boolean: True if connected else False
+        """
+        cmd = ['iwconfig']
+        output = subprocess.check_output(cmd, stderr=subprocess.PIPE)
+        for line in output.strip().split('\n'):
+            if 'apcli0' in line:
+                essid = line.split('ESSID:')[-1].strip().replace('"', "")
+                if ssid == essid:
+                    return True
+                break
+        return False
