@@ -438,6 +438,7 @@ function showWiFiAPsettings() {
             $('#id_ap_encryption option[value="' + rpcResponse['result']['encryption'] + '"]').prop('selected', true);
             $('#id_ap_ssid').val(rpcResponse['result']['ssid']);
             $('#id_ap_password').val(rpcResponse['result']['key']);
+            $('#id_ap_password_repeat').val(rpcResponse['result']['key']);
             $('#id_ap_ip').val(rpcResponse['result']['ap_ip_addr']);
             $('#id_ap_wifi_modal').modal('show');
 
@@ -446,13 +447,21 @@ function showWiFiAPsettings() {
                 onChecked: function () {
                     // if checked show password
                     $('#id_ap_password').attr('type', 'text');
+                    $('#id_ap_password_repeat').attr('type', 'text');
                 },
                 onUnchecked: function () {
                     // if unchecked hide password
                     $('#id_ap_password').attr('type', 'password');
+                    $('#id_ap_password_repeat').attr('type', 'password');
                 }
             });
-
+            $('#id_ap_password_repeat').on('input', function() {
+                if ($(this).val() != $('#id_ap_password').val()){
+                    $('#id_configure_ap_button').addClass("disabled");
+                }else{
+                    $('#id_configure_ap_button').removeClass("disabled");
+                }
+            });
             // add event listener to enable ap network toggle switch
             // $("#id_enable_ap_mode").checkbox({
             //     onChecked: function () {
