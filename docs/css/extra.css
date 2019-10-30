@@ -1,0 +1,16 @@
+.center {
+    display: block;
+    margin: 0 auto;
+}
+
+.tiny_width {
+    width: 50%
+}
+
+.normal_width {
+    width: 50%
+}
+
+.large_width {
+    width: 100%
+}
