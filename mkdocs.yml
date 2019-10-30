@@ -4,6 +4,7 @@ copyright: 'Basler AG 2019'
 
 nav:
     - Home: index.md
+    - Assembling: assembling.md
     - Inital setup: initial_setup.md
     - license.md
 
