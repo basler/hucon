@@ -1,8 +1,10 @@
-// 2018-12-11
+// custom_blocks_machine.js - Blockly blocks to support roboter based things.
 //
-// Blockly blocks to support roboter based things.
+// Copyright (C) 2019 Basler AG
+// All rights reserved.
 //
-// Author: Sascha.MuellerzumHagen@baslerweb.com
+// This software may be modified and distributed under the terms
+// of the BSD license.  See the LICENSE file for details.
 
 var COLOR_MACHINE = 180;
 var COLOR_EYE = 0;

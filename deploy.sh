@@ -1,9 +1,12 @@
 #!/bin/bash
-# 2018-12-11
+# deploy.sh - Bundle installation data into a tar.gz file and prepend it with
+#             a bash script for self extracting / installation.
 #
-# Bundle installation data into a tar.gz file and prepend it with a bash script for self extracting / installation.
+# Copyright (C) 2019 Basler AG
+# All rights reserved.
 #
-# Author: Sascha.MuellerzumHagen@baslerweb.com
+# This software may be modified and distributed under the terms
+# of the BSD license.  See the LICENSE file for details.
 
 BASEDIR=`dirname "${0}"`
 TMP_FILENAME=hucon-${1}.tar.gz
@@ -14,7 +17,7 @@ cd "$BASEDIR"
 
 # compress the needed files into one tar image
 echo $1 > __version__
-tar -czvf "$TMP_FILENAME" __version__ README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh
+tar -czvf "$TMP_FILENAME" __version__ LICENSE README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh
 
 # generate a self extracting tar image
 tmp=__extract__$RANDOM

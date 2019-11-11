@@ -1,9 +1,11 @@
 #!/bin/sh -e
-# 2018-12-11
+# uninstall.sh - Remove all hucon files from the system.
 #
-# Remove all hucon files from the system.
+# Copyright (C) 2019 Basler AG
+# All rights reserved.
 #
-# Author: Sascha.MuellerzumHagen@baslerweb.com
+# This software may be modified and distributed under the terms
+# of the BSD license.  See the LICENSE file for details.
 
 # remove the hackerschool into the site packages
 if [ -L /usr/lib/python2.7/site-packages/hackerschool ]; then
