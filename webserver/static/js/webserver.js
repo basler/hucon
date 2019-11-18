@@ -40,7 +40,7 @@ $(window).bind('keydown', function (event) {
             break;
         case 'r':
             event.preventDefault();
-            run();
+            HuConApp.execute();
             break;
         case 'h':
             event.preventDefault();
