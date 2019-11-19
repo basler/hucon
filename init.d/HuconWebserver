@@ -1,7 +1,14 @@
 #!/bin/sh /etc/rc.common
+#
 # "new(er)" style init script
 # Look at /lib/functions/service.sh on a running system for explanations of what other SERVICE_
 # options you can use, and when you might want them.
+#
+# Copyright (C) 2019 Basler AG
+# All rights reserved.
+#
+# This software may be modified and distributed under the terms
+# of the BSD license.  See the LICENSE file for details.
 
 USE_PROCD=1
 START=99
