@@ -29,7 +29,7 @@ set_led(249, 166, 2)
 
 import argparse
 import logging
-# import threading
+import threading
 import time
 
 try:
@@ -50,7 +50,7 @@ COLLECT_STORAGE = 'flask_collect.storage.file'
 
 app = Flask(json_rpc._SERVER_NAME)
 app.config["SECRET_KEY"] = "SECRET_KEY"
-socketio = SocketIO(app, logger=True, async_mode='eventlet')
+socketio = SocketIO(app, logger=True)#, async_mode='eventlet'
 
 
 @app.route('/')
@@ -113,7 +113,7 @@ def api():
 @app.before_first_request
 def before_first_reuqest():
     """ Set the eyes to green and after a while to off.
-        This will gibe the user teh ability to see thatr the service is running.
+        This will gibe the user teh ability to see that the service is running.
     """
     set_led(0, 255, 0)
     time.sleep(2)
@@ -125,6 +125,7 @@ def check_service():
     """
     not_started = True
     while not_started:
+        time.sleep(10)
         try:
             conn = httplib.HTTPConnection('localhost', json_rpc._LISTENING_PORT, timeout=1)
             conn.request('GET', '/')
@@ -132,7 +133,8 @@ def check_service():
             if res.status == 200:
                 not_started = False
         except Exception as ex:
-            print(ex)
+            pass
+            # print(ex)
 
 
 if __name__ == '__main__':
@@ -151,8 +153,8 @@ if __name__ == '__main__':
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
 
-    # # Run a thread to check the flask service.
+    # Run a thread to check the flask service.
     # thread = threading.Thread(target=check_service)
     # thread.start()
-
+    socketio.start_background_task(target=check_service)
     socketio.run(app, host='0.0.0.0', port=json_rpc._LISTENING_PORT, debug=args.debug)
