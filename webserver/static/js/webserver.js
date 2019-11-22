@@ -40,7 +40,7 @@ $(window).bind('keydown', function (event) {
             break;
         case 'r':
             event.preventDefault();
-            run();
+            HuConApp.execute();
             break;
         case 'h':
             event.preventDefault();
@@ -64,6 +64,9 @@ HuConApp.FileExt = '';
 
 // Remeber any changes after save.
 HuConApp.UnsavedContent = false;
+
+// Callback function that is called after a file has been saved
+HuConApp.FileSavedCallback = undefined;
 
 // Get a new JSON-RPC message data with a new id.
 HuConApp.getRpcRequest = function () {
@@ -138,27 +141,48 @@ HuConApp.poll = function () {
 // Run the code on the device and set the button states.
 HuConApp.execute = function () {
     $('#consoleLog').html('');
-    HuConApp.appendConsoleLog('Loading program ...', 'green');
 
-    var rpcRequest = HuConApp.getRpcRequest();
-    rpcRequest.method = 'execute';
-    rpcRequest.params = getPythonCode();
+    // continuation that makes saves files and executes the code
+    // after modal save dialog
+    var execute = function () {
+        HuConApp.appendConsoleLog('Loading program ...', 'green');
 
-    $.ajax('/API', {
-        method: 'POST',
-        data: JSON.stringify(rpcRequest),
-        dataType: 'json',
-        success: function (rpcResponse) {
-            if (rpcResponse.result !== undefined) {
-                HuConApp.appendConsoleLog(rpcResponse.result);
-            }
-        },
-        error: HuConApp.appendErrorLog
-    });
+        var rpcRequest = HuConApp.getRpcRequest();
+        rpcRequest.method = 'execute';
+        rpcRequest.params = getPythonCode();
 
-    $('#runButton').addClass('disabled');
-    $('#stopButton').removeClass('disabled');
-    setTimeout(HuConApp.isRunning, 1000);
+        $.ajax('/API', {
+            method: 'POST',
+            data: JSON.stringify(rpcRequest),
+            dataType: 'json',
+            success: function (rpcResponse) {
+                if (rpcResponse.result !== undefined) {
+                    HuConApp.appendConsoleLog(rpcResponse.result);
+                }
+            },
+            error: HuConApp.appendErrorLog
+        });
+
+        $('#runButton').addClass('disabled');
+        $('#stopButton').removeClass('disabled');
+        setTimeout(HuConApp.isRunning, 1000);
+    };
+
+    // always save before running
+    var saveFilename = $('#saveFilename').val();
+    if (saveFilename == "")
+    {
+        HuConApp.appendConsoleLog("Program must be saved before running", "red");
+        var newFolder = undefined;
+        HuConApp.saveFileModal(newFolder, execute);
+    }
+    else
+    {
+        HuConApp.appendConsoleLog("saving file " + $('#saveFilename').val());
+        HuConApp.saveFileOnDevice();
+
+        execute();
+    }
 };
 
 // Run the file directly from the device.
@@ -436,7 +460,7 @@ HuConApp.loadFileFromDevice = function (filename) {
 };
 
 // Show the save file modal and load the file list from the device.
-HuConApp.saveFileModal = function (newFolder) {
+HuConApp.saveFileModal = function (newFolder, fileSavedCallback) {
     // Set the new Folder
     if (newFolder != undefined) {
         HuConApp.Folder = newFolder;
@@ -458,10 +482,12 @@ HuConApp.saveFileModal = function (newFolder) {
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
         success: function (rpcResponse) {
+            HuConApp.FileSavedCallback = fileSavedCallback;
             HuConApp.configureLoadSaveModal(rpcResponse, $('#saveFileList'), 'saveFileModal', 'save');
             $('#saveModal').modal('show');
         },
         error: function (request, status, _error2) {
+            HuConApp.FileSavedCallback = undefined;
             HuConApp.Folder = '';
             HuConApp.appendErrorLog(request, status, _error2);
         }
@@ -503,7 +529,10 @@ HuConApp.saveFileOnDevice = function () {
                 }
                 HuConApp.appendConsoleLog(rpcResponse.result);
             },
-            error: HuConApp.appendErrorLog
+            error: function (rpcResponse) {
+                HuConApp.appendErrorLog(rpcResponse);
+                HuConApp.FileSavedCallback = undefined;
+            }
         });
     }
 
@@ -519,9 +548,16 @@ HuConApp.saveFileOnDevice = function () {
             if (HuConApp.isResponseError(rpcResponse)) {
               return;
             }
+            if (HuConApp.FileSavedCallback !== undefined) {
+                HuConApp.FileSavedCallback();
+                HuConApp.FileSavedCallback = undefined;
+            }
             HuConApp.appendConsoleLog(rpcResponse.result);
         },
-        error: HuConApp.appendErrorLog
+        error: function (rpcResponse) {
+            HuConApp.appendErrorLog(rpcResponse);
+            HuConApp.FileSavedCallback = undefined;
+        }
     });
 
     HuConApp.UnsavedContent = false;

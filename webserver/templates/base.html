@@ -148,7 +148,7 @@
             <div class="field">
                 <input type="text" id="saveFilename" placeholder="Filename">
             </div>
-            <button onclick="$('#saveModal').modal('hide')" class="ui orange button" type="cancel">Cancel</button>
+            <button onclick="$('#saveModal').modal('hide'); $('#saveFilename').val(''); HuConApp.FileSavedCallback = undefined;" class="ui orange button" type="cancel">Cancel</button>
             <button onclick="HuConApp.saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
         </div>
     </div>
