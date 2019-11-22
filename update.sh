@@ -1,9 +1,11 @@
 #!/bin/sh -e
-# 2018-12-11
+# update.sh - Update the system or return the latest released version from github.
 #
-# Update the system or return the latest released version from github.
+# Copyright (C) 2019 Basler AG
+# All rights reserved.
 #
-# Author: Sascha.MuellerzumHagen@baslerweb.com
+# This software may be modified and distributed under the terms
+# of the BSD license.  See the LICENSE file for details.
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 

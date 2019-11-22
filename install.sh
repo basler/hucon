@@ -1,9 +1,11 @@
 #!/bin/sh -e
-# 2018-12-11
+# install.sh - Install all packages and copy bundled files.
 #
-# Install all packages and copy bundled files.
+# Copyright (C) 2019 Basler AG
+# All rights reserved.
 #
-# Author: Sascha.MuellerzumHagen@baslerweb.com
+# This software may be modified and distributed under the terms
+# of the BSD license.  See the LICENSE file for details.
 
 echo "Hucon-webserver installation started"
 
