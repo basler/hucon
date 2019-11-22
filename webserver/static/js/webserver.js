@@ -172,7 +172,7 @@ HuConApp.execute = function () {
     var saveFilename = $('#saveFilename').val();
     if (saveFilename == "")
     {
-        HuConApp.appendConsoleLog("Program must be saved before running");
+        HuConApp.appendConsoleLog("Program must be saved before running", "red");
         var newFolder = undefined;
         HuConApp.saveFileModal(newFolder, execute);
     }
