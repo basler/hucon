@@ -4,17 +4,17 @@ Usually your HuCon comes to you as a kit. The kit contains the following compone
 
 1. Omega2+ from [Onion](https://onion.io/)
 2. HuCon boards
-3. pin header
+3. Pin header
 
 !!! attention
-     It may be that the pin header is too long. In this case it must be shortened to the correct length.
+     It may be that the pin header is too long. In this case it must be shortened to the correct length of 16 pins.
     ![Pin header](images/assembling/pin_header.png){.normal_width}
 
-The pin header should be soldered to the boards before they are removed from the panel.
+It is recommended to solder the pin headers to the boards before removing them of the panel.
 
 ![Board](images/assembling/board_with_connector.png)
 
-Then you can cut the boards with a small side cutter at the marked places.
+The boards can be cut with a small side cutter at the marked places after this.
 
 ![Board](images/assembling/board_cut.png)
 
@@ -28,8 +28,8 @@ First the boards (except the head) are assembled. On the boards there are small 
 
 ![HuCon numbers](images/assembling/hucon_numbers.png)
 
-The Omega2+ is then plugged onto the pin headers. Make sure that the SD card slot is facing upwards. If you have assembled your HuCon correctly, it can stand on its own! Otherwise it will fall backwards.
+After the correct board assembly the Omega2+ is inserted into the pin headers. The sd card slot has to face upwards. The Hucon is able to stand on it's own if assembled correctly and will not tip over backwards.
 
 ![Hucon backpack](images/assembling/hucon_backpack.png)
 
-Jetzt musst du nur noch den Kopf auf deinen HuCon stecken und er ist fertig.
+Now all you have to do is put your head on your HuCon and it's done.

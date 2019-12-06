@@ -1,8 +1,10 @@
 # Connect
 
-Before you can start programming, your HuCon must first be started. Connect your Hucon with a USB-C cable to power it. After a short time the LEDs of your robot will turn red.
+Before you can work with the HuCon, it has to be powered up and running. The power delivery can be made with an
+micro USB cable and a standard smartphone charger with an ampere rating of 500 milliamps.
+The LEDs on the head should light up/turn red shortly after supplying the power and indicate that the system is booting.
 
-Your robot will show that it is starting. Now it won't take to long and the LED's will turn yellow and then green. As soon as the LED's turn of, your HuCon is ready to go.
+The LEDs will soon show yellow and green while the webservice is starting and finally turn off when your HuCon is up and ready to go.
 
 ## Connect to the WLAN
 Your HuCon provides its own network where you can log in with your PC, tablet or mobile phone.

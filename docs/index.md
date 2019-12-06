@@ -6,9 +6,9 @@ This project was created to teach children how to program a self-built robot.
 
 ![HuCon-Robot](images/hucon_iso.png){.center .normal_width}
 
-The Human Controlled Robot, HuCon for short, can be programmed in two ways. Depending on how well the individual can already program. For beginners it is recommended to describe the running program with Blockly. Once you have gained experience, the HuCon can be programmed with python.
+The Human Controlled Robot, HuCon for short, is able to program in two ways. Depending on the individuals programming skills. For beginners it is recommended to describe the running program with Blockly. Once you have gained experience, the HuCon can be programmed with python.
 
-The robot is programmed with a web interface in the browser. This makes the HuCon independent of the user's system. The website of the HuCon is optimized for operation with a tablet or PC. The robot can also be programmed with a mobile phone.
+The robot can be programmed over a simple web interface. All you need is a modern browser. This ensures independence from the users system. The interface is optimized for the use with a PC or a tablet but it will work on smart-phones, too.
 
 We made sure that the interfaces were arduino compatible. This allows you to use standard products that don't cost much money.
 
