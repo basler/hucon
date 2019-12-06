@@ -4,17 +4,25 @@ copyright: 'Basler AG 2019'
 
 nav:
     - Home: index.md
+    - Assembling: assembling.md
     - Inital setup: initial_setup.md
+    - Connect: connect.md
+    - license.md
 
 theme:
   name: 'material'
   logo: 'images/icon.svg'
+  favicon: 'images/icon.ico'
   palette:
     primary: 'blue'
     accent: 'light blue'
 
+extra_css:
+  - 'css/extra.css'
+
 markdown_extensions:
   - admonition
+  - attr_list
   - codehilite:
       guess_lang: false
   - tables
