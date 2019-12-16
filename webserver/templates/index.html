@@ -14,7 +14,8 @@
         $(document).ready(function () {
             // poll for new messages
             HuConApp.poll();
-        }());
+            HuConApp.showName();
+        });
 
         // Show the shutdown modal and send the shutdown command.
         function shutdownSystem() {
@@ -58,6 +59,9 @@
             <button onclick="shutdownSystem()" class="circular ui icon button" style="top: 8px; right: 8px; position: absolute;">
                 <i class="icon power off"></i>
             </button>
+            <div class="whitesmoke" style="float:right; margin-top:40px">
+                HuCon Name: <span id="huconName"></span>
+            </div>
 {% endblock %}
 
 {% block menu %}{% endblock %}

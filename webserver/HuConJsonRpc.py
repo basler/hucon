@@ -15,8 +15,10 @@ import subprocess
 import time
 import tempfile
 import signal
+import socket
 
 from HuConLogMessage import HuConLogMessage
+import HuConMAC
 
 
 class HuConJsonRpc():
@@ -81,6 +83,8 @@ class HuConJsonRpc():
         """
         if rpc_request['method'] == 'get_version':
             return self._get_version(rpc_request)
+        elif rpc_request['method'] == 'get_robot_info':
+            return self._get_robot_info(rpc_request)
         elif rpc_request['method'] == 'poll':
             return self._poll(rpc_request)
         elif rpc_request['method'] == 'get_file_list':
@@ -190,6 +194,25 @@ class HuConJsonRpc():
             return self._return_error(rpc_request['id'], 'Could not determine version. (%s)' % str(ex))
         else:
             return json_dump
+
+    def _get_robot_info(self, rpc_request):
+        """ Get information about the individual robot
+        """
+        try:
+            hucon_name = socket.gethostname()
+            mac_address = HuConMAC.get_mac_address()
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            rpc_response['result'] = {
+                'name': hucon_name,
+                'mac_address': mac_address
+            }
+            json_dump = json.dumps(rpc_response)
+        except Exception as ex:
+            return self._return_error(
+                rpc_request['id'],
+                'Could not get robot info. (%s)' % str(ex)
+            )
+        return json_dump
 
     def _poll(self, rpc_request):
         """ Return the log messages to the browser.

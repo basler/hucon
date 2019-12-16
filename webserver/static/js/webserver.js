@@ -379,6 +379,31 @@ HuConApp.setBreadcrumb = function (modal) {
     }
 };
 
+// Show the HuCon name and MAC address in the element with ID `huconName`
+HuConApp.showName = function() {
+    // Get info from HuCon
+    var rpcRequest = HuConApp.getRpcRequest();
+    rpcRequest.method = 'get_robot_info';
+    $.ajax('/API', {
+        method: 'POST',
+        data: JSON.stringify(rpcRequest),
+        dataType: 'json',
+        success: function (rpcResponse) {
+            if (HuConApp.isResponseError(rpcResponse)) {
+                return;
+            }
+
+            var huconNameElement = $('#huconName');
+            var huconName = (
+                rpcResponse.result.name + " " +
+                "(MAC: " + rpcResponse.result.mac_address + ")"
+            );
+            huconNameElement.text(huconName);
+        },
+        error: HuConApp.appendErrorLog
+    });
+};
+
 // Show a form to create a new folder.
 HuConApp.createNewFolder = function () {
     foldername = $('#folderFilename').val();

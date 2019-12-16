@@ -43,6 +43,7 @@
             configureMenu();
             HuConApp.showCode();
             HuConApp.showConsole();
+            HuConApp.showName();
 
             $.ajax("{{ url_for('.static', filename='xml/toolbox.xml') }}", {
                 method: 'GET',
