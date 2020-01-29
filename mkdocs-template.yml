@@ -1,6 +1,6 @@
 site_name: HuCon
-site_description: 'HuCon documentation about the full featured robot'
-copyright: 'Basler AG 2019'
+site_description: '{{ description }}'
+copyright: 'Basler AG 2020'
 
 nav:
     - Home: index.md
@@ -16,6 +16,10 @@ theme:
   palette:
     primary: 'blue'
     accent: 'light blue'
+  language: '{{ language }}'
+
+docs_dir: 'docs/{{ language }}'
+site_dir: 'site/{{ language }}'
 
 extra_css:
   - 'css/extra.css'
