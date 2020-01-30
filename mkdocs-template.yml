@@ -3,10 +3,10 @@ site_description: '{{ description }}'
 copyright: 'Basler AG 2020'
 
 nav:
-    - Home: index.md
-    - Assembling: assembling.md
-    - Inital setup: initial_setup.md
-    - Connect: connect.md
+    - index.md
+    - assembling.md
+    - initial_setup.md
+    - connect.md
     - license.md
 
 theme:
