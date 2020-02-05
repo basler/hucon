@@ -22,6 +22,24 @@
           height: 48px;
         }
 
+        #content {
+          margin: 8px;
+          text-align: center;
+          min-width: 300px;
+        }
+
+        #content img {
+          max-width: 800px;
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        #content figure {
+          width: 200px;
+          display: inline-block;
+        }
+
         footer {
           background-color: black;
           width: 100%;
@@ -50,22 +68,22 @@
       <div id="headerLable">HuCon</div>
     </header>
 
-    <center style="margin: 8px;">
-      <img style=" max-width: 800px;" src="en/images/logo.svg" alt="Hucon"/>
+    <div id="content">
+      <img src="en/images/logo.svg" alt="Hucon"/>
       <h1>Choose your language</h1>
-      <figure style="width: 200px;">
+      <figure>
         <a href="en/index.html"><img src="en/images/united-kingdom-flag.png" alt="English" style="width: 200px;"/></a>
         <figcaption>
           <center><a href="en/index.html">English</a><center>
         </figcaption>
       </figure>
-      <figure style="width: 200px;">
+      <figure>
         <a href="de/index.html"><img src="en/images/germany-flag.png" alt="Deutsch" style="width: 200px;"/></a>
         <figcaption>
           <center><a href="de/index.html">Deutsch</a><center>
         </figcaption>
       </figure>
-    </center>
+    </div>
 
     <footer>
       <div id="footerLable">Basler AG 2020</div>

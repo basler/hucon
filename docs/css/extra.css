@@ -14,3 +14,12 @@
 .large_width {
     width: 100%
 }
+
+.language_flag {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.language_flag img {
+    width: 24px;
+}
