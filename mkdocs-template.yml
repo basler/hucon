@@ -1,6 +1,10 @@
-site_name: HuCon
+site_name: 'HuCon'
 site_description: '{{ description }}'
 copyright: 'Basler AG 2020'
+repo_name: 'basler/hucon'
+repo_url: 'https://github.com/basler/hucon'
+edit_uri: ''
+
 
 nav:
     - index.md
