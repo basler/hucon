@@ -1,0 +1,11 @@
+{
+    "language":
+    {
+        "en": {
+            "description": "HuCon documentation about the full featured robot"
+        },
+        "de": {
+            "description": "HuCon Dokumentation für deinen selbstgebauten Roboter"
+        }
+    }
+}

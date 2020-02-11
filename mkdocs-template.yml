@@ -1,21 +1,30 @@
-site_name: HuCon
-site_description: 'HuCon documentation about the full featured robot'
-copyright: 'Basler AG 2019'
+site_name: 'HuCon'
+site_description: '{{ description }}'
+copyright: 'Basler AG 2020'
+repo_name: 'basler/hucon'
+repo_url: 'https://github.com/basler/hucon'
+edit_uri: ''
+
 
 nav:
-    - Home: index.md
-    - Assembling: assembling.md
-    - Inital setup: initial_setup.md
-    - Connect: connect.md
+    - index.md
+    - assembling.md
+    - initial_setup.md
+    - connect.md
     - license.md
 
 theme:
   name: 'material'
+  custom_dir: 'docs_theme'
   logo: 'images/icon.svg'
   favicon: 'images/icon.ico'
   palette:
     primary: 'blue'
     accent: 'light blue'
+  language: '{{ language }}'
+
+docs_dir: 'docs/{{ language }}'
+site_dir: 'site/{{ language }}'
 
 extra_css:
   - 'css/extra.css'
