@@ -27,6 +27,12 @@
     <script type="text/javascript" src="{{ url_for('.static', filename='prettify/prettify.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('.static', filename='prettify/prettify.css') }}">
 
+    <!-- fix for missing line numbers -->
+    <!-- from https://stackoverflow.com/questions/8399547/how-to-add-line-numbers-to-all-lines-in-google-prettify -->
+    <style>
+    .prettyprint ol.linenums > li { list-style-type: decimal; }
+    </style>
+
     <script type="text/javascript">
         var blocklyWorkspace;
 
@@ -128,7 +134,10 @@
         function udpateCode(event) {
             var code = getPythonCode();
             code = code.replace(/\n/g, '<br>');
-            code = PR.prettyPrintOne(code, 'py');
+            code = PR.prettyPrintOne(
+                code, 'py',
+                true // enable line numbers
+            );
             $('#pythonCode').html(code);
 
             HuConApp.UnsavedContent = true;
@@ -160,7 +169,7 @@
                 </div>
                 <div id="codeArea" class="four wide column" style="overflow:scroll;height:100%;">
                     <label>Python Code</label>
-                    <pre id="pythonCode" class="prettyprint lang-python" style="border: none;padding: 0px;">#Lets start ...</pre>
+                    <pre id="pythonCode" class="prettyprint lang-python linenums" style="border: none;padding: 0px;">#Lets start ...</pre>
                 </div>
             </div>
 {% endblock %}
