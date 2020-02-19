@@ -283,7 +283,7 @@ HuConApp.appendConsoleLogMessage = function (message, colour) {
         colour = 'black';
     }
 
-    var myRegexp = /\[([a-zA-Z]+)\]/g;
+    var myRegexp = /^\[([a-zA-Z]+)\]/g;
     match = myRegexp.exec(message);
 
     if (match != null && match[1]) {
