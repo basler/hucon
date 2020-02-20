@@ -723,4 +723,3 @@ HuConApp.showAlertBox = function (request, status, error) {
         time: 3, // time
     })
 };
-};
