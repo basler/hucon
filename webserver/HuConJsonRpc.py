@@ -19,7 +19,6 @@ import socket
 
 from HuConLogMessage import HuConLogMessage
 import HuConMAC
-from py_uci import WirelessHelper
 from PyUci import WirelessHelper
 
 

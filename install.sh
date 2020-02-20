@@ -16,7 +16,7 @@ opkg update
 # install needed packages
 echo "Install needed packages"
 opkg install curl python-light python-pip pyOnionI2C
-pip install flask, flask-socketio
+pip install flask flask-socketio
 
 echo "Linking new libraries"
 # add the hackerschool to the site packages (only for old code)
