@@ -6,33 +6,32 @@
 // This software may be modified and distributed under the terms
 // of the BSD license.  See the LICENSE file for details.
 
-var COLOR_SERVO = 30;
 var MACHINE_SERVO_PINS = [
-    ['channel 1', '0'],
-    ['channel 2', '1'],
-    ['channel 3', '2'],
-    ['channel 4', '3'],
-    ['channel 5', '4'],
-    ['channel 6', '5'],
-    ['channel 7', '6'],
-    ['channel 8', '7'],
-    ['channel 9', '8'],
-    ['channel 10', '9'],
-    ['channel 11', '10'],
-    ['channel 12', '11'],
-    ['channel 13', '12'],
-    ['channel 14', '13']
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_1'], '0'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_2'], '1'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_3'], '2'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_4'], '3'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_5'], '4'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_6'], '5'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_7'], '6'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_8'], '7'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_9'], '8'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_10'], '9'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_11'], '10'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_12'], '11'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_13'], '12'],
+    [Blockly.Msg['HUCON_SERVO_CHANNEL_14'], '13']
 ];
 
 Blockly.Blocks.machine_servo_channel = {
     init: function () {
-        this.setColour(COLOR_SERVO);
+        this.setColour(Blockly.Msg['HUCON_SERVO_HUE']);
 
         this.appendDummyInput()
             .appendField(new Blockly.FieldDropdown(MACHINE_SERVO_PINS), 'ServoChannel');
         this.setOutput(true, 'MachineServoChannel');
 
-        this.setTooltip('Get the right number for the given servo channel.');
+        this.setTooltip(Blockly.Msg['HUCON_SERVO_CHANNEL_TOOLTIP']);
     }
 };
 Blockly.Python.machine_servo_channel = function(block) {
@@ -43,14 +42,14 @@ Blockly.Python.machine_servo_channel = function(block) {
 
 Blockly.Blocks.servo_object = {
     init: function () {
-        this.setColour(COLOR_SERVO);
+        this.setColour(Blockly.Msg['HUCON_SERVO_HUE']);
 
         this.appendValueInput('VAR')
             .setCheck('MachineServoChannel')
-            .appendField('create servo on');
+            .appendField(Blockly.Msg['HUCON_SERVO_OBJECT_CREATE']);
         this.setOutput(true, 'Servo');
 
-        this.setTooltip('Create a servo object which is conntected to the given channel.');
+        this.setTooltip(Blockly.Msg['HUCON_SERVO_OBJECT_TOOLTIP']);
     }
 };
 Blockly.Python.servo_object = function (block) {
@@ -63,19 +62,19 @@ Blockly.Python.servo_object = function (block) {
 
 Blockly.Blocks.servo_set_offset = {
     init: function () {
-        this.setColour(COLOR_SERVO);
+        this.setColour(Blockly.Msg['HUCON_SERVO_HUE']);
 
         this.appendDummyInput()
-            .appendField('set')
-            .appendField(new Blockly.FieldVariable('servo'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_SERVO_OFFSET_SET'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_SERVO_VAR']), 'VAR');
         this.appendValueInput('Offset')
             .setCheck('Number')
-            .appendField('offset');
+            .appendField(Blockly.Msg['HUCON_SERVO_OFFSET_OFFSET']);
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip('Set the servo offset. The Value can be between -100 and 100.');
+        this.setTooltip(Blockly.Msg['HUCON_SERVO_OFFSET_TOOLTIP']);
     }
 };
 Blockly.Python.servo_set_offset = function (block) {
@@ -88,19 +87,19 @@ Blockly.Python.servo_set_offset = function (block) {
 
 Blockly.Blocks.servo_set_angle = {
     init: function () {
-        this.setColour(COLOR_SERVO);
+        this.setColour(Blockly.Msg['HUCON_SERVO_HUE']);
 
         this.appendDummyInput()
-            .appendField('set')
-            .appendField(new Blockly.FieldVariable('servo'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_SERVO_ANGLE_SET'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_SERVO_VAR']), 'VAR');
         this.appendValueInput('Angle')
             .setCheck('Number')
-            .appendField('angle');
+            .appendField(Blockly.Msg['HUCON_SERVO_ANGLE_ANGLE']);
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip('Set the servo angle between 0 and 180 degree.');
+        this.setTooltip(Blockly.Msg['HUCON_SERVO_ANGLE_TOOLTIP']);
     }
 };
 Blockly.Python.servo_set_angle = function (block) {

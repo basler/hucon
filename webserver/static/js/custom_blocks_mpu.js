@@ -6,17 +6,15 @@
 // This software may be modified and distributed under the terms
 // of the BSD license.  See the LICENSE file for details.
 
-var COLOR_MOTION_TRACKING = 90;
-
 Blockly.Blocks.mpu_object = {
     init: function () {
-        this.setColour(COLOR_MOTION_TRACKING);
+        this.setColour(Blockly.Msg['HUCON_MPU_HUE']);
 
         this.appendDummyInput()
-            .appendField('MPU-6050 six axis');
+            .appendField(Blockly.Msg['HUCON_MPU_OBJECT']);
         this.setOutput(true, 'MPU');
 
-        this.setTooltip('Create a motion tracking object.');
+        this.setTooltip(Blockly.Msg['HUCON_MPU_OBJECT_TOOLTIP']);
     }
 };
 Blockly.Python.mpu_object = function (block) {
@@ -28,14 +26,14 @@ Blockly.Python.mpu_object = function (block) {
 
 Blockly.Blocks.mpu_get_temperature = {
     init: function () {
-        this.setColour(COLOR_MOTION_TRACKING);
+        this.setColour(Blockly.Msg['HUCON_MPU_HUE']);
 
         this.appendDummyInput()
-            .appendField('get temperatur from')
-            .appendField(new Blockly.FieldVariable('mpu'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_MPU_GET_TEMP'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_MPU_VAR']), 'VAR');
         this.setOutput(true, 'Number');
 
-        this.setTooltip('Get the temperature from the MPU-6050 device.');
+        this.setTooltip(Blockly.Msg['HUCON_MPU_GET_TEMP_TOOLTIP']);
     }
 };
 Blockly.Python.mpu_get_temperature = function (block) {
@@ -47,14 +45,14 @@ Blockly.Python.mpu_get_temperature = function (block) {
 
 Blockly.Blocks.mpu_get_accelerometer_data = {
     init: function () {
-        this.setColour(COLOR_MOTION_TRACKING);
+        this.setColour(Blockly.Msg['HUCON_MPU_HUE']);
 
         this.appendDummyInput()
-            .appendField('get accelerometer data from')
-            .appendField(new Blockly.FieldVariable('mpu'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_MPU_GET_ACC_DATA'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_MPU_VAR']), 'VAR');
         this.setOutput(true, 'MPU_Data');
 
-        this.setTooltip('Get the accelerometer data from the MPU-6050 device.');
+        this.setTooltip(Blockly.Msg['HUCON_MPU_GET_ACC_TOOLTIP']);
     }
 };
 Blockly.Python.mpu_get_accelerometer_data = function (block) {
@@ -66,14 +64,14 @@ Blockly.Python.mpu_get_accelerometer_data = function (block) {
 
 Blockly.Blocks.mpu_get_gyroscope_data = {
     init: function () {
-        this.setColour(COLOR_MOTION_TRACKING);
+        this.setColour(Blockly.Msg['HUCON_MPU_HUE']);
 
         this.appendDummyInput()
-            .appendField('get gyroscope data from')
-            .appendField(new Blockly.FieldVariable('mpu'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_MPU_GET_GYR_DATA'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_MPU_VAR']), 'VAR');
         this.setOutput(true, 'MPU_Data');
 
-        this.setTooltip('Get the gyroscope from the MPU-6050 device.');
+        this.setTooltip(Blockly.Msg['HUCON_MPU_GET_GYR_TOOLTIP']);
     }
 };
 Blockly.Python.mpu_get_gyroscope_data = function (block) {
@@ -90,18 +88,18 @@ var MPU_POSITION = [
 ];
 Blockly.Blocks.mpu_get_mpu_data = {
     init: function () {
-        this.setColour(COLOR_MOTION_TRACKING);
+        this.setColour(Blockly.Msg['HUCON_MPU_HUE']);
 
         this.appendDummyInput()
-            .appendField('get data from')
-            .appendField(new Blockly.FieldVariable('mpu'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_MPU_GET_DATA'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_MPU_VAR']), 'VAR');
         this.appendDummyInput()
-            .appendField('position')
+            .appendField(Blockly.Msg['HUCON_MPU_GET_POSITION'])
             .appendField(new Blockly.FieldDropdown(MPU_POSITION), 'Position');
         this.setInputsInline(true);
         this.setOutput(true, 'Number');
 
-        this.setTooltip('Get the data from the position for MPU-6050 device.');
+        this.setTooltip(Blockly.Msg['HUCON_MPU_GET_TOOLTIP']);
     }
 };
 Blockly.Python.mpu_get_mpu_data = function (block) {

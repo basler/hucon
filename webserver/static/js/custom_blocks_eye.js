@@ -6,31 +6,30 @@
 // This software may be modified and distributed under the terms
 // of the BSD license.  See the LICENSE file for details.
 
-var COLOR_EYE = 0;
 var MACHINE_EYES_CODE = [
-    ['create RGB eye for', 'Eye.RGB'],
-    ['create RBG eye for', 'Eye.RBG'],
-    ['create GBR eye for', 'Eye.GBR'],
-    ['create GRB eye for', 'Eye.GRB'],
-    ['create BGR eye for', 'Eye.BGR'],
-    ['create BRG eye for', 'Eye.BRG']
+    [Blockly.Msg['HUCON_EYE_CODE_RGB'], 'Eye.RGB'],
+    [Blockly.Msg['HUCON_EYE_CODE_RBG'], 'Eye.RBG'],
+    [Blockly.Msg['HUCON_EYE_CODE_GBR'], 'Eye.GBR'],
+    [Blockly.Msg['HUCON_EYE_CODE_GRB'], 'Eye.GRB'],
+    [Blockly.Msg['HUCON_EYE_CODE_BGR'], 'Eye.BGR'],
+    [Blockly.Msg['HUCON_EYE_CODE_BRG'], 'Eye.BRG']
 ];
 var MACHINE_EYES = [
-    ['position top left', '1'],
-    ['position top right', '2'],
-    ['position bottom left', '3'],
-    ['position bottom right', '4']
+    [Blockly.Msg['HUCON_EYE_POSITION_1'], '1'],
+    [Blockly.Msg['HUCON_EYE_POSITION_2'], '2'],
+    [Blockly.Msg['HUCON_EYE_POSITION_3'], '3'],
+    [Blockly.Msg['HUCON_EYE_POSITION_4'], '4']
 ];
 
 Blockly.Blocks.machine_eye = {
     init: function () {
-        this.setColour(COLOR_EYE);
+        this.setColour(Blockly.Msg['HUCON_EYE_HUE']);
 
         this.appendDummyInput()
             .appendField(new Blockly.FieldDropdown(MACHINE_EYES), 'Eye');
         this.setOutput(true, 'MachineEye');
 
-        this.setTooltip('Get the right value for the eye position.');
+        this.setTooltip(Blockly.Msg['HUCON_EYE_OBJECT_TOOLTIP']);
     }
 };
 Blockly.Python.machine_eye = function(block) {
@@ -40,14 +39,14 @@ Blockly.Python.machine_eye = function(block) {
 
 Blockly.Blocks.eye_object_code = {
     init: function () {
-        this.setColour(COLOR_EYE);
+        this.setColour(Blockly.Msg['HUCON_EYE_HUE']);
 
         this.appendValueInput('Position')
             .appendField(new Blockly.FieldDropdown(MACHINE_EYES_CODE), 'ColorCoding')
             .setCheck('MachineEye');
         this.setOutput(true, 'Eye');
 
-        this.setTooltip('Create an eye object which is on the given position.');
+        this.setTooltip(Blockly.Msg['HUCON_EYE_OBJECT_CODE_TOOLTIP']);
     }
 };
 Blockly.Python.eye_object_code = function(block) {
@@ -59,9 +58,10 @@ Blockly.Python.eye_object_code = function(block) {
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
+// This block is deprecated!
 Blockly.Blocks.eye_object = {
     init: function () {
-        this.setColour(COLOR_EYE);
+        this.setColour(Blockly.Msg['HUCON_EYE_HUE']);
 
         this.appendValueInput('Position')
             .setCheck('MachineEye')
@@ -81,19 +81,19 @@ Blockly.Python.eye_object = function(block) {
 
 Blockly.Blocks.eye_colour = {
     init: function () {
-        this.setColour(COLOR_EYE);
+        this.setColour(Blockly.Msg['HUCON_EYE_HUE']);
 
         this.appendDummyInput()
-            .appendField('set')
-            .appendField(new Blockly.FieldVariable('eye'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_SET'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_EYE_VAR']), 'VAR');
         this.appendDummyInput()
-            .appendField('eye color')
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_EYE_COLOR'])
             .appendField(new Blockly.FieldColour('#ff0000'), 'Colour');
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip('Set the color for the eye. Use the color field to define the red, green and blue value.');
+        this.setTooltip(Blockly.Msg['HUCON_EYE_COLOUR_TOOLTIP']);
     }
 };
 Blockly.Python.eye_colour = function(block) {
@@ -110,27 +110,27 @@ Blockly.Python.eye_colour = function(block) {
 
 Blockly.Blocks.eye_colour_rgb = {
     init: function () {
-        this.setColour(COLOR_EYE);
+        this.setColour(Blockly.Msg['HUCON_EYE_HUE']);
 
         this.appendDummyInput()
-            .appendField('set')
-            .appendField(new Blockly.FieldVariable('eye'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_SET'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_EYE_VAR']), 'VAR');
         this.appendDummyInput()
-            .appendField('eye color');
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_EYE_COLOR']);
         this.appendValueInput('R')
             .setCheck('Number')
-            .appendField('red');
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_RGB_RED']);
         this.appendValueInput('G')
             .setCheck('Number')
-            .appendField('green');
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_RGB_GREEN']);
         this.appendValueInput('B')
             .setCheck('Number')
-            .appendField('blue');
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_RGB_BLUE']);
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip('Set the color for the eye. Use seperated values for red, green and blue.');
+        this.setTooltip(Blockly.Msg['HUCON_EYE_COLOUR_RGB_TOOLTIP']);
     }
 };
 Blockly.Python.eye_colour_rgb = function(block) {

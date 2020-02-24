@@ -6,23 +6,18 @@
 // This software may be modified and distributed under the terms
 // of the BSD license.  See the LICENSE file for details.
 
-var COLOR_MACHINE = 180;
-var COLOR_EYE = 0;
-var COLOR_SERVO = 30;
-var COLOR_MOTOR = 60;
-
 Blockly.Blocks.machine_sleep = {
     init: function () {
-        this.setColour(COLOR_MACHINE);
+        this.setColour(Blockly.Msg['HUCON_SYSTEM_HUE']);
 
         this.appendDummyInput()
-            .appendField('sleep for')
+            .appendField(Blockly.Msg['HUCON_SYSTEM_SLEEP_FOR'])
             .appendField(new Blockly.FieldNumber('100'), 'Milliseconds')
-            .appendField('milliseconds');
+            .appendField(Blockly.Msg['HUCON_SYSTEM_SLEEP_TIME']);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip('Sleep for an amout of time.');
+        this.setTooltip(Blockly.Msg['HUCON_SYSTEM_SLEEP_TOOLTIP']);
     }
 };
 Blockly.Python.machine_sleep = function(block) {
@@ -35,18 +30,18 @@ Blockly.Python.machine_sleep = function(block) {
 
 Blockly.Blocks.machine_sleep_value = {
     init: function () {
-        this.setColour(COLOR_MACHINE);
+        this.setColour(Blockly.Msg['HUCON_SYSTEM_HUE']);
 
         this.appendDummyInput()
-            .appendField('sleep for')
-            .appendField(new Blockly.FieldVariable('index'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_SYSTEM_SLEEP_FOR'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_SYSTEM_SLEEP_VAR']), 'VAR');
         this.appendDummyInput()
-            .appendField('milliseconds');
+            .appendField(Blockly.Msg['HUCON_SYSTEM_SLEEP_TIME']);
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip('Sleep for an amout of time.');
+        this.setTooltip(Blockly.Msg['HUCON_SYSTEM_SLEEP_TOOLTIP']);
     }
 };
 Blockly.Python.machine_sleep_value = function(block) {

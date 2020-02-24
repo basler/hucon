@@ -8,7 +8,7 @@
  of the BSD license.  See the LICENSE file for details.
  -->
 <xml>
-    <category id="catLogic" colour="210" name="Logic">
+    <category id="catLogic" colour="%{BKY_LOGIC_HUE}" name="%{BKY_HUCON_LOGIC_CAT}">
         <block type="controls_if"></block>
         <block type="logic_compare"></block>
         <block type="logic_operation"></block>
@@ -17,7 +17,7 @@
         <block type="logic_null"></block>
         <block type="logic_ternary"></block>
     </category>
-    <category id="catLoops" colour="120" name="Loops">
+    <category id="catLoops" colour="%{BKY_LOOPS_HUE}" name="%{BKY_HUCON_LOOPS_CAT}">
         <block type="controls_repeat_ext">
             <value name="TIMES">
                 <shadow type="math_number">
@@ -46,7 +46,7 @@
         <block type="controls_forEach"></block>
         <block type="controls_flow_statements"></block>
     </category>
-    <category id="catMath" colour="230" name="Math">
+    <category id="catMath" colour="%{BKY_MATH_HUE}" name="%{BKY_HUCON_MATH_CAT}">
         <block type="math_number"></block>
         <block type="math_arithmetic">
             <value name="A">
@@ -140,7 +140,7 @@
         </block>
         <block type="math_random_float"></block>
     </category>
-    <category id="catText" colour="160" name="Text">
+    <category id="catText" colour="%{BKY_TEXTS_HUE}" name="%{BKY_HUCON_TEXTS_CAT}">
         <block type="text"></block>
         <block type="text_join"></block>
         <block type="text_append">
@@ -217,7 +217,7 @@
             </value>
         </block>
     </category>
-    <category id="catLists" colour="260" name="Lists">
+    <category id="catLists" colour="%{BKY_LISTS_HUE}" name="%{BKY_HUCON_LISTS_CAT}">
         <block type="lists_create_with">
             <mutation items="0"></mutation>
         </block>
@@ -269,14 +269,14 @@
         <block type="lists_sort"></block>
     </category>
     <sep></sep>
-    <category id="catVariables" colour="330" custom="VARIABLE" name="Variables"></category>
-    <category id="catFunctions" colour="290" custom="PROCEDURE" name="Functions"></category>
+    <category id="catVariables" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE" name="%{BKY_HUCON_VARIABLES_CAT}"></category>
+    <category id="catFunctions" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE" name="%{BKY_HUCON_FUNCTIONS_CAT}"></category>
     <sep></sep>
-    <category name="Machine" colour="180">
+    <category colour="%{BKY_HUCON_SYSTEM_HUE}" name="%{BKY_HUCON_SYSTEM_CAT}">
         <block type="machine_sleep"></block>
         <block type="machine_sleep_value"></block>
     </category>
-    <category name="Eye" colour="0">
+    <category colour="%{BKY_HUCON_EYE_HUE}" name="%{BKY_HUCON_EYE_CAT}">
         <block type="machine_eye"></block>
         <block type="eye_object_code"></block>
         <block type="eye_colour"></block>
@@ -298,7 +298,7 @@
             </value>
         </block>
     </category>
-    <category name="Servo" colour="30">
+    <category colour="%{BKY_HUCON_SERVO_HUE}" name="%{BKY_HUCON_SERVO_CAT}">
         <block type="machine_servo_channel"></block>
         <block type="servo_object"></block>
         <block type="servo_set_offset">
@@ -316,7 +316,7 @@
             </value>
         </block>
     </category>
-    <category name="Motor" colour="60">
+    <category colour="%{BKY_HUCON_MOTOR_HUE}" name="%{BKY_HUCON_MOTOR_CAT}">
         <block type="machine_motor_channel"></block>
         <block type="motor_object"></block>
         <block type="motor_set_offset">
@@ -334,14 +334,14 @@
             </value>
         </block>
     </category>
-    <category name="Motion Tracking" colour="90">
+    <category colour="%{BKY_HUCON_MPU_HUE}" name="%{BKY_HUCON_MPU_CAT}">
         <block type="mpu_object"></block>
         <block type="mpu_get_temperature"></block>
         <block type="mpu_get_accelerometer_data"></block>
         <block type="mpu_get_gyroscope_data"></block>
         <block type="mpu_get_mpu_data"></block>
     </category>
-    <category name="Events" colour="250">
+    <category colour="%{BKY_HUCON_EVENTS_HUE}" name="%{BKY_HUCON_EVENTS_CAT}">
         <block type="event_init"></block>
         <block type="event_run_endless"></block>
         <block type="event_stop_endless"></block>

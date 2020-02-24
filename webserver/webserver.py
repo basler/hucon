@@ -52,6 +52,13 @@ app = Flask(json_rpc._SERVER_NAME)
 app.config["SECRET_KEY"] = "SECRET_KEY"
 socketio = SocketIO(app, logger=True)#, async_mode='eventlet'
 
+@app.context_processor
+def detect_browser_language():
+    """ Returns the current user browser language.
+    """
+    supported_browser_languages = ["en", "de"]
+    lang = request.accept_languages.best_match(supported_browser_languages)
+    return dict(browser_langaue=lang)
 
 @app.route('/')
 @app.route('/index.html')
