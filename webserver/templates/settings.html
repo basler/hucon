@@ -76,7 +76,8 @@
             </div>
             <div class="ui divider"></div>
             <div class="row actions">
-                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui fluid blue button approve">Scan
+                <button onclick="$('#id_wifi_list_modal').modal('hide')" class="ui orange button">Close</button>
+                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui blue button approve">Scan
                     WiFi
                 </button>
             </div>
@@ -125,7 +126,8 @@
             </form>
             <div class="ui divider"></div>
             <div class="row action">
-                <button onclick="addWiFi()" id="addWiFiButton" class="ui blue fluid button approve">Add WiFi</button>
+                <button onclick="$('#id_wifi_search_modal').modal('hide')" class="ui orange button">Close</button>
+                <button onclick="addWiFi()" id="addWiFiButton" class="ui blue button approve">Add WiFi</button>
             </div>
         </div>
     </div>
@@ -137,6 +139,7 @@
                     WiFi Access Point Setup
                 </div>
                 <div class="three wide column">
+{#                    Uncomment next for ability turn ap mode on and off. Attention! Device may be unreacheable if onliy ap mode was configured. #}
 {#                    <div class="ui toggle checkbox" id="id_enable_ap_mode">#}
 {#                        <input type="checkbox" name="enable_ap_mode">#}
 {#                        <label>Enable AP Mode</label>#}
@@ -172,12 +175,6 @@
                             <div class="ui input fluid"><input id="id_ap_password_repeat" name="password_repeat" type="password">
                             </div>
                         </div>
-{#                        <div class="two wide column">#}
-{#                            <div class="ui checkbox" id="id_show_ap_password_repeat">#}
-{#                                <input type="checkbox" name="show_ap_password_repeat">#}
-{#                                <label>Show</label>#}
-{#                            </div>#}
-{#                        </div>#}
                     </div>
                 </div>
                 <div class="field">
@@ -196,7 +193,8 @@
             </form>
             <div class="ui divider"></div>
             <div class="row action">
-                <button onclick="setWiFiAPsettings()" id="id_configure_ap_button" class="ui blue fluid button approve">
+                <button onclick="$('#id_ap_wifi_modal').modal('hide')" class="ui orange button">Close</button>
+                <button onclick="setWiFiAPsettings()" id="id_configure_ap_button" class="ui blue button approve">
                     Configure AP
                 </button>
             </div>
