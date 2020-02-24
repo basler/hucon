@@ -48,8 +48,7 @@
             <div id="menuArea" class="ui top attached menu">
                 <div id="indexButton">
                     <a href="index.html">
-                        <img src="{{ url_for('.static', filename='images/Icon.svg') }}" alt="Icon" width="42"
-                             height="42" style="border-top-left-radius: 4px;">
+                        <img src="{{ url_for('.static', filename='images/Icon.svg') }}" alt="Icon" width="42" height="42" style="border-top-left-radius: 4px;">
                     </a>
                 </div>
                 <div id="fileButton" class="ui simple dropdown item">
@@ -72,25 +71,12 @@
                 <a id="codeButton" class="item"><i class="code icon"></i>Code</a>
                 <a id="buttonModalButton" class="item"><i class="grid layout icon"></i> Buttons</a>
                 <div class="right menu">
+                    <span class="ui item">
+                        HuCon Name: <span id="huconName"></span>
+                    </span>
                     <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
                 </div>
             </div>
-            <div id="chooseInput" class="ui icon input">
-                <input id="chooseFilename" class="prompt readonly" type="text" placeholder="Choose ...">
-                <i class="search link icon"></i>
-            </div>
-            <a id="runButton" class="item"><i class="play icon"></i>Run</a>
-            <a id="stopButton" class="item disabled"><i class="stop icon"></i>Stop</a>
-            <a id="consoleButton" class="item"><i class="terminal icon"></i>Console</a>
-            <a id="codeButton" class="item"><i class="code icon"></i>Code</a>
-            <a id="buttonModalButton" class="item"><i class="grid layout icon"></i> Buttons</a>
-            <div class="right menu">
-                <span class="ui item">
-                    HuCon Name: <span id="huconName"></span>
-                </span>
-                <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
-            </div>
-        </div>
         {% endblock %}
         {% block main %}
             <div id="mainArea" class="ui attached segment">
