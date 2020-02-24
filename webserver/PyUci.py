@@ -1,3 +1,12 @@
+#!/usr/bin/python
+""" PyUci.py - The HuCon queue class for log messages.
+
+    Copyright (C) 2020 Basler AG
+    All rights reserved.
+
+    This software may be modified and distributed under the terms
+    of the BSD license.  See the LICENSE file for details.
+"""
 import subprocess
 
 
@@ -12,7 +21,10 @@ class UciHelperBase(object):
         :param package: String name of configuration to be read
         """
         self.config = {}
-        self._read_config(package)
+        try:
+            self._read_config(package)
+        except WindowsError:
+            pass
 
     def _read_config(self, package=None):
         """
