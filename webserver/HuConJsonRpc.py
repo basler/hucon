@@ -19,6 +19,7 @@ import socket
 
 from HuConLogMessage import HuConLogMessage
 import HuConMAC
+from PyUci import WirelessHelper
 
 
 class HuConJsonRpc():
@@ -63,6 +64,9 @@ class HuConJsonRpc():
 
     # Queue for all log messages
     _log = HuConLogMessage()
+
+    # Wireless Helper object for handle wireless settings
+    _wifi = WirelessHelper(_log)
 
     def __init__(self):
         """ Initialize the RPC server.
@@ -113,6 +117,32 @@ class HuConJsonRpc():
             return self._update(rpc_request)
         elif rpc_request['method'] == 'shutdown':
             return self._shutdown(rpc_request)
+        elif rpc_request['method'] == 'get_saved_wifi_networks':
+            return self._get_saved_wifi_networks(rpc_request)
+        elif rpc_request['method'] == 'get_wifi_found':
+            return self._get_wifi_found(rpc_request)
+        elif rpc_request['method'] == 'add_wifi':
+            return self._add_wifi(rpc_request)
+        elif rpc_request['method'] == 'move_wifi_up':
+            return self._move_wifi_up(rpc_request)
+        elif rpc_request['method'] == 'move_wifi_down':
+            return self._move_wifi_down(rpc_request)
+        elif rpc_request['method'] == 'remove_wifi':
+            return self._remove_wifi(rpc_request)
+        elif rpc_request['method'] == 'connect_wifi':
+            return self._connect_wifi(rpc_request)
+        elif rpc_request['method'] == 'enable_sta_wifi':
+            return self._enable_sta_wifi(rpc_request)
+        elif rpc_request['method'] == 'disable_sta_wifi':
+            return self._disable_sta_wifi(rpc_request)
+        elif rpc_request['method'] == 'get_ap_settings':
+            return self._get_ap_settings(rpc_request)
+        elif rpc_request['method'] == 'enable_ap_wifi':
+            return self._enable_ap_wifi(rpc_request)
+        elif rpc_request['method'] == 'disable_ap_wifi':
+            return self._disable_ap_wifi(rpc_request)
+        elif rpc_request['method'] == 'set_ap_settings':
+            return self._set_ap_settings(rpc_request)
         else:
             return self._return_error(rpc_request['id'], 'Command not known.')
 
@@ -156,7 +186,7 @@ class HuConJsonRpc():
                                               stderr=subprocess.STDOUT)
 
         while True:
-            output = self._current_proc.stdout.readline()
+            output = self._current_proc.stdout.readline().decode()
             if output == '' and self._current_proc.poll() is not None:
                 break
             if output:
@@ -502,3 +532,209 @@ class HuConJsonRpc():
         else:
             # This should never be reached in term of the system shutdown.
             return self._return_error(rpc_request['id'], 'Could not shutdown the system.', 500)
+
+    # Wireless settings section
+    def _get_wifi_found(self, rpc_request):
+        """
+        Scan for Wi-Fi networks and returns searched as rpc_response
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Search for WiFi.\n')
+            device = json.dumps({"device": "ra0"})
+            wifi_scan_output = json.loads(subprocess.check_output(['ubus', 'call', 'onion', 'wifi-scan', device]).decode())
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            rpc_response['result'] = wifi_scan_output['results']
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not search for WiFi. (%s)' % str(ex), 500)
+        else:
+            return json.dumps(rpc_response)
+
+    def _get_saved_wifi_networks(self, rpc_request):
+        """
+        Returns saved networks as rpc_response
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Read WiFi Settings.\n')
+            wifi_disabled = self._wifi.is_wifi_disabled()
+            wifi_output_list = self._wifi.get_saved_wifi_networks()
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            result = {"wifi_list": wifi_output_list, "wifi_disabled": wifi_disabled}
+            rpc_response['result'] = result
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not read WiFi settings. (%s)' % str(ex), 500)
+        else:
+            return json.dumps(rpc_response)
+
+    def _add_wifi(self, rpc_request):
+        """
+        Add new Wi-Fi network to configuration
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Add new WiFi.\n')
+            self._wifi.add_wifi(ssid=rpc_request['params'][0],
+                                key=rpc_request['params'][1],
+                                encryption=rpc_request['params'][2])
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not add new WiFi network. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _move_wifi_up(self, rpc_request):
+        """
+        Move Wi-Fi network up in priority list
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Move WiFi up.\n')
+            self._wifi.move_wifi_up(rpc_request['params'][0])
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not move WiFi network up. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _move_wifi_down(self, rpc_request):
+        """
+        Move Wi-Fi network up in priority list
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Move WiFi down.\n')
+            self._wifi.move_wifi_down(rpc_request['params'][0])
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not move WiFi network down. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _remove_wifi(self, rpc_request):
+        """
+        Remove Wi-Fi network from settings
+        :param rpc_request:
+        :return:
+        """
+        try:
+            self._log.put('Remove WiFi down.\n')
+            self._wifi.remove_wifi(rpc_request['params'][0])
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _connect_wifi(self, rpc_request):
+        """
+        Connect selected Wi-Fi network
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Connect WiFi.\n')
+            self._wifi.connect_wifi(rpc_request['params'][0])
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _enable_sta_wifi(self, rpc_request):
+        """
+        Enable STA radio
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Enable WiFi.\n')
+            self._wifi.enable_sta_wifi()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not enable WiFi. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _disable_sta_wifi(self, rpc_request):
+        """
+        Disable STA radio
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Disable WiFi.\n')
+            self._wifi.disable_sta_wifi()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not disable WiFi. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _get_ap_settings(self, rpc_request):
+        """
+        Returns AP Settings in rpc_response
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Get AP Settings.\n')
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            rpc_response['result'] = self._wifi.get_ap_settings()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not get AP settings. (%s)' % str(ex), 500)
+        else:
+            return json.dumps(rpc_response)
+
+    def _enable_ap_wifi(self, rpc_request):
+        """
+        Enable AP radio
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Enable AP WiFi.\n')
+            self._wifi.enable_ap_wifi()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not enable AP WiFi. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _disable_ap_wifi(self, rpc_request):
+        """
+        Disable AP radio
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Disable AP WiFi.\n')
+            self._wifi.disable_ap_wifi()
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not disable WiFi. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)
+
+    def _set_ap_settings(self, rpc_request):
+        """
+        Set AP WiFi settings
+        :param rpc_request:
+        :return: rpc_response
+        """
+        try:
+            self._log.put('Set AP WiFi Settings.\n')
+            self._wifi.set_ap_settings(ssid=rpc_request['params'][0],
+                                       key=rpc_request['params'][1],
+                                       encryption=rpc_request['params'][2],
+                                       ip=rpc_request['params'][3])
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not configure AP WiFi settings. (%s)' % str(ex), 500)
+        else:
+            rpc_response = self._get_rpc_response(rpc_request['id'])
+            return json.dumps(rpc_response)

@@ -8,6 +8,7 @@
     of the BSD license.  See the LICENSE file for details.
 """
 
+
 def set_led(red, green, blue):
     """ Use the hucon eye driver to set the eye color.
     """
@@ -28,21 +29,28 @@ set_led(249, 166, 2)
 
 import argparse
 import logging
-import time
 import threading
-import httplib
+import time
+
+try:
+    import httplib
+except:
+    import http.client as httplib
 from flask import Flask
-from flask import abort
 from flask import request
-from flask import Response
 from flask import render_template
-from functools import wraps
+from flask_socketio import SocketIO
 
 from HuConJsonRpc import HuConJsonRpc
 
 json_rpc = HuConJsonRpc()
 
+COLLECT_STATIC_ROOT = "/opt/hucon/webserver/static"
+COLLECT_STORAGE = 'flask_collect.storage.file'
+
 app = Flask(json_rpc._SERVER_NAME)
+app.config["SECRET_KEY"] = "SECRET_KEY"
+socketio = SocketIO(app, logger=True)#, async_mode='eventlet'
 
 
 @app.route('/')
@@ -105,7 +113,7 @@ def api():
 @app.before_first_request
 def before_first_reuqest():
     """ Set the eyes to green and after a while to off.
-        This will gibe the user teh ability to see thatr the service is running.
+        This will gibe the user teh ability to see that the service is running.
     """
     set_led(0, 255, 0)
     time.sleep(2)
@@ -117,6 +125,7 @@ def check_service():
     """
     not_started = True
     while not_started:
+        time.sleep(10)
         try:
             conn = httplib.HTTPConnection('localhost', json_rpc._LISTENING_PORT, timeout=1)
             conn.request('GET', '/')
@@ -124,7 +133,8 @@ def check_service():
             if res.status == 200:
                 not_started = False
         except Exception as ex:
-            print(ex)
+            pass
+            # print(ex)
 
 
 if __name__ == '__main__':
@@ -144,7 +154,7 @@ if __name__ == '__main__':
         log.setLevel(logging.ERROR)
 
     # Run a thread to check the flask service.
-    thread = threading.Thread(target=check_service)
-    thread.start()
-
-    app.run(host='0.0.0.0', port=json_rpc._LISTENING_PORT, debug=args.debug)
+    # thread = threading.Thread(target=check_service)
+    # thread.start()
+    socketio.start_background_task(target=check_service)
+    socketio.run(app, host='0.0.0.0', port=json_rpc._LISTENING_PORT, debug=args.debug)

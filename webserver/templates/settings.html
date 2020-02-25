@@ -8,88 +8,34 @@
 {% block title %} - Settings{% endblock %}
 {% block head %}
     {{ super() }}
-
-    <script type="text/javascript">
-
-        // On document ready this function will be called and initialize the complete website.
-        $(document).ready(function () {
-            // poll for new messages
-            HuConApp.poll();
-        }());
-
-        // Check for updates.
-        function checkUpdate() {
-            $('#updateModal').modal('show');
-            $('#consoleLog').html('');
-            $('#updateButton').addClass('disabled');
-
-            HuConApp.appendConsoleLog('Check for updates ...', 'green');
-
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'check_update';
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                success: function (rpcResponse) {
-                    if (HuConApp.isResponseError(rpcResponse)) {
-                        alert(rpcResponse[error]);
-                    }
-
-                    if (rpcResponse['result']) {
-                        $('#updateButton').removeClass('disabled');
-                    }
-                },
-                error: HuConApp.appendErrorLog
-            });
-        }
-
-        // Call the update script.
-        function updateSystem() {
-            var rpcRequest = HuConApp.getRpcRequest();
-            rpcRequest['method'] = 'update';
-            $.ajax('/API', {
-                method: 'POST',
-                data: JSON.stringify(rpcRequest),
-                dataType: 'json',
-                error: HuConApp.appendErrorLog
-            });
-        }
-
-        // Overwrite the default appenConsoleLogMessage function.
-        // Append the message, which can be a an array, to the console output.
-        HuConApp.appendConsoleLogMessage = function(message, colour) {
-            if (colour === undefined) {
-                colour = 'black';
-            }
-
-            if (message.includes('Error:')) {
-                colour = 'red';
-            }
-
-            $('#consoleLog').append($('<span>').css('color', colour).text(message)).append($('<br>'));
-            $('#consoleLog').scrollTop($('#consoleLog')[0].scrollHeight);
-        };
-
-    </script>
-
+    <script src="{{ url_for('.static', filename='js/settings.js') }}"></script>
 {% endblock %}
 
 {% block menu %}{% endblock %}
 {% block log %}{% endblock %}
 
 {% block main %}
-        <div class="center">
-            <button onclick="checkUpdate()" class="fluid ui orange button">
-                <i class="icon cloud download"></i>
-                Update
-            </button>
-            <p></p>
-            <button onclick="location.href='index.html'" class="fluid ui blue button">
-                <i class="icon home"></i>
-                Home
-            </button>
-        </div>
+    <div class="center">
+        <button onclick="checkUpdate()" class="fluid ui orange button">
+            <i class="icon cloud download"></i>
+            Update
+        </button>
+        <p></p>
+        <button onclick="listWiFiNetworks()" class="fluid ui orange button">
+            <i class="icon wi-fi"></i>
+            WiFi
+        </button>
+        <p></p>
+        <button onclick="showWiFiAPsettings()" class="fluid ui orange button">
+            <i class="icon wi-fi"></i>
+            WiFi AP Settings
+        </button>
+        <p></p>
+        <button onclick="location.href='index.html'" class="fluid ui blue button">
+            <i class="icon home"></i>
+            Home
+        </button>
+    </div>
 {% endblock %}
 
 {% block modal %}
@@ -107,5 +53,152 @@
             <button onclick="updateSystem()" id="updateButton" class="ui blue button disabled">Update</button>
         </div>
     </div>
+    <div id="id_wifi_list_modal" class="ui modal">
+        <div class="header">
+            <div class="ui grid">
+                <div class="thirteen wide column">
+                    <i class="icon wi-fi"></i>
+                    WiFi List
+                    <div id="id_wifi_list_loader"
+                         class="ui medium workaround disabled right floated inline loader"></div>
+                </div>
+                <div class="three wide column">
+                    <div class="ui toggle checkbox" id="id_enable_wifi">
+                        <input type="checkbox" name="enable_wifi">
+                        <label>Enable WiFi</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="row">
+                <div id="id_wifi_list" class="ui middle aligned divided list"></div>
+            </div>
+            <div class="ui divider"></div>
+            <div class="row actions">
+                <button onclick="$('#id_wifi_list_modal').modal('hide')" class="ui orange button">Close</button>
+                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui blue button approve">Scan
+                    WiFi
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="id_wifi_search_modal" class="ui modal">
+        <div class="header">
+            <i class="icon wi-fi"></i>
+            Add new WiFi
+            <div id="id_loader" class="ui medium workaround active right floated inline loader"></div>
+        </div>
 
+        <div class="content">
+            <form class="ui form">
+                <div class="field">
+                    <label>WiFi Network</label>
+                    <select class="ui search fluid dropdown" id="id_search_wifi_menu"></select>
+                </div>
+                <div class="field">
+                    <label>SSID</label>
+                    <div class="ui input fluid"><input id="id_ssid" name="ssid" type="text"></div>
+                </div>
+                <div class="field">
+                    <label>WiFi Password</label>
+                    <div class="ui grid">
+                        <div class="fourteen wide column">
+                            <div class="ui input fluid"><input id="id_password" name="password" type="password"></div>
+                        </div>
+                        <div class="two wide column">
+                            <div class="ui checkbox" id="id_show_password">
+                                <input type="checkbox" name="show_password">
+                                <label>Show</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Encryption Mode</label>
+                    <select class="ui dropdown fluid" id="id_encryption">
+                        <option value="psk">WPA (PSK)</option>
+                        <option value="psk2">WPA2 (PSK)</option>
+                        <option value="wep">WEP</option>
+                        <option value="none">Not secured</option>
+                    </select>
+                </div>
+            </form>
+            <div class="ui divider"></div>
+            <div class="row action">
+                <button onclick="$('#id_wifi_search_modal').modal('hide')" class="ui orange button">Close</button>
+                <button onclick="addWiFi()" id="addWiFiButton" class="ui blue button approve">Add WiFi</button>
+            </div>
+        </div>
+    </div>
+    <div id="id_ap_wifi_modal" class="ui modal">
+        <div class="header">
+            <div class="ui grid">
+                <div class="thirteen wide column">
+                    <i class="icon wi-fi"></i>
+                    WiFi Access Point Setup
+                </div>
+                <div class="three wide column">
+{#                    Uncomment next for ability turn ap mode on and off. Attention! Device may be unreacheable if onliy ap mode was configured. #}
+{#                    <div class="ui toggle checkbox" id="id_enable_ap_mode">#}
+{#                        <input type="checkbox" name="enable_ap_mode">#}
+{#                        <label>Enable AP Mode</label>#}
+{#                    </div>#}
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <form class="ui form">
+                <div class="field">
+                    <label>AP Network SSID</label>
+                    <div class="ui input fluid"><input id="id_ap_ssid" name="ssid" type="text"></div>
+                </div>
+                <div class="field">
+                    <label>AP Password</label>
+                    <div class="ui grid">
+                        <div class="fourteen wide column">
+                            <div class="ui input fluid"><input id="id_ap_password" name="password" type="password">
+                            </div>
+                        </div>
+                        <div class="two wide column">
+                            <div class="ui checkbox" id="id_show_ap_password">
+                                <input type="checkbox" name="show_ap_password">
+                                <label>Show</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Repeat AP Password</label>
+                    <div class="ui grid">
+                        <div class="fourteen wide column">
+                            <div class="ui input fluid"><input id="id_ap_password_repeat" name="password_repeat" type="password">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Security</label>
+                    <select class="ui dropdown fluid" id="id_ap_encryption">
+                        <option value="psk">WPA (PSK)</option>
+                        <option value="psk2">WPA2 (PSK)</option>
+                        <option value="wep">WEP</option>
+                        <option value="none">Not secured</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>IP Address</label>
+                    <div class="ui input fluid"><input id="id_ap_ip" name="ip" type="text"></div>
+                </div>
+            </form>
+            <div class="ui divider"></div>
+            <div class="row action">
+                <button onclick="$('#id_ap_wifi_modal').modal('hide')" class="ui orange button">Close</button>
+                <button onclick="setWiFiAPsettings()" id="id_configure_ap_button" class="ui blue button approve">
+                    Configure AP
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
 {% endblock %}

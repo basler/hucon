@@ -1,4 +1,5 @@
-""" MAC.py - Get MAC address from Onion Omega2
+#!/usr/bin/python
+""" HuConMAC.py - Get MAC address from Onion Omega2
 
     Copyright (C) 2020 Basler AG
     All rights reserved.
