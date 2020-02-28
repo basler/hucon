@@ -1,0 +1,169 @@
+{
+    "Blockly":
+    "Blockly",
+
+    "Use bricks to programm your robot.":
+    "Benutze Blöcke um deinen Roboter zu programmieren.",
+
+    "Editor":
+    "Editor",
+
+    "Programm your Robot like a Pro with Python.":
+    "Programmiere deinen Roboter wie ein Profi in Python.",
+
+    "Mobile":
+    "Mobile",
+
+    "Run a programm of your Robot with your smartphone.":
+    "Starte ein Programm deines Roboters von deinem Handy aus.",
+
+    "Settings":
+    "Einstellungen",
+
+    "Update your robot or change the settings.":
+    "Aktualisiere deinen Roboter oder ändere einige Einstellungen.",
+
+    "Some icons are used from FontAwesome (<a href=\"https://fontawesome.com/license\">license</a>)":
+    "Einige icons sind von FontAwesome (<a href=\"https://fontawesome.com/license\">Lizenz</a>)",
+
+    "Shutdown":
+    "Herunterfahren",
+
+    "Close":
+    "Schließen",
+
+    "File":
+    "Datei",
+
+    "New":
+    "Neu",
+
+    "Open":
+    "Öffnen",
+
+    "Save":
+    "Speichern",
+
+    "Run":
+    "Start",
+
+    "Stop":
+    "Stop",
+
+    "Console":
+    "Ausgabe",
+
+    "Code":
+    "Code",
+
+    "Buttons":
+    "Buttons",
+
+    "HuCon Name:":
+    "HuCon Name:",
+
+    "Home":
+    "Home",
+
+    "Console Log":
+    "Log Ausgabe",
+
+    "Choose file":
+    "Wähle eine Datei",
+
+    "Cancel":
+    "Abbrechen",
+
+    "Open file":
+    "Datei öffnen",
+
+    "New folder":
+    "Neuer Ordner",
+
+    "Create":
+    "Erstellen",
+
+    "Save file":
+    "Datei speichern",
+
+    "Click a button":
+    "Drück einen Button",
+
+    "Python Code":
+    "Python Code",
+
+    "Loading":
+    "Lade",
+
+    "Update":
+    "Aktualisieren",
+
+    "WiFi":
+    "WLAN",
+
+    "WiFi AP Settings":
+    "WLAN AP Einstellungen",
+
+    "WiFi List":
+    "WLAN Liste",
+
+    "Enable WiFi":
+    "WLAN Aktivieren",
+
+    "Scan WiFi":
+    "WLAN durchsuchen",
+
+    "Add new WiFi":
+    "Neues WLAN hinzufügen",
+
+    "WiFi Network":
+    "WLAN Netzwerk",
+
+    "SSID":
+    "SSID",
+
+    "WiFi Password":
+    "WLAN Passwort",
+
+    "Show":
+    "Zeigen",
+
+    "WPA (PSK)":
+    "WPA (PSK)",
+
+    "WPA2 (PSK)":
+    "WPA2 (PSK)",
+
+    "WEP":
+    "WEP",
+
+    "Not secured":
+    "Nicht abgesichert",
+
+    "Add WiFi":
+    "WLAN hinzufügen",
+
+    "WiFi Access Point Setup":
+    "WLAN Access Point Einstellung",
+
+    "Enable AP Mode":
+    "AP Mode de-/aktivieren",
+
+    "AP Network SSID":
+    "AP Netzwerk SSID",
+
+    "AP Password":
+    "AP Passwort",
+
+    "Repeat AP Password":
+    "Widerhole AP Passwort",
+
+    "Security":
+    "Sicherheit",
+
+    "IP Address":
+    "IP Adresse",
+
+    "Configure AP":
+    "AP Konfigurieren"
+}

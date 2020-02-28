@@ -58,7 +58,9 @@ def detect_browser_language():
     """
     supported_browser_languages = ["en", "de"]
     lang = request.accept_languages.best_match(supported_browser_languages)
-    return dict(browser_langaue=lang)
+    if lang == None:
+        lang = 'en'
+    return dict(browser_language=lang)
 
 @app.route('/')
 @app.route('/index.html')
