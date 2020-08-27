@@ -5,7 +5,7 @@
    of the BSD license.  See the LICENSE file for details.
    #}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html lang="de">
+<html">
 
 {% block head %}
 
@@ -26,6 +26,31 @@
     <script src="{{ url_for('.static', filename='socketio/socket.io.js') }}"></script>
 
     <script type="text/javascript" src="{{ url_for('.static', filename='js/webserver.js') }}"></script>
+
+    <script type="text/javascript">
+        // Search for all "lang" tags and translate the content if possible.
+        $(document).ready(function() {
+            $.getJSON("{{ url_for('.static', filename='language/' + browser_language + '.json') }}", function(jsonData){
+                $("lang").each(function(index) {
+                    var key = $(this).html();
+                    if ( jsonData.hasOwnProperty(key) ) {
+                        $(this).html(jsonData[key]);
+                    } else {
+                        $.uiAlert({
+                            textHead: 'Translation Error',
+                            text: key + ' - translation not found',
+                            bgcolor: '#F99D33',
+                            textcolor: '#fff',
+                            position: 'top-center',
+                            icon: 'warning  sign',
+                            time: 15,
+                        });
+                    }
+                });
+            });
+        });
+
+    </script>
 
 {% endblock %}
 <head>
@@ -53,28 +78,28 @@
                 </div>
                 <div id="fileButton" class="ui simple dropdown item">
                     <i class="folder outline icon"></i>
-                    File
+                    <lang>File</lang>
                     <i class="dropdown icon"></i>
                     <div class="menu">
-                        <a id="newButton" class="item"><i class="file icon"></i>New</a>
-                        <a id="openButton" class="item"><i class="folder open icon"></i> Open</a>
-                        <a id="saveButton" class="item"><i class="save icon"></i> Save</a>
+                        <a id="newButton" class="item"><i class="file icon"></i><lang>New</lang></a>
+                        <a id="openButton" class="item"><i class="folder open icon"></i><lang>Open</lang></a>
+                        <a id="saveButton" class="item"><i class="save icon"></i><lang>Save</lang></a>
                     </div>
                 </div>
                 <div id="chooseInput" class="ui icon input">
                     <input id="chooseFilename" class="prompt readonly" type="text" placeholder="Choose ...">
                     <i class="search link icon"></i>
                 </div>
-                <a id="runButton" class="item"><i class="play icon"></i>Run</a>
-                <a id="stopButton" class="item disabled"><i class="stop icon"></i>Stop</a>
-                <a id="consoleButton" class="item"><i class="terminal icon"></i>Console</a>
-                <a id="codeButton" class="item"><i class="code icon"></i>Code</a>
-                <a id="buttonModalButton" class="item"><i class="grid layout icon"></i> Buttons</a>
+                <a id="runButton" class="item"><i class="play icon"></i><lang>Run</lang></a>
+                <a id="stopButton" class="item disabled"><i class="stop icon"></i><lang>Stop</lang></a>
+                <a id="consoleButton" class="item"><i class="terminal icon"></i><lang>Console</lang></a>
+                <a id="codeButton" class="item"><i class="code icon"></i><lang>Code</lang></a>
+                <a id="buttonModalButton" class="item"><i class="grid layout icon"></i><lang>Buttons</lang></a>
                 <div class="right menu">
                     <span class="ui item">
-                        HuCon Name: <span id="huconName"></span>
+                        <lang>HuCon Name:</lang><span id="huconName"></span>
                     </span>
-                    <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i>Home</a>
+                    <a onclick="location.href='index.html'" class="ui item"><i class="home icon"></i><lang>Home</lang></a>
                 </div>
             </div>
         {% endblock %}
@@ -87,7 +112,7 @@
             <div id="logArea" class="ui bottom attached">
                 <div class="ui form warning">
                     <div class="field">
-                        <h3>Console Log</h3>
+                        <h3><lang>Console Log</lang></h3>
                         <div id="consoleLog" class="codeText"></div>
                     </div>
                 </div>
@@ -99,7 +124,7 @@
 {% block modal %}
     <div id="chooseModal" class="ui modal">
         <div class="header">
-            Choose file<br>
+            <lang>Choose file</lang><br>
             <div id="chooseBreadcrumb" class="ui breadcrumb"></div>
         </div>
         <div class="scrolling content">
@@ -107,14 +132,14 @@
         </div>
         <div class="actions">
             <div class="ui orange cancel button">
-                Cancel
+                <lang>Cancel</lang>
             </div>
         </div>
     </div>
 
     <div id="openModal" class="ui modal">
         <div class="header">
-            Open file<br>
+            <lang>Open file</lang><br>
             <div id="openBreadcrumb" class="ui breadcrumb"></div>
         </div>
         <div class="scrolling content">
@@ -122,30 +147,30 @@
         </div>
         <div class="actions">
             <div class="ui orange cancel button">
-                Cancel
+                <lang>Cancel</lang>
             </div>
         </div>
     </div>
 
     <div id="newFolderModal" class="ui modal">
         <div class="header">
-            New folder
+            <lang>New folder</lang>
         </div>
         <div class="ui form content">
             <div class="field">
                 <input type="text" id="folderFilename" placeholder="Foldername">
             </div>
-            <button onclick="$('#saveModal').modal('show')" class="ui orange button" type="cancel">Cancel</button>
-            <button onclick="HuConApp.createNewFolder()" class="ui blue right button" type="submit">Create</button>
+            <button onclick="$('#saveModal').modal('show')" class="ui orange button" type="cancel"><lang>Cancel</lang></button>
+            <button onclick="HuConApp.createNewFolder()" class="ui blue right button" type="submit"><lang>Create</lang></button>
         </div>
     </div>
 
     <div id="saveModal" class="ui modal">
         <div class="header">
-            Save file</br>
+            <lang>Save file</lang></br>
             <div id="saveBreadcrumb" class="ui breadcrumb"></div>
             <div id="newFolderButton" class="ui blue right floated button" onclick="$('#newFolderModal').modal('show')">
-                New Folder
+                <lang>New folder</lang>
             </div>
         </div>
         <div class="scrolling content">
@@ -155,15 +180,15 @@
             <div class="field">
                 <input type="text" id="saveFilename" placeholder="Filename">
             </div>
-            <button onclick="$('#saveModal').modal('hide'); $('#saveFilename').val(''); HuConApp.FileSavedCallback = undefined;" class="ui orange button" type="cancel">Cancel</button>
-            <button onclick="HuConApp.saveFileOnDevice()" class="ui blue right button" type="submit">Save</button>
+            <button onclick="$('#saveModal').modal('hide'); $('#saveFilename').val(''); HuConApp.FileSavedCallback = undefined;" class="ui orange button" type="cancel"><lang>Cancel</lang></button>
+            <button onclick="HuConApp.saveFileOnDevice()" class="ui blue right button" type="submit"><lang>Save</lang></button>
         </div>
     </div>
 
     <div id="buttonModal" class="ui modal">
         <i class="close icon"></i>
         <div class="header">
-            Click a button
+            <lang>Click a button</lang>
         </div>
         <div id="buttonEmbed" class="ui embed" data-url="remote_control.html"></div>
     </div>

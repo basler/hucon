@@ -75,9 +75,9 @@
                 <img src="{{ url_for('.static', filename='images/blockly.svg') }}">
             </a>
             <div class="content">
-                <a href="blockly.html" class="header" style="color: #14487e;">Blockly</a>
+                <a href="blockly.html" class="header" style="color: #14487e;"><lang>Blockly</lang></a>
                 <div class="meta">
-                    Use bricks to programm your robot.
+                    <lang>Use bricks to programm your robot.</lang>
                 </div>
             </div>
         </div>
@@ -86,9 +86,9 @@
                 <img src="{{ url_for('.static', filename='images/editor.svg') }}">
             </a>
             <div class="content">
-                <a href="editor.html" class="header" style="color: #14487e;">Editor</a>
+                <a href="editor.html" class="header" style="color: #14487e;"><lang>Editor</lang></a>
                 <div class="meta">
-                    Programm your Robot like a Pro with Python.
+                    <lang>Programm your Robot like a Pro with Python.</lang>
                 </div>
             </div>
         </div>
@@ -97,9 +97,9 @@
                 <img src="{{ url_for('.static', filename='images/mobile.svg') }}">
             </a>
             <div class="content">
-                <a href="mobile.html" class="header" style="color: #14487e;">Mobile</a>
+                <a href="mobile.html" class="header" style="color: #14487e;"><lang>Mobile</lang></a>
                 <div class="meta">
-                    Run a programm of your Robot with your smartphone.
+                    <lang>Run a programm of your Robot with your smartphone.</lang>
                 </div>
             </div>
         </div>
@@ -108,9 +108,9 @@
                 <img src="{{ url_for('.static', filename='images/settings.svg') }}">
             </a>
             <div class="content">
-                <a href="settings.html" class="header" style="color: #14487e;">Settings</a>
+                <a href="settings.html" class="header" style="color: #14487e;"><lang>Settings</lang></a>
                 <div class="meta">
-                    Update your robot or change the settings.
+                    <lang>Update your robot or change the settings.</lang>
                 </div>
             </div>
         </div>
@@ -118,17 +118,17 @@
 </div>
 
 <div class="ui label licenseBottom">
-    Some icons are used from FontAwesome (<a href="https://fontawesome.com/license">license</a>)
+    <lang>Some icons are used from FontAwesome (<a href="https://fontawesome.com/license">license</a>)</lang>
 </div>
 
 {% endblock %}
 
 {% block modal %}
     <div id="shutdownModal" class="ui modal">
-        <div class="header">Shutdown</div>
+        <div class="header"><lang>Shutdown</lang></div>
         <div class="content">
             <div id="consoleLog" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
-            <button onclick="$('#shutdownModal').modal('hide')" class="ui orange button">Close</button>
+            <button onclick="$('#shutdownModal').modal('hide')" class="ui orange button"><lang>Close</lang></button>
         </div>
     </div>
 {% endblock %}

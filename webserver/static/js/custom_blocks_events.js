@@ -6,8 +6,6 @@
 // This software may be modified and distributed under the terms
 // of the BSD license.  See the LICENSE file for details.
 
-var COLOR_EVENTS = 250;
-
 var eventDict = null;
 
 // This function will crate the dictionary for the Event object.
@@ -40,11 +38,11 @@ function appendEvent(eventName, funcName, x, y, width, height) {
 Blockly.Blocks.event_init = {
     init: function () {
         this.appendDummyInput()
-            .appendField('Init events');
+            .appendField(Blockly.Msg['HUCON_EVENTS_INIT']);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(COLOR_EVENTS);
-        this.setTooltip('Initialize the event engine.');
+        this.setColour(Blockly.Msg['HUCON_EVENTS_HUE']);
+        this.setTooltip(Blockly.Msg['HUCON_EVENTS_TOOLTIP']);
     }
 };
 Blockly.Python.event_init = function(block) {
@@ -54,12 +52,12 @@ Blockly.Python.event_init = function(block) {
 Blockly.Blocks.event_run_endless = {
     init: function () {
         this.appendDummyInput()
-            .appendField('Run endless ...');
+            .appendField(Blockly.Msg['HUCON_EVENTS_RUN_ENDLESS']);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(COLOR_EVENTS);
+        this.setColour(Blockly.Msg['HUCON_EVENTS_HUE']);
 
-        this.setTooltip('Run forever.');
+        this.setTooltip(Blockly.Msg['HUCON_EVENTS_RUN_ENDLESS_TOOLTIP']);
     }
 };
 Blockly.Python.event_run_endless = function(block) {
@@ -69,11 +67,11 @@ Blockly.Python.event_run_endless = function(block) {
 Blockly.Blocks.event_stop_endless = {
     init: function () {
         this.appendDummyInput()
-            .appendField('Stop endless process');
+            .appendField(Blockly.Msg['HUCON_EVENTS_STOP_ENDLESS']);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(COLOR_EVENTS);
-        this.setTooltip('Stop the current endless running event process.');
+        this.setColour(Blockly.Msg['HUCON_EVENTS_HUE']);
+        this.setTooltip(Blockly.Msg['HUCON_EVENTS_STOP_ENDLESS_TOOLTIP']);
     }
 };
 Blockly.Python.event_stop_endless = function(block) {
@@ -83,28 +81,28 @@ Blockly.Python.event_stop_endless = function(block) {
 Blockly.Blocks.event_button_object = {
     init: function () {
         this.appendDummyInput()
-            .appendField('Button Event');
+            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON']);
         this.appendValueInput('X')
             .setCheck('Number')
-            .appendField('X');
+            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_X']);
         this.appendValueInput('Y')
             .setCheck('Number')
-            .appendField('Y');
+            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_Y']);
         this.appendValueInput('Width')
             .setCheck('Number')
-            .appendField('Width');
+            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_WIDTH']);
         this.appendValueInput('Height')
             .setCheck('Number')
-            .appendField('Height');
+            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_HEIGHT']);
         this.setInputsInline(true);
         this.appendStatementInput('function')
             .setCheck(null)
-            .appendField(new Blockly.FieldTextInput('EventName'), 'EventName');
-        this.setColour(COLOR_EVENTS);
+            .appendField(new Blockly.FieldTextInput(Blockly.Msg['HUCON_EVENTS_FUNC']), 'EventName');
+        this.setColour(Blockly.Msg['HUCON_EVENTS_HUE']);
 
         var thisBlock = this;
         this.setTooltip(function() {
-            return 'Callback for Button \'' + thisBlock.getFieldValue('EventName') + '\' event.';
+            return Blockly.Msg['HUCON_EVENTS_BUTTON_TOOLTIP_1'] + thisBlock.getFieldValue('EventName') + Blockly.Msg['HUCON_EVENTS_BUTTON_TOOLTIP_2'];
         });
     }
 };

@@ -6,33 +6,32 @@
 // This software may be modified and distributed under the terms
 // of the BSD license.  See the LICENSE file for details.
 
-var COLOR_MOTOR = 60;
 var MACHINE_MOTOR_PINS = [
-    ['channel 1', '0'],
-    ['channel 2', '1'],
-    ['channel 3', '2'],
-    ['channel 4', '3'],
-    ['channel 5', '4'],
-    ['channel 6', '5'],
-    ['channel 7', '6'],
-    ['channel 8', '7'],
-    ['channel 9', '8'],
-    ['channel 10', '9'],
-    ['channel 11', '10'],
-    ['channel 12', '11'],
-    ['channel 13', '12'],
-    ['channel 14', '13']
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_1'], '0'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_2'], '1'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_3'], '2'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_4'], '3'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_5'], '4'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_6'], '5'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_7'], '6'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_8'], '7'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_9'], '8'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_10'], '9'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_11'], '10'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_12'], '11'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_13'], '12'],
+    [Blockly.Msg['HUCON_MOTOR_CHANNEL_14'], '13']
 ];
 
 Blockly.Blocks.machine_motor_channel = {
     init: function () {
-        this.setColour(COLOR_MOTOR);
+        this.setColour(Blockly.Msg['HUCON_MOTOR_HUE']);
 
         this.appendDummyInput()
             .appendField(new Blockly.FieldDropdown(MACHINE_MOTOR_PINS), 'MotorChannel');
         this.setOutput(true, 'MachineMotorChannel');
 
-        this.setTooltip('Get the right number for the given motor channel.');
+        this.setTooltip(Blockly.Msg['HUCON_MOTOR_CHANNEL_TOOLTIP']);
     }
 };
 Blockly.Python.machine_motor_channel = function(block) {
@@ -42,14 +41,14 @@ Blockly.Python.machine_motor_channel = function(block) {
 
 Blockly.Blocks.motor_object = {
     init: function () {
-        this.setColour(COLOR_MOTOR);
+        this.setColour(Blockly.Msg['HUCON_MOTOR_HUE']);
 
         this.appendValueInput('Pin')
             .setCheck('MachineMotorChannel')
-            .appendField('create motor on');
+            .appendField(Blockly.Msg['HUCON_MOTOR_OBJECT_CREATE']);
         this.setOutput(true, 'Motor');
 
-        this.setTooltip('Create a motor object which is conntected to the given channel.');
+        this.setTooltip(Blockly.Msg['HUCON_MOTOR_OBJECT_TOOLTIP']);
     }
 };
 Blockly.Python.motor_object = function (block) {
@@ -62,19 +61,19 @@ Blockly.Python.motor_object = function (block) {
 
 Blockly.Blocks.motor_set_offset = {
     init: function () {
-        this.setColour(COLOR_MOTOR);
+        this.setColour(Blockly.Msg['HUCON_MOTOR_HUE']);
 
         this.appendDummyInput()
-            .appendField('set')
-            .appendField(new Blockly.FieldVariable('motor'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_MOTOR_OFFSET_SET'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_MOTOR_VAR']), 'VAR');
         this.appendValueInput('Offset')
             .setCheck('Number')
-            .appendField('offset');
+            .appendField(Blockly.Msg['HUCON_MOTOR_OFFSET_OFFSET']);
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip('Set the motor offset. The Value can be between -100 and 100.');
+        this.setTooltip(Blockly.Msg['HUCON_MOTOR_OFFSET_TOOLTIP']);
     }
 };
 Blockly.Python.motor_set_offset = function (block) {
@@ -87,19 +86,19 @@ Blockly.Python.motor_set_offset = function (block) {
 
 Blockly.Blocks.motor_set_speed = {
     init: function () {
-        this.setColour(COLOR_MOTOR);
+        this.setColour(Blockly.Msg['HUCON_MOTOR_HUE']);
 
         this.appendDummyInput()
-            .appendField('set')
-            .appendField(new Blockly.FieldVariable('motor'), 'VAR');
+            .appendField(Blockly.Msg['HUCON_MOTOR_SPEED_SET'])
+            .appendField(new Blockly.FieldVariable(Blockly.Msg['HUCON_MOTOR_VAR']), 'VAR');
         this.appendValueInput('Value')
             .setCheck('Number')
-            .appendField('speed to');
+            .appendField(Blockly.Msg['HUCON_MOTOR_SPEED_SPEED']);
         this.setInputsInline(true);
         this.setPreviousStatement(true);
         this.setNextStatement(true);
 
-        this.setTooltip('Set the motor speed between -100 (backward) and 100 (forward).');
+        this.setTooltip(Blockly.Msg['HUCON_MOTOR_SPEED_TOOLTIP']);
     }
 };
 Blockly.Python.motor_set_speed = function (block) {

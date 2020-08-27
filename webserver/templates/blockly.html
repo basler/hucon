@@ -13,7 +13,8 @@
     <script type="text/javascript" src="{{ url_for('.static', filename='blockly/blockly_compressed.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='blockly/blocks_compressed.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='blockly/python_compressed.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('.static', filename='blockly/en.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='blockly/' + browser_language + '.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='xml/' + browser_language + '.js') }}"></script>
 
     <!-- Blockly components -->
     <script type="text/javascript" src="{{ url_for('.static', filename='js/custom_blocks_machine.js') }}"></script>
@@ -168,7 +169,7 @@
                     <div id="blocklyDiv"></div>
                 </div>
                 <div id="codeArea" class="four wide column" style="overflow:scroll;height:100%;">
-                    <label>Python Code</label>
+                    <label><lang>Python Code</lang></label>
                     <pre id="pythonCode" class="prettyprint lang-python linenums" style="border: none;padding: 0px;">#Lets start ...</pre>
                 </div>
             </div>

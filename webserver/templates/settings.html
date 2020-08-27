@@ -18,22 +18,22 @@
     <div class="center">
         <button onclick="checkUpdate()" class="fluid ui orange button">
             <i class="icon cloud download"></i>
-            Update
+            <lang>Update</lang>
         </button>
         <p></p>
         <button onclick="listWiFiNetworks()" class="fluid ui orange button">
             <i class="icon wi-fi"></i>
-            WiFi
+            <lang>WiFi</lang>
         </button>
         <p></p>
         <button onclick="showWiFiAPsettings()" class="fluid ui orange button">
             <i class="icon wi-fi"></i>
-            WiFi AP Settings
+            <lang>WiFi AP Settings</lang>
         </button>
         <p></p>
         <button onclick="location.href='index.html'" class="fluid ui blue button">
             <i class="icon home"></i>
-            Home
+            <lang>Home</lang>
         </button>
     </div>
 {% endblock %}
@@ -43,14 +43,14 @@
     <div id="updateModal" class="ui modal">
         <div class="header">
             <i class="icon cloud download"></i>
-            Update
+            <lang>Update</lang>
         </div>
 
         <div class="content">
             <div id="consoleLog" class="codeText" style="height: 300px; overflow-y: scroll;"></div>
 
-            <button onclick="$('#updateModal').modal('hide')" class="ui orange button">Close</button>
-            <button onclick="updateSystem()" id="updateButton" class="ui blue button disabled">Update</button>
+            <button onclick="$('#updateModal').modal('hide')" class="ui orange button"><lang>Close</lang></button>
+            <button onclick="updateSystem()" id="updateButton" class="ui blue button disabled"><lang>Update</lang></button>
         </div>
     </div>
     <div id="id_wifi_list_modal" class="ui modal">
@@ -58,14 +58,14 @@
             <div class="ui grid">
                 <div class="thirteen wide column">
                     <i class="icon wi-fi"></i>
-                    WiFi List
+                    <lang>WiFi List</lang>
                     <div id="id_wifi_list_loader"
                          class="ui medium workaround disabled right floated inline loader"></div>
                 </div>
                 <div class="three wide column">
                     <div class="ui toggle checkbox" id="id_enable_wifi">
                         <input type="checkbox" name="enable_wifi">
-                        <label>Enable WiFi</label>
+                        <label><lang>Enable WiFi</lang></label>
                     </div>
                 </div>
             </div>
@@ -76,9 +76,8 @@
             </div>
             <div class="ui divider"></div>
             <div class="row actions">
-                <button onclick="$('#id_wifi_list_modal').modal('hide')" class="ui orange button">Close</button>
-                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui blue button approve">Scan
-                    WiFi
+                <button onclick="$('#id_wifi_list_modal').modal('hide')" class="ui orange button"><lang>Close</lang></button>
+                <button onclick="wifiSearch()" id="id_wifi_search_button" class="ui blue button approve"><lang>Scan WiFi</lang></lang>
                 </button>
             </div>
         </div>
@@ -86,22 +85,22 @@
     <div id="id_wifi_search_modal" class="ui modal">
         <div class="header">
             <i class="icon wi-fi"></i>
-            Add new WiFi
+            <lang>Add new WiFi</lang>
             <div id="id_loader" class="ui medium workaround active right floated inline loader"></div>
         </div>
 
         <div class="content">
             <form class="ui form">
                 <div class="field">
-                    <label>WiFi Network</label>
+                    <label><lang>WiFi Network</lang></label>
                     <select class="ui search fluid dropdown" id="id_search_wifi_menu"></select>
                 </div>
                 <div class="field">
-                    <label>SSID</label>
+                    <label><lang>SSID</lang></label>
                     <div class="ui input fluid"><input id="id_ssid" name="ssid" type="text"></div>
                 </div>
                 <div class="field">
-                    <label>WiFi Password</label>
+                    <label><lang>WiFi Password</lang></label>
                     <div class="ui grid">
                         <div class="fourteen wide column">
                             <div class="ui input fluid"><input id="id_password" name="password" type="password"></div>
@@ -109,7 +108,7 @@
                         <div class="two wide column">
                             <div class="ui checkbox" id="id_show_password">
                                 <input type="checkbox" name="show_password">
-                                <label>Show</label>
+                                <label><lang>Show</lang></label>
                             </div>
                         </div>
                     </div>
@@ -117,17 +116,17 @@
                 <div class="field">
                     <label>Encryption Mode</label>
                     <select class="ui dropdown fluid" id="id_encryption">
-                        <option value="psk">WPA (PSK)</option>
-                        <option value="psk2">WPA2 (PSK)</option>
-                        <option value="wep">WEP</option>
-                        <option value="none">Not secured</option>
+                        <option value="psk"><lang>WPA (PSK)</lang></option>
+                        <option value="psk2"><lang>WPA2 (PSK)</lang></option>
+                        <option value="wep"><lang>WEP</lang></option>
+                        <option value="none"><lang>Not secured</lang></option>
                     </select>
                 </div>
             </form>
             <div class="ui divider"></div>
             <div class="row action">
-                <button onclick="$('#id_wifi_search_modal').modal('hide')" class="ui orange button">Close</button>
-                <button onclick="addWiFi()" id="addWiFiButton" class="ui blue button approve">Add WiFi</button>
+                <button onclick="$('#id_wifi_search_modal').modal('hide')" class="ui orange button"><lang>Close</lang></button>
+                <button onclick="addWiFi()" id="addWiFiButton" class="ui blue button approve"><lang>Add WiFi</lang></button>
             </div>
         </div>
     </div>
@@ -136,13 +135,13 @@
             <div class="ui grid">
                 <div class="thirteen wide column">
                     <i class="icon wi-fi"></i>
-                    WiFi Access Point Setup
+                    <lang>WiFi Access Point Setup</lang>
                 </div>
                 <div class="three wide column">
 {#                    Uncomment next for ability turn ap mode on and off. Attention! Device may be unreacheable if onliy ap mode was configured. #}
 {#                    <div class="ui toggle checkbox" id="id_enable_ap_mode">#}
 {#                        <input type="checkbox" name="enable_ap_mode">#}
-{#                        <label>Enable AP Mode</label>#}
+{#                        <label><lang>Enable AP Mode</lang></label>#}
 {#                    </div>#}
                 </div>
             </div>
@@ -150,11 +149,11 @@
         <div class="content">
             <form class="ui form">
                 <div class="field">
-                    <label>AP Network SSID</label>
+                    <label><lang>AP Network SSID</lang></label>
                     <div class="ui input fluid"><input id="id_ap_ssid" name="ssid" type="text"></div>
                 </div>
                 <div class="field">
-                    <label>AP Password</label>
+                    <label><lang>AP Password</lang></label>
                     <div class="ui grid">
                         <div class="fourteen wide column">
                             <div class="ui input fluid"><input id="id_ap_password" name="password" type="password">
@@ -163,13 +162,13 @@
                         <div class="two wide column">
                             <div class="ui checkbox" id="id_show_ap_password">
                                 <input type="checkbox" name="show_ap_password">
-                                <label>Show</label>
+                                <label><lang>Show</lang></label>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="field">
-                    <label>Repeat AP Password</label>
+                    <label><lang>Repeat AP Password</lang></label>
                     <div class="ui grid">
                         <div class="fourteen wide column">
                             <div class="ui input fluid"><input id="id_ap_password_repeat" name="password_repeat" type="password">
@@ -178,24 +177,24 @@
                     </div>
                 </div>
                 <div class="field">
-                    <label>Security</label>
+                    <label><lang>Security</lang></label>
                     <select class="ui dropdown fluid" id="id_ap_encryption">
-                        <option value="psk">WPA (PSK)</option>
-                        <option value="psk2">WPA2 (PSK)</option>
-                        <option value="wep">WEP</option>
-                        <option value="none">Not secured</option>
+                        <option value="psk"><lang>WPA (PSK)</lang></option>
+                        <option value="psk2"><lang>WPA2 (PSK)</lang></option>
+                        <option value="wep"><lang>WEP</lang></option>
+                        <option value="none"><lang>Not secured</lang></option>
                     </select>
                 </div>
                 <div class="field">
-                    <label>IP Address</label>
+                    <label><lang>IP Address</lang></label>
                     <div class="ui input fluid"><input id="id_ap_ip" name="ip" type="text"></div>
                 </div>
             </form>
             <div class="ui divider"></div>
             <div class="row action">
-                <button onclick="$('#id_ap_wifi_modal').modal('hide')" class="ui orange button">Close</button>
+                <button onclick="$('#id_ap_wifi_modal').modal('hide')" class="ui orange button"><lang>Close</lang></button>
                 <button onclick="setWiFiAPsettings()" id="id_configure_ap_button" class="ui blue button approve">
-                    Configure AP
+                    <lang>Configure AP</lang>
                 </button>
             </div>
         </div>
