@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2016-2019 Martin Donath <martin.donath@squidfunk.com>
+  Copyright (c) 2016-2020 Martin Donath <martin.donath@squidfunk.com>
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to
@@ -24,85 +24,96 @@
 <header class="md-header" data-md-component="header">
 
   <!-- Top-level navigation -->
-  <nav class="md-header-nav md-grid">
-    <div class="md-flex">
+  <nav class="md-header-nav md-grid" aria-label="{{ lang.t('header.title') }}">
 
-      <!-- Link to home -->
-      <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="{{ config.site_url | default(nav.homepage.url, true) | url }}"
-            title="{{ config.site_name }}"
-            aria-label="{{ config.site_name }}"
-            class="md-header-nav__button md-logo">
-          {% if config.theme.logo.icon %}
-            <i class="md-icon">{{ config.theme.logo.icon }}</i>
-          {% else %}
-            <img alt="logo" src="{{ config.theme.logo | url }}" width="24" height="24" />
-          {% endif %}
+    <!-- Link to home -->
+    <a
+      href="{{ config.site_url | default(nav.homepage.url, true) | url }}"
+      title="{{ config.site_name }}"
+      class="md-header-nav__button md-logo"
+      aria-label="{{ config.site_name }}"
+    >
+      {% include "partials/logo.html" %}
+    </a>
+
+    <!-- Button to open drawer -->
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      {% include ".icons/material/menu" ~ ".svg" %}
+    </label>
+
+    <!-- Links to different languages -->
+    <div class="md-flex__cell md-flex__cell--shrink">
+      {% if page and page.url and base_url %}
+        <a
+          href="{{ base_url }}/../de/{{ page.url }}"
+          class="md-header-nav__button md-logo language_flag"
+        >
+          <img src="{{ base_url }}/images/germany-flag-square.png">
         </a>
-      </div>
+      {% else %}
+        <a
+          href="../de/"
+          class="md-header-nav__button md-logo language_flag"
+        >
+          <img src="{{ base_url }}/images/germany-flag-square.png">
+        </a>
+      {% endif %}
+    </div>
+    <div class="md-flex__cell md-flex__cell--shrink">
+      {% if page and page.url and base_url %}
+        <a
+          href="{{ base_url }}/../en/{{ page.url }}"
+          class="md-header-nav__button md-logo language_flag"
+        >
+          <img src="{{ base_url }}/images/united-kingdom-flag-square.png">
+        </a>
+      {% else %}
+        <a
+          href="../en/"
+          class="md-header-nav__button md-logo language_flag"
+        >
+          <img src="{{ base_url }}/images/united-kingdom-flag-square.png">
+        </a>
+      {% endif %}
+    </div>
 
-      <!-- Button to toggle drawer -->
-      <div class="md-flex__cell md-flex__cell--shrink">
-        <label class="md-icon md-icon--menu md-header-nav__button"
-            for="__drawer"></label>
-      </div>
-
-      <!-- Links to different languages -->
-      <div class="md-flex__cell md-flex__cell--shrink">
-        {% if page and page.url and base_url %}
-          <a href="{{ base_url }}/../de/{{ page.url }}" class="md-header-nav__button md-logo language_flag"><img src="{{ base_url }}/images/germany-flag-square.png"></a>
-        {% else %}
-          <a href="../de/" class="md-header-nav__button md-logo language_flag"><img src="{{ base_url }}/images/germany-flag-square.png"></a>
-        {% endif %}
-      </div>
-      <div class="md-flex__cell md-flex__cell--shrink">
-        {% if page and page.url and base_url %}
-          <a href="{{ base_url }}/../en/{{ page.url }}" class="md-header-nav__button md-logo language_flag"><img src="{{ base_url }}/images/united-kingdom-flag-square.png"></a>
-        {% else %}
-          <a href="../en/" class="md-header-nav__button md-logo language_flag"><img src="{{ base_url }}/images/united-kingdom-flag-square.png"></a>
-        {% endif %}
-      </div>
-
-      <!-- Header title -->
-      <div class="md-flex__cell md-flex__cell--stretch">
-        <div class="md-flex__ellipsis md-header-nav__title"
-            data-md-component="title">
-          {% if config.site_name == page.title %}
-            {{ config.site_name }}
-          {% else %}
-            <span class="md-header-nav__topic">
-              {{ config.site_name }}
-            </span>
-            <span class="md-header-nav__topic">
-              {% if page and page.meta and page.meta.title %}
-                {{ page.meta.title }}
-              {% else %}
-                {{ page.title }}
-              {% endif %}
-            </span>
-          {% endif %}
+    <!-- Header title -->
+    <div class="md-header-nav__title" data-md-component="header-title">
+      {% if config.site_name == page.title %}
+        <div class="md-header-nav__ellipsis md-ellipsis">
+          {{ config.site_name }}
         </div>
-      </div>
-
-      <!-- Button to open search dialogue -->
-      <div class="md-flex__cell md-flex__cell--shrink">
-        {% if "search" in config["plugins"] %}
-          <label class="md-icon md-icon--search md-header-nav__button"
-              for="__search"></label>
-
-          <!-- Search interface -->
-          {% include "partials/search.html" %}
-        {% endif %}
-      </div>
-
-      <!-- Repository containing source -->
-      {% if config.repo_url %}
-        <div class="md-flex__cell md-flex__cell--shrink">
-          <div class="md-header-nav__source">
-            {% include "partials/source.html" %}
-          </div>
+      {% else %}
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            {{ config.site_name }}
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            {% if page and page.meta and page.meta.title %}
+              {{ page.meta.title }}
+            {% else %}
+              {{ page.title }}
+            {% endif %}
+          </span>
         </div>
       {% endif %}
     </div>
+
+    <!-- Button to open search dialogue -->
+    {% if "search" in config["plugins"] %}
+      <label class="md-header-nav__button md-icon" for="__search">
+        {% include ".icons/material/magnify.svg" %}
+      </label>
+
+      <!-- Search interface -->
+      {% include "partials/search.html" %}
+    {% endif %}
+
+    <!-- Repository containing source -->
+    {% if config.repo_url %}
+      <div class="md-header-nav__source">
+        {% include "partials/source.html" %}
+      </div>
+    {% endif %}
   </nav>
 </header>
