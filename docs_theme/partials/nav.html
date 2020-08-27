@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2016-2019 Martin Donath <martin.donath@squidfunk.com>
+  Copyright (c) 2016-2020 Martin Donath <martin.donath@squidfunk.com>
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to
@@ -21,30 +21,50 @@
 -->
 
 <!-- Main navigation -->
-<nav class="md-nav md-nav--primary" data-md-level="0">
+<nav
+  class="md-nav md-nav--primary"
+  aria-label="{{ lang.t('nav.title') }}"
+  data-md-level="0"
+>
 
   <!-- Site title -->
-  <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href="{{ config.site_url | default(nav.homepage.url, true) | url }}"
-        title="{{ config.site_name }}" class="md-nav__button md-logo">
-      {% if config.theme.logo.icon %}
-        <i class="md-icon">{{ config.theme.logo.icon }}</i>
-      {% else %}
-        <img alt="logo" src="{{ config.theme.logo | url }}" width="48" height="48" />
-      {% endif %}
+  <label class="md-nav__title" for="__drawer">
+    <a
+      href="{{ config.site_url | default(nav.homepage.url, true) | url }}"
+      title="{{ config.site_name }}"
+      class="md-nav__button md-logo"
+      aria-label="{{ config.site_name }}"
+    >
+      {% include "partials/logo.html" %}
     </a>
     {% if page and page.url and base_url %}
-      <a href="{{ base_url }}/../de/{{ page.url }}" class="md-nav__button md-logo" style="right: 3.4rem; left: unset;">
+      <a
+        href="{{ base_url }}/../de/{{ page.url }}"
+        class="md-nav__button md-logo"
+        style="right: 3.4rem; left: unset;"
+      >
         <img alt="de" src="{{ base_url }}/images/germany-flag-square.png" width="48" height="48" />
       </a>
-      <a href="{{ base_url }}/../en/{{ page.url }}" class="md-nav__button md-logo" style="right: .2rem; left: unset;">
+      <a
+        href="{{ base_url }}/../en/{{ page.url }}"
+        class="md-nav__button md-logo"
+        style="right: 3.4rem; left: unset;"
+      >
         <img alt="en" src="{{ base_url }}/images/united-kingdom-flag-square.png" width="48" height="48" />
       </a>
     {% else %}
-      <a href="../de/" class="md-nav__button md-logo" style="right: 3.4rem; left: unset;">
+      <a
+        href="../de/"
+        class="md-nav__button md-logo"
+        style="right: 3.4rem; left: unset;"
+      >
         <img alt="de" src="{{ base_url }}/images/germany-flag-square.png" width="48" height="48" />
       </a>
-      <a href="../en/" class="md-nav__button md-logo" style="right: .2rem; left: unset;">
+      <a
+        href="../en/"
+        class="md-nav__button md-logo"
+        style="right: 3.4rem; left: unset;"
+      >
         <img alt="en" src="{{ base_url }}/images/united-kingdom-flag-square.png" width="48" height="48" />
       </a>
     {% endif %}

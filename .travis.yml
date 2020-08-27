@@ -1,13 +1,13 @@
 sudo: false
-dist: trusty
+dist: bionic
 jobs:
   include:
   - stage: Documentation
     language: python
-    python: 3.6
+    python: 3.8
     branches: master
     install:
-      - pip install mkdocs mkdocs-material pygments jinja2
+      - pip install mkdocs mkdocs-material pygments markdown pymdown-extensions mkdocs-material-extensions jinja2
     script: true
     before_deploy:
       - sh build_doc.sh
