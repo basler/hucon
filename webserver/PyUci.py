@@ -23,7 +23,7 @@ class UciHelperBase(object):
         self.config = {}
         try:
             self._read_config(package)
-        except WindowsError:
+        except OSError:
             pass
 
     def _read_config(self, package=None):
