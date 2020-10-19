@@ -17,7 +17,12 @@ DEBUG=0
 
 if [ $DEBUG != 0 ];
 then
-        PARAMETERS="$PARAMETERS --debug 2>/var/log/hucon_err.log >/var/log/hucon.log"
+    PARAMETERS="$PARAMETERS --debug 2>/var/log/hucon_err.log >/var/log/hucon.log"
+fi
+
+if [ $( uname -a | grep -c Omega ) -eq 0 ] ;then
+    PYTHONPATH="$SCRIPT_DIR/python_lib:$PYTHONPATH"
+    export PYTHONPATH
 fi
 
 # change directory
