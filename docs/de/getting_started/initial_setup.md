@@ -43,8 +43,18 @@ mount /dev/mmcblk0p1 /mnt
 sh /mnt/update_flash.sh
 ```
 
-Nach dem zweiten Befehl gibt es eine Menge an Text der Konsole ausgegeben wird und dein HuCon wird während dieses Vorgangs einmal neu gestartet. Dieser Vorgang kann bis zu 5 Minuten dauern, bis dein HuCon wieder betriebsbereit ist.
+Nach dem zweiten Befehl wird eine Menge an Text auf der Konsole ausgegeben und dein HuCon wird während dieses Vorgangs einmal neu gestartet. Es kann bis zu 5 Minuten dauern, bis dein HuCon wieder betriebsbereit ist.
 Ob dein HuCon neu gestartet wurde, kannst du an den Augen deines HuCon erkennen. Sobald der HuCon startet, werden die Augen rot. Wenn der interne Server startet, werden die Augen orangefarben, und wenn alles bereit ist, werden die Augen für kurze Zeit grün, bevor sie wieder erlöschen.
 
 !!! warning
-    Bitte achte darauf, dass dein HuCon nicht von deinem vom Computer getrennt wird. Sonst könnte es sein, dass es danach kaputt ist.
+    Bitte achte darauf, dass dein HuCon nicht von deinem Computer getrennt wird. Sonst könnte es sein, dass er danach kaputt ist.
+
+## Manuelle Installation
+Wenn du deinen HuCon, wie oben bei der Installation beschrieben, bearbeitet hast, brauchst du nichts weiter tun. Solltest du aber die HuCon-Software selbst installieren wollen, so kannst du das wie folgt machen.
+
+1. Verbinde dich mittels MobaXterm mit deinem HuCon.
+2. Lade dir das aktuelle paket von github herunter:
+   `wget https://github.com/basler_hucon/releases/download/[VERSION]/hucon-[VERSION].run -O hucon.run`
+3. Starte die Installation mittels `sh hucon.run`
+
+Zum Schluss solltest du deinen HuCon mit dem Befehl `reboot` neu starten.

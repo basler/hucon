@@ -3,12 +3,12 @@
 What is needed:
 
 - USB cable
-- Terminal program ([MobaXterm](https://mobaxterm.mobatek.net/) (Windows) or screen (MacOs & Linux))
+- Terminal program ([MobaXterm](https://mobaxterm.mobatek.net/) (Windows) or screen (macOS & Linux))
 - Micro SD card
 - Internet connection for downloading the HuCon image
 
 ## Preparation
-To install the new software on your HuCon you first have to download it from our gitHub repository. This can be found at [https://github.com/basler/hucon/releases](https://github.com/basler/hucon/releases) under Assets.
+To install the new software on your HuCon you first have to download it from our GitHub repository. This can be found at [https://github.com/basler/hucon/releases](https://github.com/basler/hucon/releases) under Assets.
 Save the two files, onionIoT-[version]-hucon-[version].bin and update_flash.sh, on your SD card.
 
 ## Installation
@@ -47,4 +47,14 @@ After the second command there will be a lot of output on the console and your H
 You can see whether your HuCon has been restarted by looking at the eye of your HuCon. As soon as the HuCon boots the eyes turn red. When the server starts to start, the eyes turn orange and when everything is ready, the eyes turn green for a short time before they go out again.
 
 !!! warning
-    Please note that you are not disconnecting your HuCon from the computer all the time. Otherwise it could be that it is broken afterwards.
+    Please note that you are not disconnecting your HuCon from the computer all the time. Otherwise, it could be that it is broken afterwards.
+
+## Manual installation
+If you have edited your HuCon as described above, you don't need to do anything else. But if you want to install the HuCon software by yourself, you can do it as follows:
+
+1. Connect to your HuCon via MobaXterm.
+2. Download the current package from github:
+   `wget https://github.com/basler_hucon/releases/download/[VERSION]/hucon-[VERSION].run -O hucon.run`.
+3. Start the installation with `sh hucon.run`.
+
+Finally, you should reboot your HuCon with the command `reboot`.
