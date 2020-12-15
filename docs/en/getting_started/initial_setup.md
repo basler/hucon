@@ -18,7 +18,7 @@ Then you can connect your HuCon to your computer with a USB cable.
 Now you can open MobaXterm and click on *Sessions*. The following window will open where you have to set the com-port and the speed.
 
 
-![MobaXterm configuration](images/initial_setup/mobaxterm_configuration.png)
+![MobaXterm configuration](../images/initial_setup/mobaxterm_configuration.png)
 
 !!! warning
     If you do not have a *USB Serial Port* in your list, then you have to install the driver for the HuCon. The HuCon is equipped with a USB to serial converter from [FTDI](https://www.ftdichip.com).
@@ -28,11 +28,11 @@ Now you can open MobaXterm and click on *Sessions*. The following window will op
 
 As soon as you click on OK the following picture will appear:
 
-![MobaXterm connected](images/initial_setup/mobaxterm_connected.png)
+![MobaXterm connected](../images/initial_setup/mobaxterm_connected.png)
 
 That is all right, too. Your robot only answers when you tell it something. Press *Enter* and your robot should answer. This will look similar to this:
 
-![MobaXterm Ready](images/initial_setup/mobaxterm_ready.png)
+![MobaXterm Ready](../images/initial_setup/mobaxterm_ready.png)
 
 Now you are on the command line of your robot. You surely know this from other games or movies, because now you have full control over the system. :smile:
 
