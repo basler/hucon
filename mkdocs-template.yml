@@ -12,6 +12,7 @@ nav:
       - getting_started/assembling.md
       - getting_started/initial_setup.md
       - getting_started/connect.md
+      - getting_started/update.md
     - license.md
 
 theme:
