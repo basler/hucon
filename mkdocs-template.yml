@@ -13,6 +13,7 @@ nav:
       - getting_started/initial_setup.md
       - getting_started/connect.md
       - getting_started/blockly.md
+      - getting_started/python.md
       - getting_started/update.md
     - license.md
 
