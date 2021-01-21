@@ -18,7 +18,7 @@ The boards can be cut with a small side cutter at the marked places after this.
 
 ![Board](../images/assembling/board_cut.png)
 
-The extend of separation can be removed carefully with a small file. This will let your roboter stand more secure later on. :smile:
+The extent of separation can be removed carefully with a small file. This will let your robot stand more secure later on. :smile:
 
 Afterwards the robot can be assembled as shown in the following picture.
 
@@ -28,8 +28,8 @@ First the boards (except the head) are assembled. On the boards there are small 
 
 ![HuCon numbers](../images/assembling/hucon_numbers.png)
 
-After the correct board assembly the Omega2+ is inserted into the pin headers. The sd card slot has to face upwards. The Hucon is able to stand on it's own if assembled correctly and will not tip over backwards.
+After the correct board assembly the Omega2+ is inserted into the pin headers. The SD card slot has to face upwards. The HuCon is able to stand on its own if assembled correctly and will not tip over backwards.
 
-![Hucon backpack](../images/assembling/hucon_backpack.png)
+![HuCon backpack](../images/assembling/hucon_backpack.png)
 
-Now all you have to do is put your head on your HuCon and it's done.
+Now all you have to do is put your head on your HuCon, and it's done.
