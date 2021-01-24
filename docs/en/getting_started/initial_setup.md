@@ -3,12 +3,12 @@
 What is needed:
 
 - USB cable
-- Terminal program ([MobaXterm](https://mobaxterm.mobatek.net/) (Windows) or screen (MacOs & Linux))
+- Terminal program ([MobaXterm](https://mobaxterm.mobatek.net/) (Windows) or screen (macOS & Linux))
 - Micro SD card
 - Internet connection for downloading the HuCon image
 
 ## Preparation
-To install the new software on your HuCon you first have to download it from our gitHub repository. This can be found at [https://github.com/basler/hucon/releases](https://github.com/basler/hucon/releases) under Assets.
+To install the new software on your HuCon you first have to download it from our GitHub repository. This can be found at [https://github.com/basler/hucon/releases](https://github.com/basler/hucon/releases) under Assets.
 Save the two files, onionIoT-[version]-hucon-[version].bin and update_flash.sh, on your SD card.
 
 ## Installation
@@ -18,7 +18,7 @@ Then you can connect your HuCon to your computer with a USB cable.
 Now you can open MobaXterm and click on *Sessions*. The following window will open where you have to set the com-port and the speed.
 
 
-![MobaXterm configuration](images/initial_setup/mobaxterm_configuration.png)
+![MobaXterm configuration](../images/initial_setup/mobaxterm_configuration.png)
 
 !!! warning
     If you do not have a *USB Serial Port* in your list, then you have to install the driver for the HuCon. The HuCon is equipped with a USB to serial converter from [FTDI](https://www.ftdichip.com).
@@ -28,11 +28,11 @@ Now you can open MobaXterm and click on *Sessions*. The following window will op
 
 As soon as you click on OK the following picture will appear:
 
-![MobaXterm connected](images/initial_setup/mobaxterm_connected.png)
+![MobaXterm connected](../images/initial_setup/mobaxterm_connected.png)
 
 That is all right, too. Your robot only answers when you tell it something. Press *Enter* and your robot should answer. This will look similar to this:
 
-![MobaXterm Ready](images/initial_setup/mobaxterm_ready.png)
+![MobaXterm Ready](../images/initial_setup/mobaxterm_ready.png)
 
 Now you are on the command line of your robot. You surely know this from other games or movies, because now you have full control over the system. :smile:
 
@@ -47,4 +47,14 @@ After the second command there will be a lot of output on the console and your H
 You can see whether your HuCon has been restarted by looking at the eye of your HuCon. As soon as the HuCon boots the eyes turn red. When the server starts to start, the eyes turn orange and when everything is ready, the eyes turn green for a short time before they go out again.
 
 !!! warning
-    Please note that you are not disconnecting your HuCon from the computer all the time. Otherwise it could be that it is broken afterwards.
+    Please note that you are not disconnecting your HuCon from the computer all the time. Otherwise, it could be that it is broken afterwards.
+
+## Manual installation
+If you have edited your HuCon as described above, you don't need to do anything else. But if you want to install the HuCon software by yourself, you can do it as follows:
+
+1. Connect to your HuCon via MobaXterm.
+2. Download the current package from github:
+   `wget https://github.com/basler_hucon/releases/download/[VERSION]/hucon-[VERSION].run -O hucon.run`.
+3. Start the installation with `sh hucon.run`.
+
+Finally, you should reboot your HuCon with the command `reboot`.

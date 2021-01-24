@@ -2,9 +2,11 @@
     "language":
     {
         "en": {
+            "getting_started": "Getting started",
             "description": "HuCon documentation about the full featured robot"
         },
         "de": {
+            "getting_started": "Erste Schritte",
             "description": "HuCon Dokumentation für deinen selbstgebauten Roboter"
         }
     }

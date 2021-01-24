@@ -8,9 +8,13 @@ edit_uri: ''
 
 nav:
     - index.md
-    - assembling.md
-    - initial_setup.md
-    - connect.md
+    - '{{ getting_started }}':
+      - getting_started/assembling.md
+      - getting_started/initial_setup.md
+      - getting_started/connect.md
+      - getting_started/blockly.md
+      - getting_started/python.md
+      - getting_started/update.md
     - license.md
 
 theme:
@@ -21,6 +25,9 @@ theme:
   palette:
     primary: 'blue'
     accent: 'light blue'
+  features:
+    - navigation.instant
+    - navigation.sections
   language: '{{ language }}'
 
 docs_dir: 'docs/{{ language }}'

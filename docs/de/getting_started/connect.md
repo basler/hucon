@@ -1,7 +1,7 @@
 # Verbindung
 
 Bevor du mit dem HuCon arbeiten kannst, muss dieser mit Strom versorgt werden. Die benötigte Leistung kann mit einem Mikro-USB-Kabel und ein Standard-Smartphoneladegerät mit mindestens 2,5 Watt sichergestellt werden.
-Die LEDs auf dem Kopf sollten kurz nach dem einschalten rot aufleuchten und anzeigen, dass das System hochfährt.
+Die LEDs auf dem Kopf sollten kurz nach dem Einschalten rot aufleuchten und anzeigen, dass das System hochfährt.
 
 Die LEDs werden bald gelb und grün aufleuchten, während der Webservice startet, und schließlich erlöschen, wenn dein HuCon hochgefahren und einsatzbereit ist.
 

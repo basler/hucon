@@ -18,8 +18,9 @@ with open('docs_config.json') as json_file:
     for language in config['language']:
 
         with open('mkdocs-template.yml') as tmp_file:
+            config['language'][language]['language'] = language
             tmp = Template(tmp_file.read())
-            msg = tmp.render(language=language, description=config['language'][language]['description'])
+            msg = tmp.render(config['language'][language])
 
             with open('mkdocs-%s.yml' % language, 'w') as lang_file:
                 lang_file.write(msg)

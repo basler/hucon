@@ -18,7 +18,7 @@ Dann kannst du deinen HuCon mit einem USB-Kabel an deinem Computer anschließen.
 Öffne jetzt MobaXterm und klicke auf *Sessions*. Es öffnet sich das folgende Fenster, in dem du den Com-Port und die Geschwindigkeit einstellen musst.
 
 
-![MobaXterm configuration](images/initial_setup/mobaxterm_configuration.png)
+![MobaXterm configuration](../images/initial_setup/mobaxterm_configuration.png)
 
 !!! warning
     Wenn du keinen *USB Serial Port* in deiner Liste hast, dann ist es notwendig, dass du den Treiber für den HuCon installierst. Der HuCon ist mit einem USB-Seriell-Wandler von [FTDI](https://www.ftdichip.com) ausgestattet.
@@ -28,11 +28,11 @@ Dann kannst du deinen HuCon mit einem USB-Kabel an deinem Computer anschließen.
 
 Sobald du auf OK klickst, erscheint das folgende Bild:
 
-![MobaXterm connected](images/initial_setup/mobaxterm_connected.png)
+![MobaXterm connected](../images/initial_setup/mobaxterm_connected.png)
 
 Das ist auch in Ordnung. Dein Roboter antwortet nur, wenn du ihm etwas sagst. Drücke *Enter* und dein Roboter sollte antworten. Dies wird ähnlich aussehen wie das hier:
 
-![MobaXterm Ready](images/initial_setup/mobaxterm_ready.png)
+![MobaXterm Ready](../images/initial_setup/mobaxterm_ready.png)
 
 Jetzt bist du auf der Kommandozeile deines Roboters. Das kennst du sicher aus anderen Spielen oder Filmen, denn jetzt hast du die volle Kontrolle über das System. :smile:
 
@@ -43,8 +43,18 @@ mount /dev/mmcblk0p1 /mnt
 sh /mnt/update_flash.sh
 ```
 
-Nach dem zweiten Befehl gibt es eine Menge an Text der Konsole ausgegeben wird und dein HuCon wird während dieses Vorgangs einmal neu gestartet. Dieser Vorgang kann bis zu 5 Minuten dauern, bis dein HuCon wieder betriebsbereit ist.
+Nach dem zweiten Befehl wird eine Menge an Text auf der Konsole ausgegeben und dein HuCon wird während dieses Vorgangs einmal neu gestartet. Es kann bis zu 5 Minuten dauern, bis dein HuCon wieder betriebsbereit ist.
 Ob dein HuCon neu gestartet wurde, kannst du an den Augen deines HuCon erkennen. Sobald der HuCon startet, werden die Augen rot. Wenn der interne Server startet, werden die Augen orangefarben, und wenn alles bereit ist, werden die Augen für kurze Zeit grün, bevor sie wieder erlöschen.
 
 !!! warning
-    Bitte achte darauf, dass dein HuCon nicht von deinem vom Computer getrennt wird. Sonst könnte es sein, dass es danach kaputt ist.
+    Bitte achte darauf, dass dein HuCon nicht von deinem Computer getrennt wird. Sonst könnte es sein, dass er danach kaputt ist.
+
+## Manuelle Installation
+Wenn du deinen HuCon, wie oben bei der Installation beschrieben, bearbeitet hast, brauchst du nichts weiter tun. Solltest du aber die HuCon-Software selbst installieren wollen, so kannst du das wie folgt machen.
+
+1. Verbinde dich mittels MobaXterm mit deinem HuCon.
+2. Lade dir das aktuelle paket von github herunter:
+   `wget https://github.com/basler_hucon/releases/download/[VERSION]/hucon-[VERSION].run -O hucon.run`
+3. Starte die Installation mittels `sh hucon.run`
+
+Zum Schluss solltest du deinen HuCon mit dem Befehl `reboot` neu starten.
