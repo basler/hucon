@@ -131,3 +131,7 @@ Blockly.Msg["HUCON_EVENTS_BUTTON_WIDTH"] = "Breite";
 Blockly.Msg["HUCON_EVENTS_BUTTON_HEIGHT"] = "Höhe";
 Blockly.Msg["HUCON_EVENTS_BUTTON_TOOLTIP_1"] = "Funktion für das Button \'";
 Blockly.Msg["HUCON_EVENTS_BUTTON_TOOLTIP_2"] = "\' Eregnis.";
+
+Blockly.Msg["HUCON_TEXT_PRINT_COLORED_SET_1"] = "gib aus";
+Blockly.Msg["HUCON_TEXT_PRINT_COLORED_SET_2"] = "in der Farbe";
+Blockly.Msg["HUCON_TEXT_PRINT_COLORED_TOOLTIP"] = "Gib den Text in einer bestimmten Farbe aus.";
