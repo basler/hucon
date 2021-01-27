@@ -635,7 +635,7 @@ HuConApp.configureLoadSaveModal = function (rpcResponse, modal, folderCallback, 
 
     } else if (state == 'save') {
         fileHtml = [
-            '<div onclick="$("#saveFilename").val(\'{1}\');" class="item ok">',
+            '<div onclick="$(\'#saveFilename\').val(\'{1}\');" class="item ok">',
             '    <i class="file icon"></i>',
             '    <div class="content header">{1}</div>',
             '</div>',
