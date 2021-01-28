@@ -15,6 +15,7 @@ nav:
       - getting_started/blockly.md
       - getting_started/python.md
       - getting_started/update.md
+    - hardware.md
     - license.md
 
 theme:
