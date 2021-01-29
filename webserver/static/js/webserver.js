@@ -26,17 +26,13 @@ $(document).ready(function () {
 $(window).bind('keydown', function (event) {
     if (event.ctrlKey || event.metaKey) {
         switch (String.fromCharCode(event.which).toLowerCase()) {
-        case 'n':
-            event.preventDefault();
-            newFile();
-            break;
         case 'o':
             event.preventDefault();
-            openFileModal();
+            HuConApp.openFileModal();
             break;
         case 's':
             event.preventDefault();
-            saveFileModal();
+            HuConApp.saveFileModal();
             break;
         case 'r':
             event.preventDefault();
@@ -44,7 +40,7 @@ $(window).bind('keydown', function (event) {
             break;
         case 'h':
             event.preventDefault();
-            stop();
+            HuConApp.stop();
             break;
         }
     }
