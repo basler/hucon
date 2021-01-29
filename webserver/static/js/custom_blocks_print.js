@@ -44,11 +44,6 @@ Blockly.Python.text_print_colored = function (block) {
 
     var indexOfColour = field.colours_.indexOf(colourValue.toUpperCase());
 
-    console.log(field.colours_);
-    console.log(Object.keys(field));
-    console.log(indexOfColour);
-    console.log(colourValue);
-
     combined_text = text.slice(0, 1) + '[' + field.titles_[indexOfColour] + '] ' + text.slice(1);
 
     var code = 'print(' + combined_text + ')\n';
