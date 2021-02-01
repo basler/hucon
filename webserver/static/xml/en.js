@@ -45,6 +45,8 @@ Blockly.Msg["HUCON_EYE_COLOUR_RGB_RED"] = "red";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_GREEN"] = "green";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_BLUE"] = "blue";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_TOOLTIP"] = "Set the color for the eye. Use seperated values for red, green and blue.";
+Blockly.Msg["HUCON_EYE_SIMPLE_SET"] = "set eye color for";
+Blockly.Msg["HUCON_EYE_SIMPLE_TOOLTIP"] = "Set the color for an eye.";
 
 Blockly.Msg["HUCON_SERVO_HUE"] = "30";
 Blockly.Msg["HUCON_SERVO_CAT"] = "Servo";

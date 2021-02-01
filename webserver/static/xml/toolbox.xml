@@ -304,6 +304,23 @@
                 </shadow>
             </value>
         </block>
+        <block type="eye_colour_rgb_simple">
+            <value name="R">
+                <shadow type="math_number">
+                    <field name="NUM">255</field>
+                </shadow>
+            </value>
+            <value name="G">
+                <shadow type="math_number">
+                    <field name="NUM">127</field>
+                </shadow>
+            </value>
+            <value name="B">
+                <shadow type="math_number">
+                    <field name="NUM">0</field>
+                </shadow>
+            </value>
+        </block>
     </category>
     <category colour="%{BKY_HUCON_SERVO_HUE}" name="%{BKY_HUCON_SERVO_CAT}">
         <block type="machine_servo_channel"></block>

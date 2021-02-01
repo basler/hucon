@@ -142,3 +142,40 @@ Blockly.Python.eye_colour_rgb = function(block) {
     var code = varName + '.set_color(' + r + ', ' + g + ', ' + b + ')\n';
     return code;
 };
+
+
+Blockly.Blocks.eye_colour_rgb_simple = {
+    init: function () {
+        this.setColour(Blockly.Msg['HUCON_EYE_HUE']);
+
+        this.appendDummyInput()
+            .appendField(Blockly.Msg['HUCON_EYE_SIMPLE_SET']);
+        this.appendDummyInput()
+            .appendField(new Blockly.FieldDropdown(MACHINE_EYES), 'Eye');
+        this.appendValueInput('R')
+            .setCheck('Number')
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_RGB_RED']);
+        this.appendValueInput('G')
+            .setCheck('Number')
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_RGB_GREEN']);
+        this.appendValueInput('B')
+            .setCheck('Number')
+            .appendField(Blockly.Msg['HUCON_EYE_COLOUR_RGB_BLUE']);
+        this.setInputsInline(true);
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+
+        this.setTooltip(Blockly.Msg["HUCON_EYE_SIMPLE_TOOLTIP"]);
+    }
+};
+Blockly.Python.eye_colour_rgb_simple = function(block) {
+    Blockly.Python.definitions_.import_eye = 'from hucon import Eye';
+
+    var channel = block.getFieldValue('Eye');
+    var r = Blockly.Python.valueToCode(block, 'R', Blockly.Python.ORDER_ATOMIC) || '0';
+    var g = Blockly.Python.valueToCode(block, 'G', Blockly.Python.ORDER_ATOMIC) || '0';
+    var b = Blockly.Python.valueToCode(block, 'B', Blockly.Python.ORDER_ATOMIC) || '0';
+
+    var code = 'Eye(' + channel + ', Eye.RGB)' + '.set_color(' + r + ', ' + g + ', ' + b + ')\n';
+    return code;
+};

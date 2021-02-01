@@ -45,6 +45,8 @@ Blockly.Msg["HUCON_EYE_COLOUR_RGB_RED"] = "Rot";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_GREEN"] = "Grün";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_BLUE"] = "Blau";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_TOOLTIP"] = "Setz die Farbe für das Auge. Benutze sepperate Werte für Rot, Grün und Blau.";
+Blockly.Msg["HUCON_EYE_SIMPLE_SET"] = "Setze Augenfarbe an";
+Blockly.Msg["HUCON_EYE_SIMPLE_TOOLTIP"] = "Setze die Farbe für ein Auge.";
 
 Blockly.Msg["HUCON_SERVO_HUE"] = "30";
 Blockly.Msg["HUCON_SERVO_CAT"] = "Servo";
