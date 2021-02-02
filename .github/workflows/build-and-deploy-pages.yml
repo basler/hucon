@@ -1,0 +1,39 @@
+name: Build and Deploy documentation on github pages
+
+on:
+  push:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy the documentation
+    runs-on: ubuntu-20.04
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install mkdocs
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y mkdocs
+
+      - name: Prepare python
+        run: pip3 install mkdocs-material pygments markdown pymdown-extensions mkdocs-material-extensions jinja2 --upgrade
+
+      - name: Build
+        run: |
+          python3 generate_mkdocs_yml.py
+          mkdocs build -f mkdocs-en.yml --verbose --clean --strict
+          mkdocs build -f mkdocs-de.yml --verbose --clean --strict
+          cp docs/index.html site
+
+      - name: Deploy on github pages
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: site
+          CLEAN: true
