@@ -104,6 +104,9 @@ Blockly.Msg["HUCON_MOTOR_OFFSET_TOOLTIP"] = "Set the motor offset. The Value can
 Blockly.Msg["HUCON_MOTOR_SPEED_SET"] = "set";
 Blockly.Msg["HUCON_MOTOR_SPEED_SPEED"] = "speed to";
 Blockly.Msg["HUCON_MOTOR_SPEED_TOOLTIP"] = "Set the motor speed between -100 (backward) and 100 (forward).";
+Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_SET"] = "set motor on";
+Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_SPEED"] = "speed";
+Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_TOOLTIP"] = "Set the speed of a motor to a value between -100 (backward) and 100 (forward).";
 
 Blockly.Msg["HUCON_MPU_HUE"] = "90";
 Blockly.Msg["HUCON_MPU_CAT"] = "Motion Tracking";

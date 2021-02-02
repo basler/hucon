@@ -104,6 +104,9 @@ Blockly.Msg["HUCON_MOTOR_OFFSET_TOOLTIP"] = "Setz den Offset vom Servo. Der Wert
 Blockly.Msg["HUCON_MOTOR_SPEED_SET"] = "setz für";
 Blockly.Msg["HUCON_MOTOR_SPEED_SPEED"] = "Die Geschwindigkeit auf";
 Blockly.Msg["HUCON_MOTOR_SPEED_TOOLTIP"] = "Setz die Geschwindigkeit vom Motor zwischen -100 (rückwärts) und 100 (vorwärts).";
+Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_SET"] = "setz für Motor auf";
+Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_SPEED"] = "die Geschwindigkeit auf";
+Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_TOOLTIP"] = "Setz die Geschwindigkeit eines Motors auf einen Wert zwischen -100 (rückwärts) und 100 (vorwärts).";
 
 Blockly.Msg["HUCON_MPU_HUE"] = "90";
 Blockly.Msg["HUCON_MPU_CAT"] = "Bewegungserkennung";
