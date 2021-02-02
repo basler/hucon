@@ -339,6 +339,13 @@
                 </shadow>
             </value>
         </block>
+        <block type="servo_set_angle_simple">
+            <value name="Angle">
+                <shadow type="math_number">
+                    <field name="NUM">90</field>
+                </shadow>
+            </value>
+        </block>
     </category>
     <category colour="%{BKY_HUCON_MOTOR_HUE}" name="%{BKY_HUCON_MOTOR_CAT}">
         <block type="machine_motor_channel"></block>

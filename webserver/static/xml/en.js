@@ -74,6 +74,9 @@ Blockly.Msg["HUCON_SERVO_OFFSET_TOOLTIP"] = "Set the servo offset. The Value can
 Blockly.Msg["HUCON_SERVO_ANGLE_SET"] = "set";
 Blockly.Msg["HUCON_SERVO_ANGLE_ANGLE"] = "angle";
 Blockly.Msg["HUCON_SERVO_ANGLE_TOOLTIP"] = "Set the servo angle between 0 and 180 degree.";
+Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_SET"] = "set servo on";
+Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_ANGLE"] = "angle";
+Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_TOOLTIP"] = "Set the the angle for a servo to a value between 0 and 180 degrees.";
 
 Blockly.Msg["HUCON_MOTOR_HUE"] = "60";
 Blockly.Msg["HUCON_MOTOR_CAT"] = "Motor";

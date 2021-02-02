@@ -74,6 +74,9 @@ Blockly.Msg["HUCON_SERVO_OFFSET_TOOLTIP"] = "Setz den Offset vom Servo. Der Wert
 Blockly.Msg["HUCON_SERVO_ANGLE_SET"] = "setz für";
 Blockly.Msg["HUCON_SERVO_ANGLE_ANGLE"] = "den Winkel auf";
 Blockly.Msg["HUCON_SERVO_ANGLE_TOOLTIP"] = "Setz den Winkel vom Servo zwischen 0 und 180 Grad.";
+Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_SET"] = "setz für Servo auf";
+Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_ANGLE"] = "den Winkel auf";
+Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_TOOLTIP"] = "Setz den Winkel eines Servos auf einen Wert zwischen 0 und 180° Grad.";
 
 Blockly.Msg["HUCON_MOTOR_HUE"] = "60";
 Blockly.Msg["HUCON_MOTOR_CAT"] = "Motor";
