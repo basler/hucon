@@ -131,3 +131,7 @@ Blockly.Msg["HUCON_EVENTS_BUTTON_WIDTH"] = "width";
 Blockly.Msg["HUCON_EVENTS_BUTTON_HEIGHT"] = "height";
 Blockly.Msg["HUCON_EVENTS_BUTTON_TOOLTIP_1"] = "Callback for Button \'";
 Blockly.Msg["HUCON_EVENTS_BUTTON_TOOLTIP_2"] = "\' event.";
+
+Blockly.Msg["HUCON_TEXT_PRINT_COLORED_SET_1"] = "print";
+Blockly.Msg["HUCON_TEXT_PRINT_COLORED_SET_2"] = "with colour";
+Blockly.Msg["HUCON_TEXT_PRINT_COLORED_TOOLTIP"] = "Print the text in a specific colour.";
