@@ -109,3 +109,30 @@ Blockly.Python.servo_set_angle = function (block) {
     var code = varName + '.set_angle(' + angle + ')\n';
     return code;
 };
+
+Blockly.Blocks.servo_set_angle_simple = {
+    init: function () {
+        this.setColour(Blockly.Msg['HUCON_SERVO_HUE']);
+
+        this.appendDummyInput()
+            .appendField(Blockly.Msg['HUCON_SERVO_ANGLE_SIMPLE_SET'])
+            .appendField(new Blockly.FieldDropdown(MACHINE_SERVO_PINS), 'channel');
+        this.appendValueInput('Angle')
+            .setCheck('Number')
+            .appendField(Blockly.Msg['HUCON_SERVO_ANGLE_SIMPLE_ANGLE']);
+        this.setInputsInline(true);
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+
+        this.setTooltip(Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_TOOLTIP"]);
+    }
+};
+Blockly.Python.servo_set_angle_simple = function(block) {
+    Blockly.Python.definitions_.import_servo = 'from hucon import Servo';
+
+    var channel = block.getFieldValue('channel');
+    var angle = Blockly.Python.valueToCode(block, 'Angle', Blockly.Python.ORDER_ATOMIC) || '0';
+
+    var code = 'Servo(' + channel + ')' + '.set_angle(' + angle + ')\n';
+    return code;
+};

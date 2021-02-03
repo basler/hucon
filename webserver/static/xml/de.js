@@ -45,6 +45,8 @@ Blockly.Msg["HUCON_EYE_COLOUR_RGB_RED"] = "Rot";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_GREEN"] = "Grün";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_BLUE"] = "Blau";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_TOOLTIP"] = "Setz die Farbe für das Auge. Benutze sepperate Werte für Rot, Grün und Blau.";
+Blockly.Msg["HUCON_EYE_SIMPLE_SET"] = "Setze Augenfarbe an";
+Blockly.Msg["HUCON_EYE_SIMPLE_TOOLTIP"] = "Setze die Farbe für ein Auge.";
 
 Blockly.Msg["HUCON_SERVO_HUE"] = "30";
 Blockly.Msg["HUCON_SERVO_CAT"] = "Servo";
@@ -72,6 +74,9 @@ Blockly.Msg["HUCON_SERVO_OFFSET_TOOLTIP"] = "Setz den Offset vom Servo. Der Wert
 Blockly.Msg["HUCON_SERVO_ANGLE_SET"] = "setz für";
 Blockly.Msg["HUCON_SERVO_ANGLE_ANGLE"] = "den Winkel auf";
 Blockly.Msg["HUCON_SERVO_ANGLE_TOOLTIP"] = "Setz den Winkel vom Servo zwischen 0 und 180 Grad.";
+Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_SET"] = "setz für Servo auf";
+Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_ANGLE"] = "den Winkel auf";
+Blockly.Msg["HUCON_SERVO_ANGLE_SIMPLE_TOOLTIP"] = "Setz den Winkel eines Servos auf einen Wert zwischen 0 und 180° Grad.";
 
 Blockly.Msg["HUCON_MOTOR_HUE"] = "60";
 Blockly.Msg["HUCON_MOTOR_CAT"] = "Motor";
@@ -99,6 +104,9 @@ Blockly.Msg["HUCON_MOTOR_OFFSET_TOOLTIP"] = "Setz den Offset vom Servo. Der Wert
 Blockly.Msg["HUCON_MOTOR_SPEED_SET"] = "setz für";
 Blockly.Msg["HUCON_MOTOR_SPEED_SPEED"] = "Die Geschwindigkeit auf";
 Blockly.Msg["HUCON_MOTOR_SPEED_TOOLTIP"] = "Setz die Geschwindigkeit vom Motor zwischen -100 (rückwärts) und 100 (vorwärts).";
+Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_SET"] = "setz für Motor auf";
+Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_SPEED"] = "die Geschwindigkeit auf";
+Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_TOOLTIP"] = "Setz die Geschwindigkeit eines Motors auf einen Wert zwischen -100 (rückwärts) und 100 (vorwärts).";
 
 Blockly.Msg["HUCON_MPU_HUE"] = "90";
 Blockly.Msg["HUCON_MPU_CAT"] = "Bewegungserkennung";

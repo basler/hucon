@@ -108,3 +108,30 @@ Blockly.Python.motor_set_speed = function (block) {
     var code = varName + '.set_speed(' + value + ')\n';
     return code;
 };
+
+Blockly.Blocks.motor_set_speed_simple = {
+    init: function () {
+        this.setColour(Blockly.Msg['HUCON_MOTOR_HUE']);
+
+        this.appendDummyInput()
+            .appendField(Blockly.Msg['HUCON_MOTOR_SPEED_SIMPLE_SET'])
+            .appendField(new Blockly.FieldDropdown(MACHINE_MOTOR_PINS), 'channel');
+        this.appendValueInput('Speed')
+            .setCheck('Number')
+            .appendField(Blockly.Msg['HUCON_MOTOR_SPEED_SIMPLE_SPEED']);
+        this.setInputsInline(true);
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+
+        this.setTooltip(Blockly.Msg["HUCON_MOTOR_SPEED_SIMPLE_TOOLTIP"]);
+    }
+};
+Blockly.Python.motor_set_speed_simple = function(block) {
+    Blockly.Python.definitions_.import_motor = 'from hucon import Motor';
+
+    var channel = block.getFieldValue('channel');
+    var speed = Blockly.Python.valueToCode(block, 'Speed', Blockly.Python.ORDER_ATOMIC) || '0';
+
+    var code = 'Motor(' + channel + ')' + '.set_speed(' + speed + ')\n';
+    return code;
+};

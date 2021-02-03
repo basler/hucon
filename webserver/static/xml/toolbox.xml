@@ -304,6 +304,23 @@
                 </shadow>
             </value>
         </block>
+        <block type="eye_colour_rgb_simple">
+            <value name="R">
+                <shadow type="math_number">
+                    <field name="NUM">255</field>
+                </shadow>
+            </value>
+            <value name="G">
+                <shadow type="math_number">
+                    <field name="NUM">127</field>
+                </shadow>
+            </value>
+            <value name="B">
+                <shadow type="math_number">
+                    <field name="NUM">0</field>
+                </shadow>
+            </value>
+        </block>
     </category>
     <category colour="%{BKY_HUCON_SERVO_HUE}" name="%{BKY_HUCON_SERVO_CAT}">
         <block type="machine_servo_channel"></block>
@@ -316,6 +333,13 @@
             </value>
         </block>
         <block type="servo_set_angle">
+            <value name="Angle">
+                <shadow type="math_number">
+                    <field name="NUM">90</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="servo_set_angle_simple">
             <value name="Angle">
                 <shadow type="math_number">
                     <field name="NUM">90</field>
@@ -335,6 +359,13 @@
         </block>
         <block type="motor_set_speed">
             <value name="Value">
+                <shadow type="math_number">
+                    <field name="NUM">0</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="motor_set_speed_simple">
+            <value name="Speed">
                 <shadow type="math_number">
                     <field name="NUM">0</field>
                 </shadow>
