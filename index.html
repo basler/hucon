@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+      <meta name="description" content="HuCon">
+      <link rel="shortcut icon" href="en/images/icon.ico">
+      <title>HuCon</title>
+
+      <style>
+
+        body {
+          margin: 0px;
+          font-family: "Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;
+        }
+
+        header {
+          color: white;
+          background-color: #2196f3;
+          height: 48px;
+        }
+
+        #content {
+          margin: 8px;
+          text-align: center;
+          min-width: 300px;
+        }
+
+        #content img {
+          max-width: 800px;
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        #content figure {
+          width: 200px;
+          display: inline-block;
+        }
+
+        footer {
+          background-color: black;
+          width: 100%;
+          bottom: 0;
+          position: fixed;
+          height: 64px;
+          color: hsla(0,0%,100%,.7);
+          font-size: 12px;
+        }
+
+        #headerLable {
+          padding-left: 50px;
+          line-height: 48px;
+        }
+
+        #footerLable {
+          padding-left: 50px;
+          line-height: 48px;
+        }
+      </style>
+
+      <script type="text/javascript">
+        var language = navigator.language || navigator.browserLanguage;
+
+        if (language.indexOf('de') > -1) {
+          document.location.href = 'de/'
+        } else {
+          document.location.href = 'en/'
+        }
+      </script>
+
+  </head>
+  <body>
+
+    <header>
+      <div id="headerLable">HuCon</div>
+    </header>
+
+    <div id="content">
+      <img src="en/images/logo.svg" alt="Hucon"/>
+      <h1>Choose your language</h1>
+      <figure>
+        <a href="en/index.html"><img src="en/images/united-kingdom-flag.png" alt="English" style="width: 200px;"/></a>
+        <figcaption>
+          <center><a href="en/index.html">English</a><center>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="de/index.html"><img src="en/images/germany-flag.png" alt="Deutsch" style="width: 200px;"/></a>
+        <figcaption>
+          <center><a href="de/index.html">Deutsch</a><center>
+        </figcaption>
+      </figure>
+    </div>
+
+    <footer>
+      <div id="footerLable">Basler AG 2020</div>
+    </footer>
+  </body>
+</html>
