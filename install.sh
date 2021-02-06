@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # install.sh - Install all packages and copy bundled files.
 #
 # Copyright (C) 2019 Basler AG
