@@ -136,7 +136,7 @@ def check_service():
     while not_started:
         time.sleep(10)
         try:
-            conn = httplib.HTTPConnection('localhost', json_rpc._LISTENING_PORT, timeout=1)
+            conn = http.client.HTTPConnection('localhost', json_rpc._LISTENING_PORT, timeout=1)
             conn.request('GET', '/')
             res = conn.getresponse()
             if res.status == 200:

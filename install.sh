@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # install.sh - Install all packages and copy bundled files.
 #
 # Copyright (C) 2019 Basler AG
@@ -16,20 +16,21 @@ opkg update
 # install needed packages
 echo "Install needed packages"
 opkg install curl python-light python-pip pyOnionI2C
-pip install flask flask-socketio
+opkg install curl python3-light python3-pip pyOnionI2C
+pip install flask
 
 echo "Linking new libraries"
 # add the hackerschool to the site packages (only for old code)
-if [[ -L /usr/lib/python2.7/site-packages/hackerschool ]]; then
-    rm /usr/lib/python2.7/site-packages/hackerschool
+if [[ -L /usr/lib/python3.6/site-packages/hackerschool ]]; then
+    rm /usr/lib/python3.6/site-packages/hackerschool
 fi
-ln -s "/opt/hucon/python_lib/hucon" /usr/lib/python2.7/site-packages/hackerschool
+ln -s "/opt/hucon/python_lib/hucon" "/usr/lib/python3.6/site-packages/hackerschool"
 
 # add the hucon to the site packages
-if [[ -L /usr/lib/python2.7/site-packages/hucon ]]; then
-    rm /usr/lib/python2.7/site-packages/hucon
+if [[ -L /usr/lib/python3.6/site-packages/hucon ]]; then
+    rm /usr/lib/python3.6/site-packages/hucon
 fi
-ln -s "/opt/hucon/python_lib/hucon" /usr/lib/python2.7/site-packages/hucon
+ln -s "/opt/hucon/python_lib/hucon" "/usr/lib/python3.6/site-packages/hucon"
 
 echo "Removing old server startup"
 sed -i '/start_server.sh/d' /etc/rc.local

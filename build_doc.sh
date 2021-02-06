@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # build_doc.sh - Build the documentation with different languages.
 #
 # Copyright (C) 2020 Basler AG

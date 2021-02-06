@@ -10,13 +10,6 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 # add the hackerschool to the site packages (only for old code)
-if [ -L $1/usr/lib/python2.7/site-packages/hackerschool ]; then
-    rm $1/usr/lib/python2.7/site-packages/hackerschool
-fi
-ln -s "/opt/hucon/python_lib" $1/usr/lib/python2.7/site-packages/hackerschool
+ln -s "/opt/hucon/python_lib" $1/usr/lib/python3.6/site-packages/hackerschool
 
-# add the hucon to the site packages
-if [ -L $1/usr/lib/python2.7/site-packages/hucon ]; then
-    rm $1/usr/lib/python2.7/site-packages/hucon
-fi
-ln -s "/opt/hucon/python_lib" $1/usr/lib/python2.7/site-packages/hucon
+ln -s "/opt/hucon/python_lib/hucon" $1/usr/lib/python3.6/site-packages/hucon

@@ -78,16 +78,16 @@ def range_test():
     """
     import time
     servo = Servo(0)
-    print ("Set Angle: 0")
+    print("Set Angle: 0")
     servo.set_angle(0)
     time.sleep(1)
-    print ("Set Angle: 90")
+    print("Set Angle: 90")
     servo.set_angle(90)
     time.sleep(1)
-    print ("Set Angle: 180")
+    print("Set Angle: 180")
     servo.set_angle(180)
     time.sleep(1)
-    print ("Set Angle: 90")
+    print("Set Angle: 90")
     servo.set_angle(90)
     time.sleep(1)
 
@@ -99,17 +99,17 @@ def test():
     import time
     servo = Servo(0)
     for i in range(0, 180, 5):
-        print (i)
+        print(i)
         servo.set_angle(i)
         time.sleep(0.1)
     for i in range(180, 0, -5):
-        print (i)
+        print(i)
         servo.set_angle(i)
         time.sleep(0.1)
     for i in range(0, 91, 2):
         servo.set_angle(i)
         time.sleep(0.05)
-    print (i)
+    print(i)
 
     servo.set_all_off()
 

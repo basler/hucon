@@ -179,7 +179,7 @@ class HuConJsonRpc():
         """ Run the file and catch all output of it.
         """
         error_detected = False
-        self._current_proc = subprocess.Popen(['python', '-u', filename],
+        self._current_proc = subprocess.Popen(['python3', '-u', filename],
                                               bufsize=1,
                                               stdin=subprocess.PIPE,
                                               stdout=subprocess.PIPE,
@@ -323,7 +323,7 @@ class HuConJsonRpc():
             rpc_response = self._get_rpc_response(rpc_request['id'])
             filename = os.path.join(self._CODE_ROOT, rpc_request['params']['filename'].strip('/\\'))
             with open(filename, 'w') as file:
-                file.write(rpc_request['params']['data'])
+                file.writelines(rpc_request['params']['data'])
             rpc_response['result'] = 'File %s saved.' % rpc_request['params']['filename']
             json_dump = json.dumps(rpc_response)
         except Exception as ex:
@@ -353,8 +353,8 @@ class HuConJsonRpc():
 
                 filename = os.path.join(tempfile.gettempdir(), 'execute.py')
 
-                with open(filename, 'w') as file:
-                    file.write(self._replace_hucon_requests(rpc_request['params']))
+                with open(filename, 'wt') as file:
+                    file.writelines(self._replace_hucon_requests(rpc_request['params']))
                 file.close()
 
                 # Wait for a while until the file is really closed before it can be executed.
