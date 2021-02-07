@@ -13,7 +13,7 @@ def set_led(red, green, blue):
     """ Use the hucon eye driver to set the eye color.
     """
     try:
-        from hucon import Eye
+        from hucon.hucon import Eye
 
         Eye(1, Eye.RGB).set_color(red, green, blue)
         Eye(2, Eye.RGB).set_color(red, green, blue)
@@ -29,7 +29,6 @@ set_led(249, 166, 2)
 
 import argparse
 import logging
-import threading
 import time
 
 try:

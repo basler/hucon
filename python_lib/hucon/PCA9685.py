@@ -9,7 +9,7 @@
 """
 
 import time
-from OmegaExpansion import onionI2C
+from hucon.OmegaExpansion import onionI2C
 
 # Set of all addresses which are successfully initialized.
 _INITIALIZED_DRIVER = set()

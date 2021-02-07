@@ -7,9 +7,9 @@
     of the BSD license.  See the LICENSE file for details.
 """
 
-from hucon import Eye
-from hucon import Servo
-from hucon import Motor
+from hucon.hucon import Eye
+from hucon.hucon import Servo
+from hucon.hucon import Motor
 import time
 
 eyes = None

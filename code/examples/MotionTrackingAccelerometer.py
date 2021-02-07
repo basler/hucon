@@ -7,7 +7,7 @@
     of the BSD license.  See the LICENSE file for details.
 """
 
-from hucon import Mpu6050
+from hucon.hucon import Mpu6050
 
 mpu = None
 
