@@ -34,7 +34,7 @@ class UciHelperBase(object):
         """
         self.config = {}
         command = ['uci', 'export'] if package is None else ['uci', 'export', package]
-        settings = subprocess.check_output(command)
+        settings = subprocess.check_output(command).decode()
 
         package_name = None
         config_type = None
@@ -44,12 +44,12 @@ class UciHelperBase(object):
             line = line.strip()
             if 'package' in line:
                 # Get package name
-                _, package_name = line.strip().split(' ')
+                _, package_name = line.split(' ')
                 # initialize new section in the config
                 self.config.update({package_name: {}})
             elif 'config' in line:
                 # split the line for config type and name
-                line = line.split(' ')
+                line = line.split(' ', 2)
                 config_type = line[1]
                 config_name = None
                 if len(line) == 3:
@@ -69,12 +69,12 @@ class UciHelperBase(object):
                         self.config[package_name].update({config_type: []})
             elif 'option' in line:
                 # create or update an option entry in value dictionary
-                _, key, value = line.split(' ')
+                _, key, value = line.split(' ', 2)
                 value = value.replace("'", "")
                 value_dict.update({key: value})
             elif 'list' in line:
                 # add an list value to option
-                _, key, value = line.split(' ')
+                _, key, value = line.split(' ', 2)
                 value = value.replace("'", "")
                 # get a list if available, else create a new one
                 value_list = value_dict.get(key, [])

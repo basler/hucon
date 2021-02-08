@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # deploy.sh - Bundle installation data into a tar.gz file and prepend it with
 #             a bash script for self extracting / installation.
 #
@@ -22,7 +22,7 @@ tar -czvf "$TMP_FILENAME" __version__ LICENSE README.md code/ init.d/ python_lib
 # generate a self extracting tar image
 tmp=__extract__$RANDOM
 
-printf "#!/bin/sh
+printf "#!/bin/bash -e
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 
 path=/opt/hucon
@@ -39,7 +39,7 @@ echo \"Unpack new files to \$path\"
 echo \"This will take some time.\"
 mkdir -p \$path | tail -n+\$PAYLOAD_LINE \$0 | tar -xzC \$path
 
-if [ -z $2 ] || [ $2 != unpack ]; then
+if [ -z \$2 ] || [ \$2 != unpack ]; then
     sh \$path/install.sh
 fi
 

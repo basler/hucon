@@ -7,7 +7,7 @@
     of the BSD license.  See the LICENSE file for details.
 """
 
-from hucon import Eye
+from hucon.hucon import Eye
 
 eye = None
 

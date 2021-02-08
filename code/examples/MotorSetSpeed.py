@@ -7,7 +7,7 @@
     of the BSD license.  See the LICENSE file for details.
 """
 
-from hucon import Motor
+from hucon.hucon import Motor
 
 motor = None
 

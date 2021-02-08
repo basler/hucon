@@ -9,8 +9,8 @@
     of the BSD license.  See the LICENSE file for details.
 """
 
-from hucon import Eye
-from hucon import EventSystem, ButtonEvent
+from hucon.hucon import Eye
+from hucon.hucon import EventSystem, ButtonEvent
 
 eye = None
 

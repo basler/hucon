@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/bash -e
 #
 # Copyright (C) 2019 Basler AG
 # All rights reserved.

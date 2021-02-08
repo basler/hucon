@@ -9,7 +9,7 @@ Copyright (c) 2015, 2016, 2017 MrTijn/Tijndagamer
 **********************************************************************
 """
 
-from OmegaExpansion import onionI2C
+from hucon.OmegaExpansion import onionI2C
 
 class Mpu6050(object):
     """ Gyroscope class.
