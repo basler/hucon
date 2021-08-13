@@ -14,7 +14,7 @@ Es wird empfohlen, die Stiftleisten an die Platinen anzulöten, bevor diese aus 
 
 ![Platinen-Nutzen](../images/assembling/board_with_connector.png)
 
-Danach können die Platinen mit einem kleinen Seitenschneider an den markierten Stellen aufgetrennt werden.
+Danach können die Platinen mit einem kleinen Seitenschneider (oder einer guten Nagelschere) an den markierten Stellen aufgetrennt werden.
 
 ![Platinen](../images/assembling/board_cut.png)
 

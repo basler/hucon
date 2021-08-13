@@ -14,7 +14,7 @@ It is recommended to solder the pin headers to the boards before removing them o
 
 ![Board](../images/assembling/board_with_connector.png)
 
-The boards can be cut with a small side cutter at the marked places after this.
+The boards can be cut with a small side cutter (or good nail scissors) at the marked places after this.
 
 ![Board](../images/assembling/board_cut.png)
 
