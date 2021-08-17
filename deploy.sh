@@ -17,10 +17,10 @@ cd "$BASEDIR"
 
 # create release dir, create version file and copy to the release folder
 mkdir -p $TEMP_DIR
-echo $1 > __version__
-cp LICENSE README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh $RELEASE_DIR/tmp
+cp LICENSE README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh $TEMP_DIR
 
 cd $TEMP_DIR
+echo $1 > __version__
 #minification of JS files
 find js/ -type f \
     -name "*.js" ! -name "*.min.*" ! -name "vfs_fonts*" \
