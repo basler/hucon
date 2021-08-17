@@ -17,12 +17,12 @@ cd "$BASEDIR"
 
 # create release dir, create version file and copy to the release folder
 mkdir -p $TEMP_DIR
-cp LICENSE README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh $TEMP_DIR
+cp -r LICENSE README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh $TEMP_DIR
 
 cd $TEMP_DIR
 echo $1 > __version__
 #minification of JS files
-find js/ -type f \
+find . -type f \
     -name "*.js" ! -name "*.min.*" ! -name "vfs_fonts*" \
     -exec echo {} \; \
     -exec yui-compressor -o {}.min {} \; \
@@ -30,7 +30,7 @@ find js/ -type f \
     -exec mv {}.min {} \;
 
 #minification of CSS files
-find css/ -type f \
+find . -type f \
     -name "*.css" ! -name "*.min.*" \
     -exec echo {} \; \
     -exec yui-compressor -o {}.min {} \; \
@@ -41,10 +41,9 @@ find css/ -type f \
 tar -czvf "$TMP_FILENAME" __version__ LICENSE README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh
 
 mv "$TMP_FILENAME" ..
-
 cd ..
 
-rm -rf $TEMP_DIR
+rm -rf temp
 
 # generate a self extracting tar image
 tmp=__extract__$RANDOM
@@ -73,6 +72,6 @@ fi
 exit 0
 __PAYLOAD_BELOW__\n" > "$tmp"
 
-cat "$tmp" "$TMP_FILENAME" > "$FILENAME" && rm "$tmp" && rm "$TMP_FILENAME" && rm __version__
+cat "$tmp" "$TMP_FILENAME" > "$FILENAME" && rm "$tmp" && rm "$TMP_FILENAME"
 chmod +x "$FILENAME"
 sha256sum "$FILENAME"
