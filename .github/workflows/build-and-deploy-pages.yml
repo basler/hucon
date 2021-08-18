@@ -20,8 +20,11 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y mkdocs
 
+      # We need to pin mkdocs-material to 6.2.8
+      # because starting from 7.0.0 our header layout is broken
+      # (HuCon icon gets huge)
       - name: Prepare python
-        run: pip3 install mkdocs-material pygments markdown pymdown-extensions mkdocs-material-extensions jinja2 --upgrade
+        run: pip3 install mkdocs-material==6.2.8 pygments markdown pymdown-extensions mkdocs-material-extensions jinja2 --upgrade
 
       - name: Build
         run: |
