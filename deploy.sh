@@ -13,11 +13,14 @@ TMP_FILENAME=hucon-${1}.tar.gz
 FILENAME=hucon-${1}.run
 RELEASE_DIR=release
 TEMP_DIR=$RELEASE_DIR/temp
+
+FILELIST="LICENSE README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh version_compare.sh"
+
 cd "$BASEDIR"
 
 # create release dir, create version file and copy to the release folder
 mkdir -p $TEMP_DIR
-cp -r LICENSE README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh $TEMP_DIR
+cp -r ${FILELIST} $TEMP_DIR
 
 cd $TEMP_DIR
 echo $1 > __version__
@@ -38,7 +41,7 @@ find . -type f \
     -exec mv {}.min {} \;
 
 # compress the needed files into one tar image
-tar -czvf "$TMP_FILENAME" __version__ LICENSE README.md code/ init.d/ python_lib/ webserver/ i2c_led.sh install.sh img_install.sh start_server.sh uninstall.sh update.sh
+tar -czvf "$TMP_FILENAME" __version__ ${FILELIST}
 
 mv "$TMP_FILENAME" ..
 cd ..
