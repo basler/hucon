@@ -9,7 +9,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-UPDATE_SOURCE_REPO=basler/hucon
+UPDATE_SOURCE_REPO=JonasTrampe/hucon
 
 while :; do
     case $1 in
