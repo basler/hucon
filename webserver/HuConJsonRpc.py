@@ -184,10 +184,11 @@ class HuConJsonRpc():
                                               bufsize=1,
                                               stdin=subprocess.PIPE,
                                               stdout=subprocess.PIPE,
-                                              stderr=subprocess.STDOUT)
+                                              stderr=subprocess.STDOUT,
+                                              encoding='utf-8')
 
         while True:
-            output = self._current_proc.stdout.readline().decode()
+            output = self._current_proc.stdout.readline()
             if output == '' and self._current_proc.poll() is not None:
                 break
             if output:
@@ -458,7 +459,7 @@ class HuConJsonRpc():
         """
         try:
             proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
+                                    stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
                 output = proc.stdout.readline()
@@ -485,7 +486,7 @@ class HuConJsonRpc():
             # Update the system first.
             self._log.put('The system will be updated and needs a few seconds.\n')
             proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
+                                    stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
                 output = proc.stdout.readline()
@@ -497,7 +498,7 @@ class HuConJsonRpc():
 
             # Do a restart.
             proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
+                                    stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
                 output = proc.stdout.readline()
@@ -519,7 +520,7 @@ class HuConJsonRpc():
         try:
             self._log.put('The system will be shutdown.\n')
             proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-s'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
+                                    stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
                 output = proc.stdout.readline()
