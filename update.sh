@@ -66,7 +66,7 @@ if [ $do_check ]; then
         echo "Your version is: $currentVersion"
         echo "The latest version is: $latestVersion"
 
-        result=$(/bin/bash version_compare.sh "${currentVersion}" "${latestVersion}")
+        result=$(/bin/bash /opt/hucon/version_compare.sh "${currentVersion}" "${latestVersion}")
 
         if [ "${result}" -eq 0 ]; then
             echo "There is no new version!"
