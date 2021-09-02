@@ -458,7 +458,7 @@ class HuConJsonRpc():
         """ Check if there is an update available.
         """
         try:
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE,
+            proc = subprocess.Popen(['bash', self._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE,
                                     stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
@@ -485,7 +485,7 @@ class HuConJsonRpc():
         try:
             # Update the system first.
             self._log.put('The system will be updated and needs a few seconds.\n')
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE,
+            proc = subprocess.Popen(['bash', self._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE,
                                     stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
@@ -497,7 +497,7 @@ class HuConJsonRpc():
             proc.poll()
 
             # Do a restart.
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE,
+            proc = subprocess.Popen(['bash', self._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE,
                                     stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
@@ -519,7 +519,7 @@ class HuConJsonRpc():
         """
         try:
             self._log.put('The system will be shutdown.\n')
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-s'], bufsize=0, stdout=subprocess.PIPE,
+            proc = subprocess.Popen(['bash', self._UPDATE_FILE, '-s'], bufsize=0, stdout=subprocess.PIPE,
                                     stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
