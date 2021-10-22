@@ -64,6 +64,11 @@ HuConApp.UnsavedContent = false;
 // Callback function that is called after a file has been saved
 HuConApp.FileSavedCallback = undefined;
 
+const MessageType = {
+    INPUT_ENQUIRY: 1,
+    OUTPUT: 2
+}
+
 // Get a new JSON-RPC message data with a new id.
 HuConApp.getRpcRequest = function () {
     jsonRpc = {};
@@ -112,6 +117,47 @@ HuConApp.updateVersion = function () {
     });
 };
 
+// Request a text from the user
+HuConApp.requestInput = function (enquiry_text) {
+    $('#inputModal').modal('show dimmer');
+    $('#inputModal').modal('show');
+    $('#inputHeader').text(enquiry_text);
+    $('#inputText').val("");
+}
+
+// Push the text to the server
+HuConApp.pushInput = function () {
+    let rpcRequest = HuConApp.getRpcRequest();
+    rpcRequest.method = 'push_input';
+    rpcRequest.message = $('#inputText').val();
+
+    $('#inputModal').modal('hide dimmer');
+    $('#inputModal').modal('hide');
+
+    $.ajax('/API', {
+        method: 'POST',
+        data: JSON.stringify(rpcRequest),
+        dataType: 'json',
+        success: function (rpcResponse) {
+            if (rpcResponse.result !== undefined) {
+                HuConApp.appendConsoleLog(rpcResponse.result, 'red');
+            }
+        },
+        error: HuConApp.appendErrorLog
+    });
+}
+
+// Process messages from the "poll" response
+HuConApp.processPollingMessages = function(messages) {
+    for (const message of messages) {
+        if (message.content_type === MessageType.INPUT_ENQUIRY) {
+            HuConApp.requestInput(message.content)
+        } else {
+            HuConApp.appendConsoleLog(message.content);
+        }
+    }
+}
+
 // Poll for a new message.
 HuConApp.poll = function () {
     var rpcRequest = HuConApp.getRpcRequest();
@@ -122,8 +168,8 @@ HuConApp.poll = function () {
         data: JSON.stringify(rpcRequest),
         dataType: 'json',
         success: function (rpcResponse) {
-            if (rpcResponse.result.length) {
-                HuConApp.appendConsoleLog(rpcResponse.result);
+            if (rpcResponse.messages.length) {
+                HuConApp.processPollingMessages(rpcResponse.messages)
             }
             setTimeout(HuConApp.poll, 500);
         },
