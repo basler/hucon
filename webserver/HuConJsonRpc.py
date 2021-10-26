@@ -177,23 +177,30 @@ class HuConJsonRpc:
     _file_runner = None
 
     def _run_file(self, filename):
+        """ This function takes care about starting and stopping the thread for running user python scripts
+        """
         if self._file_runner is not None:
             self._kill_process()
             self._file_runner.join()
             self._file_runner = None
-            self._run_file_threaded(filename)
-        else:
-            self._run_file_threaded(filename)
 
-    def _run_file_threaded(self, filename):
-        self._file_runner = threading.Thread(target=self._filer_runner_worker, args=(filename, ))
+        self._file_runner = threading.Thread(target=self._run_file_worker, args=(filename,))
         self._file_runner.start()
 
-    def _filer_runner_worker(self, filename):
-        """ Run the file and catch all output of it.
+    def _run_file_worker(self, filename):
+        """ Threaded worker function for running the user scripts.
+        It catches all outputs and provides input functions for the process
         """
         error_detected = False
-        self._current_proc = subprocess.Popen(['python3', '-u', filename],
+        # I am feeling very guilty - but it seems to be a very effective solution
+        ugly_hack = '#!/usr/bin/env python\n' \
+                    '# -*- coding: utf-8 -*-\n' \
+                    'def input(enquiry):\n' \
+                    '    print(enquiry + u"\u2504")\n' \
+                    '    return globals()[\'__builtins__\'].input(\'\')\n' \
+                    'exec(open(r\'' + filename + '\').read())'
+
+        self._current_proc = subprocess.Popen(['python3', '-X utf8', '-c', ugly_hack],
                                               bufsize=1,
                                               stdin=subprocess.PIPE,
                                               stdout=subprocess.PIPE,
