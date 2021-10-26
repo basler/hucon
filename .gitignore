@@ -10,3 +10,4 @@ mkdocs-de.yml
 mkdocs-en.yml
 site
 .idea
+/.mypy_cache/
