@@ -61,7 +61,7 @@ fi
 
 if [ -d \$path ]; then
     echo \"Remove old installation from \$path\"
-    rm -rf \$path
+    rm -rf \$(ls \$path | grep -v *.run)
 fi
 
 echo \"Unpack new files to \$path\"
