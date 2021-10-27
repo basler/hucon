@@ -9,15 +9,7 @@
 
 echo "Hucon-webserver installation started"
 
-# update the system
-echo "Update the system"
-opkg update
-
-# install needed packages
-echo "Install needed packages"
-opkg install curl python-light python-pip pyOnionI2C
-opkg install curl python3-light python3-pip pyOnionI2C
-pip install flask
+# we use our own image - don't touch it
 
 echo "Linking new libraries"
 # add the hackerschool to the site packages (only for old code)
