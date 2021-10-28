@@ -21,7 +21,7 @@ import socket
 import typing
 
 from HuConLogMessage import HuConLogMessage
-import HuConMAC
+import HuConNetiface
 from PyUci import WirelessHelper
 
 
@@ -270,11 +270,17 @@ class HuConJsonRpc:
         """
         try:
             hucon_name = socket.gethostname()
-            mac_address = HuConMAC.get_mac_address()
+            net_interface_infos = {
+                interface_name: HuConNetiface.get_info(interface_name)
+                for interface_name in ["br-wlan", "apcli0"]
+            }
             rpc_response = self._get_rpc_response(rpc_request['id'])
             rpc_response['result'] = {
                 'name': hucon_name,
-                'mac_address': mac_address
+                'mac_address': net_interface_infos["br-wlan"].mac_address,
+                'ipv4_addresses': [
+                    info.ipv4_address for info in net_interface_infos.values()
+                ]
             }
             json_dump = json.dumps(rpc_response)
         except Exception as ex:

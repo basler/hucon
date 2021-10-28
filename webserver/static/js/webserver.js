@@ -436,7 +436,10 @@ HuConApp.showName = function() {
             var huconNameElement = $('#huconName');
             var huconName = (
                 rpcResponse.result.name + " " +
-                "(MAC: " + rpcResponse.result.mac_address + ")"
+                "(" +
+                "MAC: " + rpcResponse.result.mac_address + ", " +
+                "IPs: " + rpcResponse.result.ipv4_addresses.join(", ") +
+                ")"
             );
             huconNameElement.text(huconName);
         },
