@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/usr/bin/env bash
 # start_server.sh - Run the python2 web server.
 #
 # Copyright (C) 2019 Basler AG
@@ -10,14 +10,15 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 EXECUTABLE=webserver.py
-PARAMETERS=""
+PYTHON_PARAMETERS="-X utf8"
+SCRIPT_PARAMETERS=""
 INTERPRETER=python3
 
-DEBUG=0
+DEBUG=1
 
 if [ $DEBUG != 0 ];
 then
-    PARAMETERS="$PARAMETERS --debug 2>/var/log/hucon_err.log >/var/log/hucon.log"
+    SCRIPT_PARAMETERS="$SCRIPT_PARAMETERS --debug"
 fi
 
 if [ $( uname -a | grep -c Omega ) -eq 0 ] ;then
@@ -29,7 +30,13 @@ fi
 cd $SCRIPT_DIR/webserver
 
 # start the server in background
-$INTERPRETER $EXECUTABLE $PARAMETERS &
+if [ $DEBUG != 0 ];
+then
+    echo "Starting server"
+    $INTERPRETER $PYTHON_PARAMETERS $EXECUTABLE $SCRIPT_PARAMETERS >/var/log/hucon.log 2>/var/log/hucon_err.log &
+else
+    $INTERPRETER $PYTHON_PARAMETERS $EXECUTABLE $SCRIPT_PARAMETERS &
+fi
 
 HUCON_PID=$!
 
