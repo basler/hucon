@@ -481,6 +481,9 @@ class HuConJsonRpc:
             except Exception:
                 pass
 
+        if not self._current_proc:
+            self._is_running = False
+
     def _get_possible_post_data(self, rpc_request):
         """ Return the json of available post data events.
         """
