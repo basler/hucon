@@ -459,9 +459,13 @@ class HuConJsonRpc:
         return json.dumps(rpc_response)
 
     def _kill_process(self):
-        signal_list = [signal.CTRL_C_EVENT,
-                       signal.CTRL_C_EVENT,
-                       signal.CTRL_BREAK_EVENT,
+        if hasattr(signal, 'CTRL_C_EVENT'):
+            sig_ctrl_c = signal.CTRL_C_EVENT
+        else:
+            sig_ctrl_c = signal.SIGINT
+
+        signal_list = [sig_ctrl_c,
+                       sig_ctrl_c,
                        signal.SIGTERM,
                        signal.SIGABRT]
         for currentSignal in signal_list:
@@ -480,6 +484,9 @@ class HuConJsonRpc:
                 self._current_proc.wait(0.1)
             except Exception:
                 pass
+
+        if not self._current_proc:
+            self._is_running = False
 
     def _get_possible_post_data(self, rpc_request):
         """ Return the json of available post data events.
