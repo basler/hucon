@@ -51,7 +51,7 @@ rm -rf temp
 # generate a self extracting tar image
 tmp=__extract__$RANDOM
 
-printf "#!/bin/bash -e
+printf "#!/bin/sh -e
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 
 path=/opt/hucon
@@ -61,7 +61,7 @@ fi
 
 if [ -d \$path ]; then
     echo \"Remove old installation from \$path\"
-    rm -rf \$(ls \$path | grep -v *.run)
+    find \$path -mindepth 1 -maxdepth 1 ! -name '*.run' -exec rm -rf {} \;
 fi
 
 echo \"Unpack new files to \$path\"
