@@ -51,8 +51,13 @@ rm -rf temp
 # generate a self extracting tar image
 tmp=__extract__$RANDOM
 
-printf "#!/bin/bash -e
+printf "#!/bin/sh -e
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
+
+if [[ ! \$(which python3) ]]; then
+    echo \"Python3 is required for the new HuCon version. You need to update the firmware manually. The latest firmware release can be found at https://github.com/JonasTrampe/hucon/releases\"
+    exit 1
+fi
 
 path=/opt/hucon
 if [ \$1 ]; then
@@ -61,7 +66,7 @@ fi
 
 if [ -d \$path ]; then
     echo \"Remove old installation from \$path\"
-    rm -rf \$path
+    find \$path -mindepth 1 -maxdepth 1 ! -name '*.run' -exec rm -rf {} \;
 fi
 
 echo \"Unpack new files to \$path\"
