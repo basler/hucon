@@ -55,7 +55,7 @@ printf "#!/bin/sh -e
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 
 if [[ ! \$(which python3) ]]; then
-    echo \"Python3 is required for the new HuCon version. You need to update the firmware manually. The latest firmware release can be found at https://github.com/JonasTrampe/hucon/releases\"
+    echo \"Python3 is required for the new HuCon version. You need to update the firmware manually. The latest firmware release can be found at https://github.com/basler/hucon/releases\"
     exit 1
 fi
 
