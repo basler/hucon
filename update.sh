@@ -99,15 +99,15 @@ if [ $do_update ]; then
         echo "Update the system from $currentVersion to $latestVersion"
 
         # remove the old package if needed.
-        if [ -f hucon.run ]; then
-            rm hucon.run
+        if [ -f ${SCRIPT_DIR}/hucon.run ]; then
+            rm ${SCRIPT_DIR}/hucon.run
         fi
 
         # download the new package
         downloadUrl="https://github.com/$UPDATE_SOURCE_REPO/releases/download/$latestVersion/hucon-$latestVersion.run"
 
         # Download the new package
-        wget $downloadUrl -O hucon.run
+        wget $downloadUrl -O ${SCRIPT_DIR}/hucon.run
 
         echo "Check if existing code can be moved to /root/hucon/code..."
         if [[ ! -e /root/hucon/code ]]; then
@@ -121,7 +121,7 @@ if [ $do_update ]; then
         fi
 
         # and install it.
-        sh hucon.run
+        sh ${SCRIPT_DIR}/hucon.run
     else
         echo "You are using the up to date version."
     fi
