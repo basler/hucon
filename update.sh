@@ -70,19 +70,26 @@ if [ $do_check ]; then
 
         if [ "${result}" -eq 0 ]; then
             echo "There is no new version!"
+            exit 0
         elif  [ "${result}" -eq 1 ]; then
-             echo "Your version is newer than the available version!"
+            echo "Your version is newer than the available version!"
+            exit 0
         elif  [ "${result}" -eq 2 ]; then
             echo "There is a new stable version!"
+            exit 1
         elif  [ "${result}" -eq 3 ]; then
             echo "You have an unstable version, but hey it's the newest one"
+            exit 0
         elif  [ "${result}" -eq 4 ]; then
             echo "Your unstable version is newer than the available version!"
+            exit 0
         elif  [ "${result}" -eq 5 ]; then
             echo "There is a new unstable (alpha/beta/rc) version! It is highly experimental and discouraged to be installed!"
+            exit 1
         fi
     else
         echo "Could not read the version from github."
+        exit 0
     fi
 fi
 
