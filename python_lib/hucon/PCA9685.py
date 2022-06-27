@@ -103,7 +103,7 @@ if __name__ == '__main__':
     pwm = PCA9685(0x4A)
 
     for cha in range(16):
-        print ('Channel %d\n' % cha)
+        print('Channel %d\n' % cha)
         pwm.set_channel(cha, 255)
         time.sleep(1)
 

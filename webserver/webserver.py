@@ -7,6 +7,7 @@
     This software may be modified and distributed under the terms
     of the BSD license.  See the LICENSE file for details.
 """
+import http
 
 
 def set_led(red, green, blue):
@@ -120,7 +121,7 @@ def api():
 
 
 @app.before_first_request
-def before_first_reuqest():
+def before_first_request():
     """ Set the eyes to green and after a while to off.
         This will gibe the user teh ability to see that the service is running.
     """
@@ -136,14 +137,13 @@ def check_service():
     while not_started:
         time.sleep(10)
         try:
-            conn = httplib.HTTPConnection('localhost', json_rpc._LISTENING_PORT, timeout=1)
+            conn = http.client.HTTPConnection('localhost', json_rpc._LISTENING_PORT, timeout=5)
             conn.request('GET', '/')
             res = conn.getresponse()
             if res.status == 200:
                 not_started = False
         except Exception as ex:
-            pass
-            # print(ex)
+            print(ex)
 
 
 if __name__ == '__main__':

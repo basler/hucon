@@ -34,7 +34,7 @@ class UciHelperBase(object):
         """
         self.config = {}
         command = ['uci', 'export'] if package is None else ['uci', 'export', package]
-        settings = subprocess.check_output(command)
+        settings = subprocess.check_output(command, encoding='utf-8')
 
         package_name = None
         config_type = None
@@ -44,12 +44,12 @@ class UciHelperBase(object):
             line = line.strip()
             if 'package' in line:
                 # Get package name
-                _, package_name = line.strip().split(' ')
+                _, package_name = line.split(' ')
                 # initialize new section in the config
                 self.config.update({package_name: {}})
             elif 'config' in line:
                 # split the line for config type and name
-                line = line.split(' ')
+                line = line.split(' ', 2)
                 config_type = line[1]
                 config_name = None
                 if len(line) == 3:
@@ -69,12 +69,12 @@ class UciHelperBase(object):
                         self.config[package_name].update({config_type: []})
             elif 'option' in line:
                 # create or update an option entry in value dictionary
-                _, key, value = line.split(' ')
+                _, key, value = line.split(' ', 2)
                 value = value.replace("'", "")
                 value_dict.update({key: value})
             elif 'list' in line:
                 # add an list value to option
-                _, key, value = line.split(' ')
+                _, key, value = line.split(' ', 2)
                 value = value.replace("'", "")
                 # get a list if available, else create a new one
                 value_list = value_dict.get(key, [])
@@ -301,7 +301,7 @@ class WirelessHelper(UciHelperBase):
         """
         ret_dict = self.config['wireless']['wifi-iface']['ap']
         ip_addr = \
-            subprocess.check_output(['uci', 'show', 'network.wlan.ipaddr']).replace("'", '').decode().strip().split(
+            subprocess.check_output(['uci', 'show', 'network.wlan.ipaddr'], encoding='utf-8').replace("'", '').strip().split(
                 '=')[-1]
         ret_dict.update({'ap_ip_addr': ip_addr})
         return ret_dict
@@ -355,7 +355,7 @@ class WirelessHelper(UciHelperBase):
         :param cmd: Command to be execute
         :return: None
         """
-        proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        proc = subprocess.Popen(cmd, bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8')
         while True:
             output = proc.stdout.readline()
             if output == '' and proc.poll() is not None:
@@ -423,7 +423,7 @@ class WirelessHelper(UciHelperBase):
         :return: boolean: True if connected else False
         """
         cmd = ['iwconfig']
-        output = subprocess.check_output(cmd, stderr=subprocess.PIPE)
+        output = subprocess.check_output(cmd, stderr=subprocess.PIPE, encoding='utf-8')
         for line in output.strip().split('\n'):
             if 'apcli0' in line:
                 essid = line.split('ESSID:')[-1].strip().replace('"', "")

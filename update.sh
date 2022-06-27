@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # update.sh - Update the system or return the latest released version from github.
 #
 # Copyright (C) 2019 Basler AG
@@ -66,35 +66,20 @@ if [ $do_check ]; then
         echo "Your version is: $currentVersion"
         echo "The latest version is: $latestVersion"
 
-        currentMajor=$(echo $currentVersion| cut -d'.' -f1)
-        currentMinor=$(echo $currentVersion| cut -d'.' -f2)
-        currentBugfix=$(echo $currentVersion| cut -d'.' -f3)
+        result=$(/bin/bash /opt/hucon/version_compare.sh "${currentVersion}" "${latestVersion}")
 
-        latestMajor=$(echo $latestVersion| cut -d'.' -f1)
-        latestMinor=$(echo $latestVersion| cut -d'.' -f2)
-        latestBugfix=$(echo $latestVersion| cut -d'.' -f3)
-
-        if [ ${latestMajor} -gt ${currentMajor} ]; then
-            echo "There is a major update available."
-            exit 1
-        elif [ ${latestMajor} -eq ${currentMajor} ]; then
-            if [ ${latestMinor} -gt ${currentMinor} ]; then
-                echo "There is a minor update available."
-                exit 1
-            elif [ ${latestMinor} -eq ${currentMinor} ]; then
-
-                if [ "$latestBugfix" > "$currentBugfix" ]; then
-                    echo "There is a bugfix update available."
-                    exit 1
-                else
-                    echo "You are using the up to date version."
-                fi
-
-            else
-                echo "You are using the up to date version."
-            fi
-        else
-            echo "You are using the up to date version."
+        if [ "${result}" -eq 0 ]; then
+            echo "There is no new version!"
+        elif  [ "${result}" -eq 1 ]; then
+             echo "Your version is newer than the available version!"
+        elif  [ "${result}" -eq 2 ]; then
+            echo "There is a new stable version!"
+        elif  [ "${result}" -eq 3 ]; then
+            echo "You have an unstable version, but hey it's the newest one"
+        elif  [ "${result}" -eq 4 ]; then
+            echo "Your unstable version is newer than the available version!"
+        elif  [ "${result}" -eq 5 ]; then
+            echo "There is a new unstable (alpha/beta/rc) version! It is highly experimental and discouraged to be installed!"
         fi
     else
         echo "Could not read the version from github."

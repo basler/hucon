@@ -78,33 +78,53 @@ Blockly.Python.event_stop_endless = function(block) {
     return 'process_events.stop()\n';
 };
 
+function getButtonValuesFromElement(valuesElement) {
+    return {
+        x : valuesElement.fieldRow.find(({name}) => name === 'X').getValue(),
+        y : valuesElement.fieldRow.find(({name}) => name === 'Y').getValue(),
+        width : valuesElement.fieldRow.find(({name}) => name === 'Width').getValue(),
+        height : valuesElement.fieldRow.find(({name}) => name === 'Height').getValue(),
+    }
+}
+
 Blockly.Blocks.event_button_object = {
     init: function () {
         this.appendDummyInput()
             .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON']);
-        this.appendValueInput('X')
-            .setCheck('Number')
-            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_X']);
-        this.appendValueInput('Y')
-            .setCheck('Number')
-            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_Y']);
-        this.appendValueInput('Width')
-            .setCheck('Number')
-            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_WIDTH']);
-        this.appendValueInput('Height')
-            .setCheck('Number')
-            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_HEIGHT']);
-        this.setInputsInline(true);
+        this.appendDummyInput('Values')
+            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_X'])
+            .appendField(new Blockly.FieldNumber(0, 0, 9, 1), 'X')
+            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_Y'])
+            .appendField(new Blockly.FieldNumber(0, 0, 9, 1), 'Y')
+            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_WIDTH'])
+            .appendField(new Blockly.FieldNumber(1, 1, 10, 1), 'Width')
+            .appendField(Blockly.Msg['HUCON_EVENTS_BUTTON_HEIGHT'])
+            .appendField(new Blockly.FieldNumber(1, 1, 10 ,1), 'Height');
+        // this.setInputsInline(true);
         this.appendStatementInput('function')
             .setCheck(null)
             .appendField(new Blockly.FieldTextInput(Blockly.Msg['HUCON_EVENTS_FUNC']), 'EventName');
         this.setColour(Blockly.Msg['HUCON_EVENTS_HUE']);
 
         var thisBlock = this;
-        this.setTooltip(function() {
+        this.setTooltip(function () {
             return Blockly.Msg['HUCON_EVENTS_BUTTON_TOOLTIP_1'] + thisBlock.getFieldValue('EventName') + Blockly.Msg['HUCON_EVENTS_BUTTON_TOOLTIP_2'];
         });
-    }
+
+        this.setOnChange(function (changeEvent) {
+            if (changeEvent.type === Blockly.Events.BLOCK_CHANGE) {
+                let valuesElement = this.getInput('Values')
+
+                let values = getButtonValuesFromElement(valuesElement)
+
+                if ((values.x + width) > 10)
+                    valuesElement.fieldRow.find(({name}) => name === 'Width').setValue(10 - values.x);
+
+                if ((values.y + height) > 10)
+                    valuesElement.fieldRow.find(({name}) => name === 'Height').setValue(10 - values.y);
+            }
+            });
+    },
 };
 Blockly.Python.event_button_object = function(block) {
     // Catch all global variables.
@@ -120,10 +140,10 @@ Blockly.Python.event_button_object = function(block) {
 
     var eventName = block.getFieldValue('EventName');
     var funcName = Blockly.Python.variableDB_.getName(eventName, Blockly.Procedures.NAME_TYPE);
-    var x = Blockly.Python.valueToCode(block, 'X', Blockly.Python.ORDER_ATOMIC) || '0';
-    var y = Blockly.Python.valueToCode(block, 'Y', Blockly.Python.ORDER_ATOMIC) || '0';
-    var width = Blockly.Python.valueToCode(block, 'Width', Blockly.Python.ORDER_ATOMIC) || '1';
-    var height = Blockly.Python.valueToCode(block, 'Height', Blockly.Python.ORDER_ATOMIC) || '1';
+
+    let valuesElement = this.getInput('Values')
+
+    let values = getButtonValuesFromElement(valuesElement)
 
     if (statementsFunc == '') {
         statementsFunc = Blockly.Python.PASS;
@@ -141,6 +161,6 @@ Blockly.Python.event_button_object = function(block) {
     code = Blockly.Python.scrub_(block, code);
     Blockly.Python.definitions_['%' + funcName] = code;
 
-    appendEvent(eventName, funcName, x, y, width, height);
+    appendEvent(eventName, funcName, values.x, values.y, values.width, values.height);
     return null;
 };

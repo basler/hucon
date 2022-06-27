@@ -84,16 +84,16 @@ def range_test():
     """
     import time
     motor = Motor(0)
-    print "Set Speed: -100"
+    print("Set Speed: -100")
     motor.set_speed(-100)
     time.sleep(0.2)
-    print "Set Speed: 0"
+    print("Set Speed: 0")
     motor.set_speed(0)
     time.sleep(0.2)
-    print "Set Speed: 100"
+    print("Set Speed: 100")
     motor.set_speed(100)
     time.sleep(0.2)
-    print "Set Speed: 0"
+    print("Set Speed: 0")
     motor.set_speed(0)
 
 def test():
@@ -102,17 +102,18 @@ def test():
     import time
     motor = Motor(0)
     for i in range(-100, 100, 10):
-        print i
+        print(i)
         motor.set_speed(i)
         time.sleep(0.1)
     for i in range(100, -100, -10):
-        print i
+        print(i)
         motor.set_speed(i)
         time.sleep(0.1)
     for i in range(-100, 0, 5):
         motor.set_speed(i)
         time.sleep(0.05)
-    print i
+    print(i)
+
 
 def install():
     """ Run a simple install test.

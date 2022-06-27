@@ -5,7 +5,7 @@
    of the BSD license.  See the LICENSE file for details.
    #}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html">
+<html>
 
 {% block head %}
 
@@ -23,7 +23,7 @@
     <script src="{{ url_for('.static', filename='jquery/jquery-3.4.1.min.js') }}"></script>
     <script src="{{ url_for('.static', filename='semantic/semantic.min.js') }}"></script>
     <script src="{{ url_for('.static', filename='semantic_alert/Semantic-UI-Alert.js') }}"></script>
-    <script src="{{ url_for('.static', filename='socketio/socket.io.js') }}"></script>
+    <script src="{{ url_for('.static', filename='socketio/socket.io.min.js') }}"></script>
 
     <script type="text/javascript" src="{{ url_for('.static', filename='js/webserver.js') }}"></script>
 
@@ -109,7 +109,7 @@
             </div>
         {% endblock %}
         {% block log %}
-            <div id="logArea" class="ui bottom attached">
+            <div id="logArea" class="ui bottom attached" style="white-space: pre-line">
                 <div class="ui form warning">
                     <div class="field">
                         <h3><lang>Console Log</lang></h3>
@@ -162,6 +162,18 @@
             </div>
             <button onclick="$('#saveModal').modal('show')" class="ui orange button" type="cancel"><lang>Cancel</lang></button>
             <button onclick="HuConApp.createNewFolder()" class="ui blue right button" type="submit"><lang>Create</lang></button>
+        </div>
+    </div>
+
+    <div id="inputModal" class="ui modal">
+        <div class="header" id="inputHeader">
+            Input
+        </div>
+        <div class="ui form content">
+            <div class="field">
+                <input type="text" id="inputText" placeholder="input">
+            </div>
+            <button onclick="HuConApp.pushInput()" class="ui blue right button" type="submit"><lang>Send</lang></button>
         </div>
     </div>
 

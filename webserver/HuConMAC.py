@@ -27,7 +27,7 @@ def get_mac_address(): # type: () -> str
 def _get_iwpriv_dump(): # type: () -> RegisterDump
     """ Get wireless chip register dump using `iwpriv` """
     cmd = ['iwpriv', 'ra0', 'e2p']
-    dump_str = subprocess.check_output(cmd, universal_newlines=False)
+    dump_str = subprocess.check_output(cmd, universal_newlines=False).decode('utf-8')
     dump = _IwprivRegisterDump(dump_str)
     return dump
 

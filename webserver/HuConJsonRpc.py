@@ -8,6 +8,8 @@
     of the BSD license.  See the LICENSE file for details.
 """
 
+import threading
+from datetime import datetime, timedelta
 import os
 from os.path import expanduser
 import json
@@ -16,13 +18,14 @@ import time
 import tempfile
 import signal
 import socket
+import typing
 
 from HuConLogMessage import HuConLogMessage
-import HuConMAC
+import HuConNetiface
 from PyUci import WirelessHelper
 
 
-class HuConJsonRpc():
+class HuConJsonRpc:
     """ This class implements the functionality of the which will the server provide.
     """
 
@@ -38,17 +41,11 @@ class HuConJsonRpc():
     # Path to the version file.
     _VERSION_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), '__version__')
 
-    # Path to the password file.
-    _PASSWORD_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'password')
-
     # Path to the update file.
     _UPDATE_FILE = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'update.sh')
 
     # Define the port on which the server should listening on.
     _LISTENING_PORT = 8080
-
-    # Private key for the authorization to the key.
-    _authorization_key = ''
 
     # Current version of the server.
     _version = 'beta'
@@ -59,14 +56,13 @@ class HuConJsonRpc():
     # Store the current process to communicate with a running process
     _current_proc = None
 
-    # Possible post data events stored as json format
-    _possible_post_data = None
-
     # Queue for all log messages
     _log = HuConLogMessage()
 
     # Wireless Helper object for handle wireless settings
     _wifi = WirelessHelper(_log)
+
+    _message_buffer_for_input: typing.List[str] = []
 
     def __init__(self):
         """ Initialize the RPC server.
@@ -105,6 +101,8 @@ class HuConJsonRpc():
             return self._execute(rpc_request)
         elif rpc_request['method'] == 'run':
             return self._run(rpc_request)
+        elif rpc_request['method'] == 'push_input':
+            return self._receive_input(rpc_request)
         elif rpc_request['method'] == 'kill':
             return self._kill(rpc_request)
         elif rpc_request['method'] == 'get_possible_post_data':
@@ -146,27 +144,28 @@ class HuConJsonRpc():
         else:
             return self._return_error(rpc_request['id'], 'Command not known.')
 
-    def _get_rpc_response(self, rpc_id):
+    @staticmethod
+    def _get_rpc_response(rpc_id):
         """ Return a json rpc response message.
         """
-        rpc_response = {}
-        rpc_response['jsonrpc'] = '2.0'
-        rpc_response['result'] = ''
-        rpc_response['id'] = rpc_id
+        rpc_response = {
+            'jsonrpc': '2.0',
+            'id': rpc_id}
 
         return rpc_response
 
-    def _return_error(self, rpc_id, error, status_code=400):
+    @staticmethod
+    def _return_error(rpc_id, error, status_code=400):
         """ Return an well formed error.
         """
-        rpc_response = {}
-        rpc_response['jsonrpc'] = '2.0'
-        rpc_response['error'] = error
-        rpc_response['id'] = rpc_id
+        rpc_response = {'jsonrpc': '2.0',
+                        'error': error,
+                        'id': rpc_id}
 
-        return (json.dumps(rpc_response), status_code)
+        return json.dumps(rpc_response), status_code
 
-    def _replace_hucon_requests(self, message):
+    @staticmethod
+    def _replace_hucon_requests(message):
         """ Print an answer from HuCon whenever the the message 'Hello HuCon!' is found.
         """
         search_string = 'print(\'Hello HuCon!\')'
@@ -175,43 +174,84 @@ class HuConJsonRpc():
             message = message.replace(search_string, replace_string)
         return message
 
+    _file_runner = None
+
     def _run_file(self, filename):
-        """ Run the file and catch all output of it.
+        """ This function takes care about starting and stopping the thread for running user python scripts
+        """
+        if self._file_runner is not None:
+            self._kill_process()
+            self._file_runner.join()
+            self._file_runner = None
+
+        self._file_runner = threading.Thread(target=self._run_file_worker, args=(filename,))
+        self._file_runner.start()
+
+    def _run_file_worker(self, filename):
+        """ Threaded worker function for running the user scripts.
+        It catches all outputs and provides input functions for the process
         """
         error_detected = False
-        self._current_proc = subprocess.Popen(['python', '-u', filename],
+        # I am feeling very guilty - but it seems to be a very effective solution
+        ugly_hack = '#!/usr/bin/env python\n' \
+                    '# -*- coding: utf-8 -*-\n' \
+                    'def input(enquiry):\n' \
+                    '    print(enquiry + u"\u2504")\n' \
+                    '    return globals()[\'__builtins__\'].input(\'\')\n' \
+                    'exec(open(r\'' + filename + '\').read())'
+
+        self._current_proc = subprocess.Popen(['python3', '-X utf8', '-c', ugly_hack],
                                               bufsize=1,
                                               stdin=subprocess.PIPE,
                                               stdout=subprocess.PIPE,
-                                              stderr=subprocess.STDOUT)
-
+                                              stderr=subprocess.STDOUT,
+                                              encoding='utf-8',
+                                              universal_newlines=True)
+        self._is_running = True
         while True:
-            output = self._current_proc.stdout.readline().decode()
+            output = self._current_proc.stdout.readline()
             if output == '' and self._current_proc.poll() is not None:
                 break
             if output:
-                file_error_string = 'File "' + filename + '", l'
-                if output.find(file_error_string) != -1:
-                    error_detected = True
-                # Replace the file error like 'File "/tmp/execute.py", line x, in'
-                line = output.replace(file_error_string, '[red]Error: L')
-                self._log.put(line)
+                # this is an input inquiry (https://en.wikipedia.org/wiki/Unicode_control_characters 0x2405 is ENQ)
+                if output.endswith("\u2504\n"):
+                    timeout_time = datetime.now() + timedelta(minutes=5)
 
-        if not error_detected:
-            self._log.put('')
-            self._log.put('[green]Done ...')
+                    line = output.replace("\u2504\n", "")
+                    self._log.put_input(line)
+
+                    while len(self._message_buffer_for_input) == 0:
+                        if datetime.now() >= timeout_time:
+                            self._message_buffer_for_input.append("Timeout!\n")
+                            break
+
+                    # I know that this is not the preferred method of communication with
+                    # sub processes, but communicate does not provide on demand communication as stdin/stdout does
+                    # but just collects all inputs and writes all outputs at the end
+                    self._current_proc.stdin.write(self._message_buffer_for_input.pop() + '\n')
+                else:
+                    file_error_string = 'File "' + filename + '", l'
+                    if output.find(file_error_string) != -1:
+                        error_detected = True
+                    # Replace the file error like 'File "/tmp/execute.py", line x, in'
+                    line = output.replace(file_error_string, '[red]Error: L')
+                    self._log.put_output(line)
 
         self._current_proc.poll()
+        self._is_running = False
+        if not error_detected:
+            self._log.put_output('')
+            self._log.put_output('[green]Done ...')
 
-        # Wait until the queue is empty or the timout occured
+        # Wait until the queue is empty or the timout occurred
         timeout = 0
         while (self._log.empty() is False) and (timeout < 30):
             time.sleep(0.1)
-            timeout = timeout + 1
+            timeout += 1
 
-    # ----------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     # JSON RPC API Methods
-    # ----------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
 
     def _get_version(self, rpc_request):
         """ Get the version of this project.
@@ -230,11 +270,17 @@ class HuConJsonRpc():
         """
         try:
             hucon_name = socket.gethostname()
-            mac_address = HuConMAC.get_mac_address()
+            net_interface_infos = {
+                interface_name: HuConNetiface.get_info(interface_name)
+                for interface_name in ["br-wlan", "apcli0"]
+            }
             rpc_response = self._get_rpc_response(rpc_request['id'])
             rpc_response['result'] = {
                 'name': hucon_name,
-                'mac_address': mac_address
+                'mac_address': net_interface_infos["br-wlan"].mac_address,
+                'ipv4_addresses': [
+                    info.ipv4_address for info in net_interface_infos.values()
+                ]
             }
             json_dump = json.dumps(rpc_response)
         except Exception as ex:
@@ -247,13 +293,15 @@ class HuConJsonRpc():
     def _poll(self, rpc_request):
         """ Return the log messages to the browser.
         """
+        messages = self._log.get_messages()
+        # noinspection PyBroadException
         try:
             rpc_response = self._get_rpc_response(rpc_request['id'])
-            rpc_response['result'] = self._log.get_message()
-            json_dump = json.dumps(rpc_response)
+            rpc_response['messages'] = messages
+            json_dump = json.dumps(rpc_response, default=lambda x: x.serialize())
         except Exception:
-            # The message could not transfered to the browser. So re queue it!
-            self._log.requeue(rpc_response['result'])
+            # The message could not transferred to the browser. So re queue it!
+            self._log.requeue(messages)
         else:
             return json_dump
 
@@ -323,7 +371,7 @@ class HuConJsonRpc():
             rpc_response = self._get_rpc_response(rpc_request['id'])
             filename = os.path.join(self._CODE_ROOT, rpc_request['params']['filename'].strip('/\\'))
             with open(filename, 'w') as file:
-                file.write(rpc_request['params']['data'])
+                file.writelines(rpc_request['params']['data'])
             rpc_response['result'] = 'File %s saved.' % rpc_request['params']['filename']
             json_dump = json.dumps(rpc_response)
         except Exception as ex:
@@ -353,8 +401,8 @@ class HuConJsonRpc():
 
                 filename = os.path.join(tempfile.gettempdir(), 'execute.py')
 
-                with open(filename, 'w') as file:
-                    file.write(self._replace_hucon_requests(rpc_request['params']))
+                with open(filename, 'wt') as file:
+                    file.writelines(self._replace_hucon_requests(rpc_request['params']))
                 file.close()
 
                 # Wait for a while until the file is really closed before it can be executed.
@@ -363,7 +411,7 @@ class HuConJsonRpc():
                 self._run_file(filename)
 
             except Exception as ex:
-                self._log.put('Error: %s' % str(ex))
+                self._log.put_output('Error: "%s" Trace: "%s"' % str(ex) % str(ex.__traceback__))
 
             self._is_running = False
             self._current_proc = None
@@ -386,7 +434,7 @@ class HuConJsonRpc():
                 self._run_file(filename)
 
             except Exception as ex:
-                self._log.put('Error: %s' % str(ex))
+                self._log.put_output('Error: "%s" Trace: "%s"' % str(ex) % str(ex.__traceback__))
 
             self._is_running = False
             self._current_proc = None
@@ -396,29 +444,55 @@ class HuConJsonRpc():
         rpc_response = self._get_rpc_response(rpc_request['id'])
         return json.dumps(rpc_response)
 
+    def _receive_input(self, rpc_request):
+        """ Receives input from the client
+        """
+        try:
+            self._message_buffer_for_input.append(rpc_request['message'])
+        except Exception as ex:
+            return self._return_error(rpc_request['id'], 'Could not forward the input. (%s)' % str(ex))
+
+        rpc_response = self._get_rpc_response(rpc_request['id'])
+        return json.dumps(rpc_response)
+
     def _kill(self, rpc_request):
         """ Kill the current running process
         """
-        if self._current_proc:
-            try:
-                self._current_proc.send_signal(signal.CTRL_C_EVENT)
-            except Exception:
-                pass
-        if self._current_proc:
-            try:
-                self._current_proc.send_signal(signal.CTRL_BREAK_EVENT)
-            except Exception:
-                pass
-        if self._current_proc:
-            try:
-                self._current_proc.send_signal(signal.SIGTERM)
-            except Exception:
-                pass
-        time.sleep(0.1)
+        self._kill_process()
 
         rpc_response = self._get_rpc_response(rpc_request['id'])
         rpc_response['result'] = 'Application stopped.'
         return json.dumps(rpc_response)
+
+    def _kill_process(self):
+        if hasattr(signal, 'CTRL_C_EVENT'):
+            sig_ctrl_c = signal.CTRL_C_EVENT
+        else:
+            sig_ctrl_c = signal.SIGINT
+
+        signal_list = [sig_ctrl_c,
+                       sig_ctrl_c,
+                       signal.SIGTERM,
+                       signal.SIGABRT]
+        for currentSignal in signal_list:
+            if self._current_proc:
+                # noinspection PyBroadException
+                try:
+                    self._current_proc.send_signal(currentSignal)
+                    self._current_proc.wait(0.1)
+                except Exception:
+                    pass
+
+        if self._current_proc:
+            # noinspection PyBroadException
+            try:
+                self._current_proc.kill()
+                self._current_proc.wait(0.1)
+            except Exception:
+                pass
+
+        if not self._current_proc:
+            self._is_running = False
 
     def _get_possible_post_data(self, rpc_request):
         """ Return the json of available post data events.
@@ -456,15 +530,15 @@ class HuConJsonRpc():
         """ Check if there is an update available.
         """
         try:
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(['bash', self._UPDATE_FILE, '-c'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
                 output = proc.stdout.readline()
                 if output == '' and proc.poll() is not None:
                     break
                 if output:
-                    self._log.put(output.strip())
+                    self._log.put_output(output.strip())
             proc.poll()
 
             rpc_response = self._get_rpc_response(rpc_request['id'])
@@ -482,28 +556,28 @@ class HuConJsonRpc():
         """
         try:
             # Update the system first.
-            self._log.put('The system will be updated and needs a few seconds.\n')
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
+            self._log.put_output('The system will be updated and needs a few seconds.\n')
+            proc = subprocess.Popen(['bash', self._UPDATE_FILE, '-u'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
                 output = proc.stdout.readline()
                 if output == '' and proc.poll() is not None:
                     break
                 if output:
-                    self._log.put(output.strip())
+                    self._log.put_output(output.strip())
             proc.poll()
 
             # Do a restart.
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(['bash', self._UPDATE_FILE, '-r'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
                 output = proc.stdout.readline()
                 if output == '' and proc.poll() is not None:
                     break
                 if output:
-                    self._log.put(output.strip())
+                    self._log.put_output(output.strip())
             proc.poll()
 
         except Exception as ex:
@@ -516,16 +590,16 @@ class HuConJsonRpc():
         """ Shutdown the robot.
         """
         try:
-            self._log.put('The system will be shutdown.\n')
-            proc = subprocess.Popen(['sh', self._UPDATE_FILE, '-s'], bufsize=0, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT)
+            self._log.put_output('The system will be shutdown.\n')
+            proc = subprocess.Popen(['bash', self._UPDATE_FILE, '-s'], bufsize=0, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, encoding='utf-8')
 
             while True:
                 output = proc.stdout.readline()
                 if output == '' and proc.poll() is not None:
                     break
                 if output:
-                    self._log.put(output.strip())
+                    self._log.put_output(output.strip())
             proc.poll()
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not shutdown the system. (%s)' % str(ex), 500)
@@ -541,9 +615,10 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Search for WiFi.\n')
+            self._log.put_output('Search for WiFi.\n')
             device = json.dumps({"device": "ra0"})
-            wifi_scan_output = json.loads(subprocess.check_output(['ubus', 'call', 'onion', 'wifi-scan', device]).decode())
+            wifi_scan_output = json.loads(
+                subprocess.check_output(['ubus', 'call', 'onion', 'wifi-scan', device]).decode())
             rpc_response = self._get_rpc_response(rpc_request['id'])
             rpc_response['result'] = wifi_scan_output['results']
         except Exception as ex:
@@ -558,7 +633,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Read WiFi Settings.\n')
+            self._log.put_output('Read WiFi Settings.\n')
             wifi_disabled = self._wifi.is_wifi_disabled()
             wifi_output_list = self._wifi.get_saved_wifi_networks()
             rpc_response = self._get_rpc_response(rpc_request['id'])
@@ -576,7 +651,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Add new WiFi.\n')
+            self._log.put_output('Add new WiFi.\n')
             self._wifi.add_wifi(ssid=rpc_request['params'][0],
                                 key=rpc_request['params'][1],
                                 encryption=rpc_request['params'][2])
@@ -593,7 +668,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Move WiFi up.\n')
+            self._log.put_output('Move WiFi up.\n')
             self._wifi.move_wifi_up(rpc_request['params'][0])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not move WiFi network up. (%s)' % str(ex), 500)
@@ -608,7 +683,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Move WiFi down.\n')
+            self._log.put_output('Move WiFi down.\n')
             self._wifi.move_wifi_down(rpc_request['params'][0])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not move WiFi network down. (%s)' % str(ex), 500)
@@ -623,7 +698,7 @@ class HuConJsonRpc():
         :return:
         """
         try:
-            self._log.put('Remove WiFi down.\n')
+            self._log.put_output('Remove WiFi down.\n')
             self._wifi.remove_wifi(rpc_request['params'][0])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
@@ -638,7 +713,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Connect WiFi.\n')
+            self._log.put_output('Connect WiFi.\n')
             self._wifi.connect_wifi(rpc_request['params'][0])
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not remove WiFi network. (%s)' % str(ex), 500)
@@ -653,7 +728,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Enable WiFi.\n')
+            self._log.put_output('Enable WiFi.\n')
             self._wifi.enable_sta_wifi()
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not enable WiFi. (%s)' % str(ex), 500)
@@ -668,7 +743,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Disable WiFi.\n')
+            self._log.put_output('Disable WiFi.\n')
             self._wifi.disable_sta_wifi()
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not disable WiFi. (%s)' % str(ex), 500)
@@ -683,7 +758,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Get AP Settings.\n')
+            self._log.put_output('Get AP Settings.\n')
             rpc_response = self._get_rpc_response(rpc_request['id'])
             rpc_response['result'] = self._wifi.get_ap_settings()
         except Exception as ex:
@@ -698,7 +773,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Enable AP WiFi.\n')
+            self._log.put_output('Enable AP WiFi.\n')
             self._wifi.enable_ap_wifi()
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not enable AP WiFi. (%s)' % str(ex), 500)
@@ -713,7 +788,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Disable AP WiFi.\n')
+            self._log.put_output('Disable AP WiFi.\n')
             self._wifi.disable_ap_wifi()
         except Exception as ex:
             return self._return_error(rpc_request['id'], 'Could not disable WiFi. (%s)' % str(ex), 500)
@@ -728,7 +803,7 @@ class HuConJsonRpc():
         :return: rpc_response
         """
         try:
-            self._log.put('Set AP WiFi Settings.\n')
+            self._log.put_output('Set AP WiFi Settings.\n')
             self._wifi.set_ap_settings(ssid=rpc_request['params'][0],
                                        key=rpc_request['params'][1],
                                        encryption=rpc_request['params'][2],

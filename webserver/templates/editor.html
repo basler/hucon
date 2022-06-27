@@ -10,7 +10,7 @@
     {{ super() }}
 
     <!-- Ace code editor -->
-    <script type="text/javascript" src="{{ url_for('.static', filename='ace/ace.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='ace/ace.min.js') }}"></script>
 
     <script type="text/javascript">
         var editor;
@@ -21,6 +21,7 @@
         $(document).ready(function () {
 
             // Setup the editor
+            ace.config.set("basePath", "static/ace");
             editor = ace.edit('editor');
             editor.setTheme('ace/theme/xcode');
             editor.session.setMode('ace/mode/python');

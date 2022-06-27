@@ -156,7 +156,7 @@ class Mpu6050(object):
         elif accel_range == self.ACCEL_RANGE_16G:
             accel_scale_modifier = self.ACCEL_SCALE_MODIFIER_16G
         else:
-            print 'Unkown range - accel_scale_modifier set to self.ACCEL_SCALE_MODIFIER_2G'
+            print('Unkown range - accel_scale_modifier set to self.ACCEL_SCALE_MODIFIER_2G')
             accel_scale_modifier = self.ACCEL_SCALE_MODIFIER_2G
 
         x_axis = x_axis / accel_scale_modifier
@@ -228,27 +228,27 @@ class Mpu6050(object):
         elif gyro_range == self.GYRO_RANGE_2000DEG:
             gyro_scale_modifier = self.GYRO_SCALE_MODIFIER_2000DEG
         else:
-            print 'Unkown range - gyro_scale_modifier set to self.GYRO_SCALE_MODIFIER_250DEG'
+            print('Unkown range - gyro_scale_modifier set to self.GYRO_SCALE_MODIFIER_250DEG')
             gyro_scale_modifier = self.GYRO_SCALE_MODIFIER_250DEG
 
         x_axis = x_axis / gyro_scale_modifier
         y_axis = y_axis / gyro_scale_modifier
         z_axis = z_axis / gyro_scale_modifier
 
-        return {'x': x, 'y': y, 'z': z}
+        return {'x': x_axis, 'y': y_axis, 'z': z_axis}
 
 if __name__ == "__main__":
     mpu = Mpu6050()
-    print 'Temperatur: %0.2f' % mpu.get_temp()
+    print('Temperatur: %0.2f' % mpu.get_temp())
 
     accel_data = mpu.get_accel_data()
-    print '\nAccelerometer Data'
-    print 'x: %0.2f' % accel_data['x']
-    print 'y: %0.2f' % accel_data['y']
-    print 'z: %0.2f' % accel_data['z']
+    print('\nAccelerometer Data')
+    print('x: %0.2f' % accel_data['x'])
+    print('y: %0.2f' % accel_data['y'])
+    print('z: %0.2f' % accel_data['z'])
 
     gyro_data = mpu.get_gyro_data()
-    print '\nGyroscope Data'
-    print 'x: %0.2f' % gyro_data['x']
-    print 'y: %0.2f' % gyro_data['y']
-    print 'z: %0.2f' % gyro_data['z']
+    print('\nGyroscope Data')
+    print('x: %0.2f' % gyro_data['x'])
+    print('y: %0.2f' % gyro_data['y'])
+    print('z: %0.2f' % gyro_data['z'])
