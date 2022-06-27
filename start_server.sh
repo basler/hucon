@@ -33,10 +33,9 @@ cd $SCRIPT_DIR/webserver
 if [ $DEBUG != 0 ];
 then
     echo "Starting server"
-    $INTERPRETER $PYTHON_PARAMETERS $EXECUTABLE $SCRIPT_PARAMETERS >/var/log/hucon.log 2>/var/log/hucon_err.log &
-else
-    $INTERPRETER $PYTHON_PARAMETERS $EXECUTABLE $SCRIPT_PARAMETERS &
 fi
+
+$INTERPRETER $PYTHON_PARAMETERS $EXECUTABLE $SCRIPT_PARAMETERS >/var/log/hucon.log 2>/var/log/hucon_err.log &
 
 HUCON_PID=$!
 
