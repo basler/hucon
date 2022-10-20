@@ -1,0 +1,25 @@
+.center {
+    display: block;
+    margin: 0 auto;
+}
+
+.tiny_width {
+    width: 50%
+}
+
+.normal_width {
+    width: 50%
+}
+
+.large_width {
+    width: 100%
+}
+
+.language_flag {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.language_flag img {
+    width: 24px;
+}
