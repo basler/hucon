@@ -361,7 +361,7 @@ class WirelessHelper(UciHelperBase):
             if output == '' and proc.poll() is not None:
                 break
             if output:
-                self._log.put(output.strip())
+                self._log.put_output(output.strip())
         proc.poll()
 
     def enable_ap_wifi(self):
