@@ -1,4 +1,4 @@
-// de.js - Language file to support the tollbox in german.
+// de.js - Language file to support the toolbox in german.
 //
 // Copyright (C) 2020 Basler AG
 // All rights reserved.
@@ -44,7 +44,7 @@ Blockly.Msg["HUCON_EYE_COLOUR_TOOLTIP"] = "Setz die Farbe für das Auge. Benutze
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_RED"] = "Rot";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_GREEN"] = "Grün";
 Blockly.Msg["HUCON_EYE_COLOUR_RGB_BLUE"] = "Blau";
-Blockly.Msg["HUCON_EYE_COLOUR_RGB_TOOLTIP"] = "Setz die Farbe für das Auge. Benutze sepperate Werte für Rot, Grün und Blau.";
+Blockly.Msg["HUCON_EYE_COLOUR_RGB_TOOLTIP"] = "Setz die Farbe für das Auge. Benutze separate Werte für Rot, Grün und Blau.";
 Blockly.Msg["HUCON_EYE_SIMPLE_SET"] = "Setze Augenfarbe an";
 Blockly.Msg["HUCON_EYE_SIMPLE_TOOLTIP"] = "Setze die Farbe für ein Auge.";
 
@@ -124,10 +124,10 @@ Blockly.Msg["HUCON_MPU_GET_POSITION"] = "der Position";
 Blockly.Msg["HUCON_MPU_GET_TOOLTIP"] = "Bekomme die Positionsdaten des MPU-6050 Gerät.";
 
 Blockly.Msg["HUCON_EVENTS_HUE"] = "250";
-Blockly.Msg["HUCON_EVENTS_CAT"] = "Ereignise";
+Blockly.Msg["HUCON_EVENTS_CAT"] = "Ereignisse";
 Blockly.Msg["HUCON_EVENTS_FUNC"] = "EreignisFunktion";
-Blockly.Msg["HUCON_EVENTS_INIT"] = "Initialisiere die Ergnise-Umgebung.";
-Blockly.Msg["HUCON_EVENTS_INIT_TOOLTIP"] = "Initialisiere die Ergnise-Umgebung.";
+Blockly.Msg["HUCON_EVENTS_INIT"] = "Initialisiere die Ereignis-Umgebung.";
+Blockly.Msg["HUCON_EVENTS_INIT_TOOLTIP"] = "Initialisiere die Ereignis-Umgebung.";
 Blockly.Msg["HUCON_EVENTS_RUN_ENDLESS"] = "Endlosschleife ...";
 Blockly.Msg["HUCON_EVENTS_RUN_ENDLESS_TOOLTIP"] = "Lauf endlos weiter.";
 Blockly.Msg["HUCON_EVENTS_STOP_ENDLESS"] = "halte die Endlosschleife an";
@@ -138,7 +138,7 @@ Blockly.Msg["HUCON_EVENTS_BUTTON_Y"] = "Y";
 Blockly.Msg["HUCON_EVENTS_BUTTON_WIDTH"] = "Breite";
 Blockly.Msg["HUCON_EVENTS_BUTTON_HEIGHT"] = "Höhe";
 Blockly.Msg["HUCON_EVENTS_BUTTON_TOOLTIP_1"] = "Funktion für das Button \'";
-Blockly.Msg["HUCON_EVENTS_BUTTON_TOOLTIP_2"] = "\' Eregnis.";
+Blockly.Msg["HUCON_EVENTS_BUTTON_TOOLTIP_2"] = "\' Ereignis.";
 
 Blockly.Msg["HUCON_TEXT_PRINT_COLORED_SET_1"] = "gib aus";
 Blockly.Msg["HUCON_TEXT_PRINT_COLORED_SET_2"] = "in der Farbe";
